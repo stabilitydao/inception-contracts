@@ -43,18 +43,18 @@ module.exports = {
   },
   networks: {
     mainnet: {
-      url: process.env.URL_MAINNET,
+      url: `${process.env.URL_MAINNET}`,
       saveDeployments: true,
       accounts,
       gasPrice: 113000000000,
     },
     ropsten: {
-      url: process.env.URL_ROPSTEN,
+      url: `${process.env.URL_ROPSTEN}`,
       saveDeployments: true,
       accounts,
     },
     rinkeby: {
-      url: process.env.URL_RINKEBY,
+      url: `${process.env.URL_RINKEBY}`,
       saveDeployments: true,
       accounts,
     },
