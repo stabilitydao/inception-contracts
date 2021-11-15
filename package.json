@@ -1,6 +1,6 @@
 {
   "name": "@stabilitydao/core",
-  "description": "Core smart contracts of Stability protocol",
+  "description": "Smart contracts of Stability protocol",
   "license": "MIT",
   "homepage": "https://stabilitydao.org",
   "version": "1.0.0",
@@ -13,6 +13,10 @@
     "ropsten:verify": "hardhat --network ropsten etherscan-verify --solc-input",
     "rinkeby:deploy": "hardhat --network rinkeby deploy",
     "rinkeby:verify": "hardhat --network rinkeby etherscan-verify --solc-input",
+    "goerli:deploy": "hardhat --network goerli deploy",
+    "goerli:verify": "hardhat --network goerli etherscan-verify --solc-input",
+    "kovan:deploy": "hardhat --network kovan deploy",
+    "kovan:verify": "hardhat --network kovan etherscan-verify --solc-input",
     "clean": "hardhat clean",
     "test": "hardhat test",
     "lint": "prettier --write .",

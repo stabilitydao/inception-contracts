@@ -36,6 +36,8 @@ module.exports = {
       mainnet: '0xEb49018157bAF7F1B385657D10fF5a5a5F4BB4c9',
       ropsten: '0x90AfD7eEE756c85Aa9800d33Fda674618ddECFbf',
       rinkeby: '0x62706332c976f92bBd5F099fB8D4717951eC00a4',
+      goerli: '0x90AfD7eEE756c85Aa9800d33Fda674618ddECFbf',
+      kovan: '0x90AfD7eEE756c85Aa9800d33Fda674618ddECFbf',
     },
     tester: {
       default: 2,
@@ -55,6 +57,16 @@ module.exports = {
     },
     rinkeby: {
       url: `${process.env.URL_RINKEBY}`,
+      saveDeployments: true,
+      accounts,
+    },
+    goerli: {
+      url: `${process.env.URL_GOERLI}`,
+      saveDeployments: true,
+      accounts,
+    },
+    kovan: {
+      url: `${process.env.URL_KOVAN}`,
       saveDeployments: true,
       accounts,
     },
