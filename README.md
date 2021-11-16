@@ -2,6 +2,7 @@
 
 ![Tests](https://github.com/stabilitydao/core/actions/workflows/tests.yml/badge.svg)
 ![Lint](https://github.com/stabilitydao/core/actions/workflows/lint.yml/badge.svg)
+![Coverage](https://codecov.io/gh/stabilitydao/core/branch/main/graph/badge.svg?token=EO6E2Z0Y5Z)
 ![GitHub](https://img.shields.io/github/license/stabilitydao/core?style=flat)
 
 This repository contains the smart contracts source code for Stability Protocol.
