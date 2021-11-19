@@ -42,6 +42,11 @@ module.exports = {
     tester: {
       default: 2,
     },
+    optimisticBridge: {
+      hardhat: 3,
+      "optimistic-ethereum": '0x4200000000000000000000000000000000000010',
+      "optimistic-kovan": '0x4200000000000000000000000000000000000010',
+    },
   },
   networks: {
     mainnet: {
@@ -70,7 +75,20 @@ module.exports = {
       saveDeployments: true,
       accounts,
     },
+    "optimistic-kovan": {
+      deploy: ['deploy_l2'],
+      url: `${process.env.URL_OPTIMISTIC_KOVAN}`,
+      saveDeployments: true,
+      accounts,
+    },
+    "optimistic-ethereum": {
+      deploy: ['deploy_l2'],
+      url: `${process.env.URL_OPTIMISTIC_ETHEREUM}`,
+      saveDeployments: true,
+      accounts,
+    },
     hardhat: {
+      deploy: ['deploy', 'deploy_l2'],
       chainId: 1337, // https://hardhat.org/metamask-issue.html
     },
   },
