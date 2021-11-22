@@ -705,6 +705,10 @@
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
 
+"@stabilitydao/addresses@stabilitydao/addresses":
+  version "1.0.0"
+  resolved "https://codeload.github.com/stabilitydao/addresses/tar.gz/198aa39b6d7942629d3291ce1390d92f9251adf2"
+
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@szmarczak/http-timer/-/http-timer-1.1.2.tgz#b1665e2c461a2cd92f4c1bbf50d5454de0d4b421"

@@ -3,6 +3,8 @@ require('hardhat-deploy')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
 require('dotenv').config()
+const addressses = require('@stabilitydao/addresses/index.cjs')
+const { MAINNET, ROPSTEN, RINKEBY, GOERLI, KOVAN } = addressses
 
 const accounts = {
   mnemonic:
@@ -33,11 +35,11 @@ module.exports = {
     },
     devFund: {
       hardhat: 1,
-      mainnet: '0xEb49018157bAF7F1B385657D10fF5a5a5F4BB4c9',
-      ropsten: '0x90AfD7eEE756c85Aa9800d33Fda674618ddECFbf',
-      rinkeby: '0x62706332c976f92bBd5F099fB8D4717951eC00a4',
-      goerli: '0x90AfD7eEE756c85Aa9800d33Fda674618ddECFbf',
-      kovan: '0x90AfD7eEE756c85Aa9800d33Fda674618ddECFbf',
+      mainnet: addressses[MAINNET].devFund,
+      ropsten: addressses[ROPSTEN].devFund,
+      rinkeby: addressses[RINKEBY].devFund,
+      goerli: addressses[GOERLI].devFund,
+      kovan: addressses[KOVAN].devFund,
     },
     tester: {
       default: 2,
