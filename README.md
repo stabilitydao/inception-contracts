@@ -1,11 +1,16 @@
-# Stability Core
-
-![Tests](https://github.com/stabilitydao/core/actions/workflows/tests.yml/badge.svg)
-![Lint](https://github.com/stabilitydao/core/actions/workflows/lint.yml/badge.svg)
-![Coverage](https://codecov.io/gh/stabilitydao/core/branch/main/graph/badge.svg?token=EO6E2Z0Y5Z)
-![GitHub](https://img.shields.io/github/license/stabilitydao/core?style=flat)
-
-This repository contains the smart contracts source code for Stability Protocol.
+<div align="center">
+<a href="https://stabilitydao.org"><img alt="Stability" src="https://stabilitydao.org/logo.png" width=420></a>  
+<h1>Stability Core</h1>
+</div>
+<p align="center">
+  <a href="https://github.com/stabilitydao/core/actions/workflows/tests.yml?query=branch%3Amain"><img src="https://github.com/stabilitydao/core/actions/workflows/tests.yml/badge.svg?branch=main" /></a>
+  <a href="https://github.com/stabilitydao/core/actions/workflows/lint.yml?query=branch%3Amain"><img src="https://github.com/stabilitydao/core/actions/workflows/lint.yml/badge.svg?branch=main" /></a>
+  <a href="https://app.codecov.io/gh/stabilitydao/core"><img src="https://codecov.io/gh/stabilitydao/core/branch/main/graph/badge.svg?token=EO6E2Z0Y5Z" /></a>
+<a href="https://github.com/stabilitydao/core/blob/main/LICENSE"><img src="https://img.shields.io/github/license/stabilitydao/core?style=flat" /></a>
+</p>
+<p align="center">
+Source code of smart contracts for Stability protocol 
+</p>
 
 ## What is Stability?
 
@@ -13,44 +18,68 @@ Stability is a profit generating protocol managed and developed by our decentral
 
 ## Platform repositories
 
-- stabilitydao/core - smart contracts
+- [stabilitydao/core](<(https://github.com/stabilitydao/core)>) - smart contracts
 - [stabilitydao/app](https://github.com/stabilitydao/app) - frontend application
 - [stabilitydao/addresses](https://github.com/stabilitydao/addresses) - deployed addresses
 
 ## Core Development
 
-### Learning
+### Branches
+
+| Branch                                                        | What for?                                                       |
+| ------------------------------------------------------------- | --------------------------------------------------------------- |
+| [main](https://github.com/stabilitydao/core/tree/main/)       | Mainnet deployed smart contracts. Production.                   |
+| [develop](https://github.com/stabilitydao/core/tree/develop/) | Testnet deployments compatible with `main`. Development.        |
+| l2/\*\*                                                       | Layer 2 specific network contracts development and deployments. |
+| pool/\*\*                                                     | Holders rewarding contracts.                                    |
+| dao/\*\*                                                      | Protocol managing contracts. Governance, voting etc.            |
+| gen/\*\*                                                      | External revenue generating contracts.                          |
+
+### Technology stack
+
+- ![GitHub Repo stars](https://img.shields.io/github/stars/ethereum/go-ethereum?style=plastic) **[Ethereum](https://ethereum.org/en/)** [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum)
+- ![GitHub Repo stars](https://img.shields.io/github/stars/ethereum/solidity?style=plastic) **[Solidity](https://soliditylang.org/)** [ethereum/solidity](https://github.com/ethereum/solidity)
+- ![GitHub Repo stars](https://img.shields.io/github/stars/OpenZeppelin/openzeppelin-contracts?style=plastic) **[OpenZeppelin](https://openzeppelin.com)** [OpenZeppelin/openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts)
+- ![GitHub Repo stars](https://img.shields.io/github/stars/ethers-io/ethers.js?style=plastic) **[Ethers](https://ethers.org/)** [ethers-io/ethers.js](https://github.com/ethers-io/ethers.js/)
+- ![GitHub Repo stars](https://img.shields.io/github/stars/nomiclabs/hardhat?style=plastic) **[Hardhat](https://hardhat.org/)** [nomiclabs/hardhat](https://github.com/nomiclabs/hardhat)
+- ![GitHub Repo stars](https://img.shields.io/github/stars/EthWorks/Waffle?style=plastic) **[Waffle](https://getwaffle.io/)** [EthWorks/Waffle](https://github.com/EthWorks/Waffle)
+
+### Learning smart contract development
 
 - https://ethereum.org/en/developers/docs/
 - https://docs.soliditylang.org/
 - https://docs.openzeppelin.com/contracts/4.x/
 - https://hardhat.org/getting-started/
 
-### Setup
+### Start coding
+
+#### Setup
 
 ```
+git clone https://github.com/stabilitydao/core.git
+cd core
 yarn
 ```
 
-### Local environment
+#### Local environment
 
 ```
 npx hardhat node
 ```
 
-### Testing
+#### Testing
 
 ```
 yarn test
 ```
 
-### Linting
+#### Linting
 
 ```
 yarn lint
 ```
 
-### Coverage
+#### Coverage
 
 ```
 yarn coverage
