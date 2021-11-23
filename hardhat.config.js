@@ -40,9 +40,15 @@ module.exports = {
       rinkeby: addressses[RINKEBY].devFund,
       goerli: addressses[GOERLI].devFund,
       kovan: addressses[KOVAN].devFund,
+      mumbai: '0x90AfD7eEE756c85Aa9800d33Fda674618ddECFbf',
     },
     tester: {
       default: 2,
+    },
+    polygonBridge: {
+      hardhat: 3,
+      polygon: '0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa',
+      mumbai: '0xb5505a6d998549090530911180f38aC5130101c6',
     },
   },
   networks: {
@@ -72,7 +78,15 @@ module.exports = {
       saveDeployments: true,
       accounts,
     },
+    mumbai: {
+      chainId: 80001,
+      deploy: ['deploy_l2'],
+      url: `${process.env.URL_MUMBAI}`,
+      saveDeployments: true,
+      accounts,
+    },
     hardhat: {
+      deploy: ['deploy', 'deploy_l2'],
       chainId: 1337, // https://hardhat.org/metamask-issue.html
     },
   },
