@@ -19,7 +19,7 @@
     "kovan:verify": "hardhat --network kovan etherscan-verify --solc-input",
     "clean": "hardhat clean",
     "test": "hardhat test",
-    "lint": "prettier --write .",
+    "lint": "solhint 'contracts/**/*.sol' && prettier --write .",
     "coverage": "hardhat coverage"
   },
   "repository": {
@@ -39,6 +39,8 @@
     "hardhat": "^2.6.8",
     "hardhat-deploy": "^0.9.4",
     "hardhat-gas-reporter": "^1.0.4",
+    "prettier": "^2.4.1",
+    "solhint": "^3.3.6",
     "solidity-coverage": "^0.7.17"
   }
 }
