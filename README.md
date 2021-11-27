@@ -9,7 +9,7 @@
 <a href="https://github.com/stabilitydao/core/blob/main/LICENSE"><img src="https://img.shields.io/github/license/stabilitydao/core?style=flat" /></a>
 </p>
 <p align="center">
-Source code of smart contracts for Stability protocol 
+<b>Source code of smart contracts for Stability protocol</b> 
 </p>
 
 ## What is Stability?
@@ -18,22 +18,20 @@ Stability is a profit generating protocol managed and developed by our decentral
 
 ## Platform repositories
 
-- [stabilitydao/core](<(https://github.com/stabilitydao/core)>) - smart contracts
+- **stabilitydao/core** - smart contracts
 - [stabilitydao/app](https://github.com/stabilitydao/app) - frontend application
-- [stabilitydao/addresses](https://github.com/stabilitydao/addresses) - deployed addresses
+- [stabilitydao/addresses](https://github.com/stabilitydao/addresses) - deployment addresses
 
 ## Core Development
 
 ### Branches
 
-| Branch                                                        | What for?                                                       |
-| ------------------------------------------------------------- | --------------------------------------------------------------- |
-| [main](https://github.com/stabilitydao/core/tree/main/)       | Mainnet deployed smart contracts. Production.                   |
-| [develop](https://github.com/stabilitydao/core/tree/develop/) | Testnet deployments compatible with `main`. Development.        |
-| l2/\*\*                                                       | Layer 2 specific network contracts development and deployments. |
-| pool/\*\*                                                     | Holders rewarding contracts.                                    |
-| dao/\*\*                                                      | Protocol managing contracts. Governance, voting etc.            |
-| gen/\*\*                                                      | External revenue generating contracts.                          |
+| Branch                                                        | What for?                                                                                        |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [main](https://github.com/stabilitydao/core/tree/main/)       | Mainnet deployed smart contracts. Production.                                                    |
+| [develop](https://github.com/stabilitydao/core/tree/develop/) | Testnet deployments. Contracts for testing, debugging, and auditing before deploying to mainnet. |
+| l2/\*\*                                                       | Layer 2 specific network contracts development and deployments.                                  |
+| draft/\*\*                                                    | Protocol development.                                                                            |
 
 ### Technology stack
 
