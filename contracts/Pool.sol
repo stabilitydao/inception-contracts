@@ -66,7 +66,7 @@ contract Pool is Ownable {
     }
 
     // View function to see pending WETHs on frontend.
-    function pendingWETH(address _user) internal view returns (uint256) {
+    function pendingWETH(address _user) external view returns (uint256) {
         UserInfo storage user = userInfo[_user];
         uint256 blocks = block.number.sub(lastRewardBlock);
         uint256 acc = accWETHPerShare;
