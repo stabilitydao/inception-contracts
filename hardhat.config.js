@@ -3,6 +3,7 @@ require('hardhat-deploy')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
 require('dotenv').config()
+require('@openzeppelin/hardhat-upgrades')
 const addressses = require('@stabilitydao/addresses/index.cjs')
 const { MAINNET, ROPSTEN, RINKEBY, GOERLI, KOVAN } = addressses
 
