@@ -1,9 +1,10 @@
-require('@nomiclabs/hardhat-waffle')
 require('hardhat-deploy')
-require('hardhat-gas-reporter')
+require('@nomiclabs/hardhat-waffle')
+require("@nomiclabs/hardhat-etherscan");
 require('solidity-coverage')
-require('dotenv').config()
+require('hardhat-gas-reporter')
 require('@openzeppelin/hardhat-upgrades')
+require('dotenv').config()
 const addressses = require('@stabilitydao/addresses/index.cjs')
 const { MAINNET, ROPSTEN, RINKEBY, GOERLI, KOVAN } = addressses
 
