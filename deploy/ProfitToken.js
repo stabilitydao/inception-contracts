@@ -13,9 +13,11 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log('Total supply:', totalSupply)
 
   try {
-    const deplpoyment = await get('ProfitToken');
-    console.log(`ProfitToken already deployed to ${hre.network.name} at ${deplpoyment.address}`)
-    return;
+    const deplpoyment = await get('ProfitToken')
+    console.log(
+      `ProfitToken already deployed to ${hre.network.name} at ${deplpoyment.address}`
+    )
+    return
   } catch (e) {
     // not deployed yet
   }

@@ -1,6 +1,7 @@
 const { ethers, upgrades } = require('hardhat')
+const { expect } = require('chai')
 
-describe('DividendMinter', function () {
+describe('DividendTokenMinter', function () {
   before(async function () {
     this.ProfitToken = await ethers.getContractFactory('ProfitToken')
     this.DividendToken = await ethers.getContractFactory('DividendToken')
@@ -23,10 +24,8 @@ describe('DividendMinter', function () {
     )
 
     await this.dividendToken.deployed()
-  })
 
-  it('deploys', async function () {
-    await upgrades.deployProxy(
+    this.dividendTokenMinter = await upgrades.deployProxy(
       this.DividendMinter,
       [
         this.token.address,
@@ -39,5 +38,25 @@ describe('DividendMinter', function () {
         kind: 'uups',
       }
     )
+  })
+
+  it('deployed', async function () {
+    expect(await this.dividendTokenMinter.stakeToken()).to.equal(
+      this.token.address
+    )
+    expect(await this.dividendTokenMinter.rewardToken()).to.equal(
+      this.dividendToken.address
+    )
+  })
+
+  it('stake, update', async function () {
+    await this.token
+      .connect(this.devFund)
+      .approve(this.dividendTokenMinter.address, 10)
+
+    await expect(this.dividendTokenMinter.connect(this.devFund).stake(9)).to.not
+      .be.reverted
+
+    await expect(this.dividendTokenMinter.update()).to.not.be.reverted
   })
 })

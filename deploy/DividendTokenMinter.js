@@ -10,7 +10,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const token = await deployments.get('ProfitToken')
   const dToken = await deployments.get('DividendToken')
 
-  let rewardTokensPerBlock = 1
+  let rewardTokensPerBlock = '1000000000000000000'
   let mintingStartBlock = await ethers.provider.getBlockNumber()
 
   /*if (hre.network.name == 'mainnet') {
@@ -26,9 +26,11 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log('Minting start block:', mintingStartBlock)
 
   try {
-    const deplpoyment = await get('DividendTokenMinter');
-    console.log(`DividendTokenMinter already deployed to ${hre.network.name} at ${deplpoyment.address}`)
-    return;
+    const deplpoyment = await get('DividendTokenMinter')
+    console.log(
+      `DividendTokenMinter already deployed to ${hre.network.name} at ${deplpoyment.address}`
+    )
+    return
   } catch (e) {
     // not deployed yet
   }
