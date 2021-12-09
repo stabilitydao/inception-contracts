@@ -34,6 +34,10 @@ contract DividendToken is IERC20MintableUpgradeable, ERC20BurnableUpgradeable, E
         return _snapshot();
     }
 
+    function getCurrentSnapshotId() public view returns (uint256) {
+        return _getCurrentSnapshotId();
+    }
+
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
         _mint(to, amount);
     }
