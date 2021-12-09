@@ -68,7 +68,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     }) with ${receipt.gasUsed.toNumber()} gas`
   )
 
-  const DEFAULT_ADMIN_ROLE = ethers.utils.id(ethers.constants.AddressZero)
+  // const DEFAULT_ADMIN_ROLE = ethers.utils.id(ethers.constants.AddressZero)
   const MINTER_ROLE = ethers.utils.id('MINTER_ROLE')
 
   const dTokenContract = await ethers.getContractAt(
@@ -92,7 +92,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     console.log(`REVERTED!`)
   }
 
-  tx = await dTokenContract.renounceRole(DEFAULT_ADMIN_ROLE, deployer)
+  /*tx = await dTokenContract.renounceRole(DEFAULT_ADMIN_ROLE, deployer)
   process.stdout.write(
     `Renounce DividendToken DEFAULT_ADMIN_ROLE from deployer (tx: ${tx.hash})...: `
   )
@@ -105,9 +105,9 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     )
   } else {
     console.log(`REVERTED!`)
-  }
+  }*/
 
-  const poolContract = await ethers.getContractAt(
+  /*const poolContract = await ethers.getContractAt(
     'DividendTokenMinter',
     dTokenMinter.address
   )
@@ -125,7 +125,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     )
   } else {
     console.log(`REVERTED!`)
-  }
+  }*/
 }
 
 module.exports.tags = ['DividendTokenMinter']
