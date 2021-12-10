@@ -4,15 +4,16 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "./IPool.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "../interfaces/IPool.sol";
 import "../token/IERC20MintableUpgradeable.sol";
-import "../proxy/Upgradeable.sol";
 
 /**
  * @title Bsae minting upgradeable pool contract
  * @dev Was inspired by the Masterchef contract
  */
-abstract contract MintingPoolUpgradeable is IPool, Upgradeable {
+abstract contract MintingPool is IPool, Initializable, UUPSUpgradeable, OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
 
@@ -47,12 +48,15 @@ abstract contract MintingPoolUpgradeable is IPool, Upgradeable {
         IERC20MintableUpgradeable _rewardToken,
         uint256 _rewardTokensPerBlock,
         uint256 _startBlock
-    ) public initializer {
+    ) internal initializer {
         stakeToken = _stakeToken;
         rewardToken = _rewardToken;
         rewardTokensPerBlock = _rewardTokensPerBlock;
         startBlock = _startBlock;
         lastRewardBlock = startBlock;
+
+        __Ownable_init();
+        __UUPSUpgradeable_init();
     }
 
     // Return reward multiplier over the given _from to _to block.
@@ -156,5 +160,9 @@ abstract contract MintingPoolUpgradeable is IPool, Upgradeable {
         } else {
             rewardToken.transfer(_to, _amount);
         }
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal onlyOwner override {
+        // solhint-disable-previous-line no-empty-blocks
     }
 }

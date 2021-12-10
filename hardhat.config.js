@@ -58,6 +58,7 @@ module.exports = {
       url: `${process.env.URL_ROPSTEN}`,
       saveDeployments: true,
       accounts,
+      gasPrice: 20000000000,
     },
     rinkeby: {
       url: `${process.env.URL_RINKEBY}`,

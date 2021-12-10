@@ -4,13 +4,14 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "../token/DividendToken.sol";
-import "./MintingPoolUpgradeable.sol";
+import "./MintingPool.sol";
 
 /**
- *  @dev Contract allows users to stake Stability (PROFIT) tokens
- *  and receive Stability Dividend (SDIV) tokens as reward.
+ * @title DividendMinter
+ * @dev Contract allows users to stake Stability (PROFIT) tokens
+ * and receive Stability Dividend (SDIV) tokens as reward.
  */
-contract DividendTokenMinter is MintingPoolUpgradeable {
+contract DividendMinter is MintingPool {
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
         // solhint-disable-previous-line no-empty-blocks
@@ -20,14 +21,8 @@ contract DividendTokenMinter is MintingPoolUpgradeable {
         IERC20Upgradeable _profitToken,
         DividendToken _dividendToken,
         uint256 _rewardTokensPerBlock,
-        uint256 _startBlock,
-        address upgrader
+        uint256 _startBlock
     ) public initializer {
-        __Upgradeable_init(
-            msg.sender,
-            upgrader
-        );
-
         __MintingPool_init(
             _profitToken,
             _dividendToken,

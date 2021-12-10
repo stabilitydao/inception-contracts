@@ -7,13 +7,13 @@
       "kind": "uups"
     },
     {
-      "address": "0x75F929ba1C30A337de2B36C315c94A9abA24343A",
-      "txHash": "0x1d6f58ced8cda0514a0b96dd663572835b2f49ad5e3e885fbed53b06133249fe",
+      "address": "0x6BaF629618551Cb7454013F67f5d4A9119A61627",
+      "txHash": "0xdf973ff1ba4cc0df628c66c3bfe98b843352ab13576aab1f3941bba8bae4196a",
       "kind": "uups"
     },
     {
-      "address": "0x6BaF629618551Cb7454013F67f5d4A9119A61627",
-      "txHash": "0xdf973ff1ba4cc0df628c66c3bfe98b843352ab13576aab1f3941bba8bae4196a",
+      "address": "0x20169ebb1b60ee0c45ECAa5235551cC69Ea788C0",
+      "txHash": "0x121e67b7840f3ba7702e8e8691b8ee8c284fed267dc8761d06387aad37605c56",
       "kind": "uups"
     }
   ],
@@ -257,165 +257,6 @@
           },
           "t_array(t_uint256)45_storage": {
             "label": "uint256[45]"
-          }
-        }
-      }
-    },
-    "21d5a1b4ba51c19e4e759de573ab4aa56b95ad78e411423573cd24381d7286e4": {
-      "address": "0x6edCeB35e6a06B04a386E245D42B1F48e582DD17",
-      "txHash": "0x608230e7349ac784c11e3672e1b72e197687285e6e80b29340b7dfd1c1f42a27",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "_initialized",
-            "type": "t_bool",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:37"
-          },
-          {
-            "contract": "Initializable",
-            "label": "_initializing",
-            "type": "t_bool",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:42"
-          },
-          {
-            "contract": "ContextUpgradeable",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
-          },
-          {
-            "contract": "ERC165Upgradeable",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:36"
-          },
-          {
-            "contract": "AccessControlUpgradeable",
-            "label": "_roles",
-            "type": "t_mapping(t_bytes32,t_struct(RoleData)43_storage)",
-            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:64"
-          },
-          {
-            "contract": "AccessControlUpgradeable",
-            "label": "__gap",
-            "type": "t_array(t_uint256)49_storage",
-            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:232"
-          },
-          {
-            "contract": "ERC1967UpgradeUpgradeable",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:215"
-          },
-          {
-            "contract": "UUPSUpgradeable",
-            "label": "__gap",
-            "type": "t_array(t_uint256)50_storage",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:81"
-          },
-          {
-            "contract": "MintingPoolUpgradeable",
-            "label": "stakeToken",
-            "type": "t_contract(IERC20Upgradeable)1625",
-            "src": "contracts/pool/MintingPoolUpgradeable.sol:20"
-          },
-          {
-            "contract": "MintingPoolUpgradeable",
-            "label": "rewardToken",
-            "type": "t_contract(IERC20MintableUpgradeable)5070",
-            "src": "contracts/pool/MintingPoolUpgradeable.sol:23"
-          },
-          {
-            "contract": "MintingPoolUpgradeable",
-            "label": "rewardTokensPerBlock",
-            "type": "t_uint256",
-            "src": "contracts/pool/MintingPoolUpgradeable.sol:26"
-          },
-          {
-            "contract": "MintingPoolUpgradeable",
-            "label": "lastRewardBlock",
-            "type": "t_uint256",
-            "src": "contracts/pool/MintingPoolUpgradeable.sol:29"
-          },
-          {
-            "contract": "MintingPoolUpgradeable",
-            "label": "accRewardTokensPerShare",
-            "type": "t_uint256",
-            "src": "contracts/pool/MintingPoolUpgradeable.sol:32"
-          },
-          {
-            "contract": "MintingPoolUpgradeable",
-            "label": "startBlock",
-            "type": "t_uint256",
-            "src": "contracts/pool/MintingPoolUpgradeable.sol:35"
-          },
-          {
-            "contract": "MintingPoolUpgradeable",
-            "label": "userInfo",
-            "type": "t_mapping(t_address,t_struct(UserInfo)4313_storage)",
-            "src": "contracts/pool/MintingPoolUpgradeable.sol:38"
-          }
-        ],
-        "types": {
-          "t_contract(IERC20Upgradeable)1625": {
-            "label": "contract IERC20Upgradeable"
-          },
-          "t_contract(IERC20MintableUpgradeable)5070": {
-            "label": "contract IERC20MintableUpgradeable"
-          },
-          "t_uint256": {
-            "label": "uint256"
-          },
-          "t_mapping(t_address,t_struct(UserInfo)4313_storage)": {
-            "label": "mapping(address => struct IPool.UserInfo)"
-          },
-          "t_address": {
-            "label": "address"
-          },
-          "t_struct(UserInfo)4313_storage": {
-            "label": "struct IPool.UserInfo",
-            "members": [
-              {
-                "label": "amount",
-                "type": "t_uint256"
-              },
-              {
-                "label": "rewardDebt",
-                "type": "t_uint256"
-              }
-            ]
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_mapping(t_bytes32,t_struct(RoleData)43_storage)": {
-            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)"
-          },
-          "t_bytes32": {
-            "label": "bytes32"
-          },
-          "t_struct(RoleData)43_storage": {
-            "label": "struct AccessControlUpgradeable.RoleData",
-            "members": [
-              {
-                "label": "members",
-                "type": "t_mapping(t_address,t_bool)"
-              },
-              {
-                "label": "adminRole",
-                "type": "t_bytes32"
-              }
-            ]
-          },
-          "t_mapping(t_address,t_bool)": {
-            "label": "mapping(address => bool)"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
           }
         }
       }
@@ -1251,6 +1092,137 @@
           },
           "t_contract(ERC20Upgradeable)1731": {
             "label": "contract ERC20Upgradeable"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "0688718bf0f5605c756857562761e9887049031bbacff68614d612aaa0b722e6": {
+      "address": "0xB8876314f368868a2302eC95d78A623c926C5c61",
+      "txHash": "0xce9fd129a67044ba91d2d93796cf6f6751b6709ea8dd1e2c5de28184f959e660",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:37"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:42"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:215"
+          },
+          {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:81"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:82"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "stakeToken",
+            "type": "t_contract(IERC20Upgradeable)1809",
+            "src": "contracts/pool/MintingPool.sol:21"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "rewardToken",
+            "type": "t_contract(IERC20MintableUpgradeable)5792",
+            "src": "contracts/pool/MintingPool.sol:24"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "rewardTokensPerBlock",
+            "type": "t_uint256",
+            "src": "contracts/pool/MintingPool.sol:27"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "lastRewardBlock",
+            "type": "t_uint256",
+            "src": "contracts/pool/MintingPool.sol:30"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "accRewardTokensPerShare",
+            "type": "t_uint256",
+            "src": "contracts/pool/MintingPool.sol:33"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "startBlock",
+            "type": "t_uint256",
+            "src": "contracts/pool/MintingPool.sol:36"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "userInfo",
+            "type": "t_mapping(t_address,t_struct(UserInfo)4449_storage)",
+            "src": "contracts/pool/MintingPool.sol:39"
+          }
+        ],
+        "types": {
+          "t_contract(IERC20Upgradeable)1809": {
+            "label": "contract IERC20Upgradeable"
+          },
+          "t_contract(IERC20MintableUpgradeable)5792": {
+            "label": "contract IERC20MintableUpgradeable"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)4449_storage)": {
+            "label": "mapping(address => struct IPool.UserInfo)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_struct(UserInfo)4449_storage": {
+            "label": "struct IPool.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "rewardDebt",
+                "type": "t_uint256"
+              }
+            ]
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"
