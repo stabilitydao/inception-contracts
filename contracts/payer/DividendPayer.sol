@@ -218,19 +218,19 @@ abstract contract DividendPayer is Initializable, UUPSUpgradeable, ReentrancyGua
         uint256 payment = paymentPending(payee);
         require(payment > 0, "Account is not due any payment");
 
+        _paymentToken.transfer(payee, payment);
+        emit PaymentReleased(payee, payment);
+
         _totalPaid += payment;
         _totalPaidTo[payee] += payment;
         // not good that many snapshots will be
-        // uint256 nextSnapshotId = _sharesToken.snapshot();
-        uint256 currentSnapshotId = _sharesToken.getCurrentSnapshotId();
+         uint256 nextSnapshotId = _sharesToken.snapshot();
+//        uint256 currentSnapshotId = _sharesToken.getCurrentSnapshotId();
         _payments[payee].push(Payment({
-        snapshotId: currentSnapshotId,
+        snapshotId: nextSnapshotId,
         amount: payment,
         to: payee
         }));
-
-        _paymentToken.transfer(payee, payment);
-        emit PaymentReleased(payee, payment);
     }
 
     /**
