@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../interfaces/IPool.sol";
-import "../token/IERC20MintableUpgradeable.sol";
+import "../interfaces/IERC20Mintable.sol";
 
 /**
  * @title Bsae minting upgradeable pool contract
@@ -21,7 +21,7 @@ abstract contract MintingPool is IPool, Initializable, UUPSUpgradeable, OwnableU
     IERC20Upgradeable public stakeToken;
 
     // Reward token
-    IERC20MintableUpgradeable public rewardToken;
+    IERC20Mintable public rewardToken;
 
     // Reward tokens created per block.
     uint256 public rewardTokensPerBlock;
@@ -45,7 +45,7 @@ abstract contract MintingPool is IPool, Initializable, UUPSUpgradeable, OwnableU
     // solhint-disable-next-line func-name-mixedcase
     function __MintingPool_init(
         IERC20Upgradeable _stakeToken,
-        IERC20MintableUpgradeable _rewardToken,
+        IERC20Mintable _rewardToken,
         uint256 _rewardTokensPerBlock,
         uint256 _startBlock
     ) internal initializer {

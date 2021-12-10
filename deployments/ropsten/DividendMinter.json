@@ -263,7 +263,7 @@
       "name": "rewardToken",
       "outputs": [
         {
-          "internalType": "contract IERC20MintableUpgradeable",
+          "internalType": "contract IERC20Mintable",
           "name": "",
           "type": "address"
         }

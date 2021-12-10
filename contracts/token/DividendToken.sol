@@ -8,10 +8,10 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "./IERC20MintableUpgradeable.sol";
-import "../proxy/Upgradeable.sol";
+import "../interfaces/IERC20Mintable.sol";
 
-contract DividendToken is IERC20MintableUpgradeable, ERC20BurnableUpgradeable, ERC20SnapshotUpgradeable, ERC20PermitUpgradeable, Upgradeable {
+contract DividendToken is Initializable, IERC20Mintable, ERC20BurnableUpgradeable, ERC20SnapshotUpgradeable, ERC20PermitUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant SNAPSHOT_ROLE = keccak256("SNAPSHOT_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
@@ -20,14 +20,14 @@ contract DividendToken is IERC20MintableUpgradeable, ERC20BurnableUpgradeable, E
         // solhint-disable-previous-line no-empty-blocks
     }
 
-    function initialize(address developmentFund) public initializer {
+    function initialize() public initializer {
         __ERC20_init("Stability Dividend", "SDIV");
         __ERC20Burnable_init();
         __ERC20Snapshot_init();
         __ERC20Permit_init("Stability Dividend");
-
-        __Upgradeable_init(msg.sender, developmentFund);
-        _grantRole(SNAPSHOT_ROLE, developmentFund);
+        __AccessControl_init();
+        __UUPSUpgradeable_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     function snapshot() public onlyRole(SNAPSHOT_ROLE) returns(uint256) {
@@ -45,5 +45,9 @@ contract DividendToken is IERC20MintableUpgradeable, ERC20BurnableUpgradeable, E
     // The following functions are overrides required by Solidity.
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC20Upgradeable, ERC20SnapshotUpgradeable) {
         super._beforeTokenTransfer(from, to, amount);
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER_ROLE) override {
+        // solhint-disable-previous-line no-empty-blocks
     }
 }

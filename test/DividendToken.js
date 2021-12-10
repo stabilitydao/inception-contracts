@@ -9,7 +9,7 @@ describe('DividendToken', function () {
   })
 
   it('deploys', async function () {
-    await upgrades.deployProxy(this.DividendToken, [this.devFund.address], {
+    await upgrades.deployProxy(this.DividendToken, {
       kind: 'uups',
     })
   })

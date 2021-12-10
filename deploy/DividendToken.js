@@ -6,7 +6,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const upgradeProxy = null // '0x424E1eAe04a2580EcD4d5f19Ad5285cC2b05a05C' (ropsten)
 
   const { save, get } = deployments
-  const { deployer, devFund } = await getNamedAccounts()
+  const { deployer } = await getNamedAccounts()
   const chainId = await getChainId()
 
   console.log('')
@@ -30,7 +30,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   console.log('ChainId:', chainId)
   console.log('Deployer address:', deployer)
-  console.log('Development Fund address:', devFund)
+  // console.log('Development Fund address:', devFund)
 
   // noinspection PointlessBooleanExpressionJS
   if (!upgradeProxy) {
@@ -39,7 +39,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     // https://www.youtube.com/watch?v=kWUDTZhxKZI
     // https://forum.openzeppelin.com/t/integrating-hardhat-deploy-and-openzeppelin-hardhat-upgrades/5585/2
     const DividendToken = await ethers.getContractFactory('DividendToken')
-    const dToken = await upgrades.deployProxy(DividendToken, [devFund], {
+    const dToken = await upgrades.deployProxy(DividendToken, {
       kind: 'uups',
     })
 

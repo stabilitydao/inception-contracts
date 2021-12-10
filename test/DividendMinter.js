@@ -15,13 +15,9 @@ describe('DividendMinter', function () {
     this.token = await this.ProfitToken.deploy(this.devFund.address)
     await this.token.deployed()
 
-    this.dividendToken = await upgrades.deployProxy(
-      this.DividendToken,
-      [this.devFund.address],
-      {
-        kind: 'uups',
-      }
-    )
+    this.dividendToken = await upgrades.deployProxy(this.DividendToken, {
+      kind: 'uups',
+    })
 
     await this.dividendToken.deployed()
 
