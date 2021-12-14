@@ -1,9 +1,10 @@
-require('hardhat-deploy')
-require('@nomiclabs/hardhat-waffle')
-require('@nomiclabs/hardhat-etherscan')
-require('solidity-coverage')
-require('hardhat-gas-reporter')
-require('@openzeppelin/hardhat-upgrades')
+import 'hardhat-deploy'
+import '@nomiclabs/hardhat-waffle'
+import '@nomiclabs/hardhat-etherscan'
+import 'solidity-coverage'
+import 'hardhat-gas-reporter'
+import '@openzeppelin/hardhat-upgrades'
+import '@typechain/hardhat'
 require('dotenv').config()
 const addressses = require('@stabilitydao/addresses/index.cjs')
 const { MAINNET, ROPSTEN, RINKEBY, GOERLI, KOVAN } = addressses

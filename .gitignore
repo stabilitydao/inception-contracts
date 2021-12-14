@@ -9,3 +9,4 @@ artifacts
 deployments/localhost
 .openzeppelin/unknown-1337.json
 yarn-error.log
+typechain-types
