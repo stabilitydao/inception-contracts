@@ -52,15 +52,13 @@ describe('DividendMinter', function () {
 
     dPool = (await upgrades.deployProxy(
       dPoolFactory,
-      [profitToken.address, dToken.address, 1, 1],
+      [profitToken.address, dToken.address, 1, 14],
       {
         kind: 'uups',
       }
     )) as DividendMinter
 
     await dPool.deployed()
-
-    await dToken.grantRole(ethers.utils.id('MINTER_ROLE'), dPool.address)
   })
 
   it('Upgrades', async function () {
@@ -82,9 +80,11 @@ describe('DividendMinter', function () {
     expect(await dPool.rewardToken()).to.equal(dToken.address)
     expect(await dPool.rewardTokensPerBlock()).to.eq(1)
     expect(await dPool.getMultiplier(1, 2)).to.eq(1)
+    expect(await dPool.startBlock()).to.eq(14)
   })
 
   it('stake, pending, unstake', async function () {
+    await dToken.grantRole(ethers.utils.id('MINTER_ROLE'), dPool.address)
     await expect(dPool.update()).to.not.be.reverted
 
     await profitToken.connect(_devFund).approve(dPool.address, 10)
@@ -96,14 +96,13 @@ describe('DividendMinter', function () {
     await ethers.provider.send('evm_mine', [])
     await ethers.provider.send('evm_mine', [])
 
-    expect(await dPool.startBlock()).to.eq(1)
-
     expect(await dPool.pending(_devFund.address)).to.eq(3)
 
     await expect(dPool.connect(_devFund).harvest()).to.not.be.reverted
 
     await expect(dPool.connect(_devFund).unstake(1)).to.not.be.reverted
 
+    await expect(dPool.update()).to.not.be.reverted
     await expect(dPool.update()).to.not.be.reverted
 
     await dToken.revokeRole(ethers.utils.id('MINTER_ROLE'), dPool.address)

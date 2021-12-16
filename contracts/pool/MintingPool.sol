@@ -107,7 +107,7 @@ abstract contract MintingPool is IPool, Initializable, UUPSUpgradeable, OwnableU
             uint256 pendingReward = user.amount.mul(accRewardTokensPerShare).div(1e12).sub(user.rewardDebt);
 
             if(pendingReward > 0) {
-                safeRewardTransfer(msg.sender, pendingReward);
+                rewardToken.transfer(msg.sender, pendingReward);
             }
         }
 
@@ -128,7 +128,7 @@ abstract contract MintingPool is IPool, Initializable, UUPSUpgradeable, OwnableU
         update();
         uint256 pendingReward = user.amount.mul(accRewardTokensPerShare).div(1e12).sub(user.rewardDebt);
         if(pendingReward > 0) {
-            safeRewardTransfer(msg.sender, pendingReward);
+            rewardToken.transfer(msg.sender, pendingReward);
         }
         if(_amount > 0) {
             user.amount = user.amount.sub(_amount);
@@ -150,16 +150,6 @@ abstract contract MintingPool is IPool, Initializable, UUPSUpgradeable, OwnableU
         emit EmergencyWithdraw(msg.sender, user.amount);
         user.amount = 0;
         user.rewardDebt = 0;
-    }
-
-    // Safe rewardToken transfer function, just in case if rounding error causes pool to not have enough RewardTokens.
-    function safeRewardTransfer(address _to, uint256 _amount) internal {
-        uint256 rewardBal = rewardToken.balanceOf(address(this));
-        if (_amount > rewardBal) {
-            rewardToken.transfer(_to, rewardBal);
-        } else {
-            rewardToken.transfer(_to, _amount);
-        }
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyOwner override {

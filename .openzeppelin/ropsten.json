@@ -2015,6 +2015,137 @@
           }
         }
       }
+    },
+    "a313c4233c05b43a351a6ce4d637010f5ecc65c9e398c3c2c0157a8e55788ab0": {
+      "address": "0x0C8744DE2f5b61B31397bABF54Ca339E1f0ff636",
+      "txHash": "0xbac6b6afb000ae59b6c3b59e4af27a5a146829985ada2608aec5202c31c0da7a",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:37"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:42"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:215"
+          },
+          {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:81"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:82"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "stakeToken",
+            "type": "t_contract(IERC20Upgradeable)1809",
+            "src": "contracts/pool/MintingPool.sol:21"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "rewardToken",
+            "type": "t_contract(IERC20Mintable)4452",
+            "src": "contracts/pool/MintingPool.sol:24"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "rewardTokensPerBlock",
+            "type": "t_uint256",
+            "src": "contracts/pool/MintingPool.sol:27"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "lastRewardBlock",
+            "type": "t_uint256",
+            "src": "contracts/pool/MintingPool.sol:30"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "accRewardTokensPerShare",
+            "type": "t_uint256",
+            "src": "contracts/pool/MintingPool.sol:33"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "startBlock",
+            "type": "t_uint256",
+            "src": "contracts/pool/MintingPool.sol:36"
+          },
+          {
+            "contract": "MintingPool",
+            "label": "userInfo",
+            "type": "t_mapping(t_address,t_struct(UserInfo)4462_storage)",
+            "src": "contracts/pool/MintingPool.sol:39"
+          }
+        ],
+        "types": {
+          "t_contract(IERC20Upgradeable)1809": {
+            "label": "contract IERC20Upgradeable"
+          },
+          "t_contract(IERC20Mintable)4452": {
+            "label": "contract IERC20Mintable"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)4462_storage)": {
+            "label": "mapping(address => struct IPool.UserInfo)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_struct(UserInfo)4462_storage": {
+            "label": "struct IPool.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "rewardDebt",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
     }
   }
 }
