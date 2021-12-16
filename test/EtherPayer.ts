@@ -6,6 +6,8 @@ import {
   EtherPayer,
   EtherPayer__factory,
   WETH9,
+  DividendMinter__factory,
+  DividendMinter,
 } from '../typechain-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
@@ -62,6 +64,20 @@ describe('EtherPayer', function () {
     await dToken.connect(_devFund).mint(_tester.address, 10)
     await wEth.approve(_devFund.address, 10)
     await wEth.connect(_devFund).deposit({ value: 5, from: _devFund.address })
+  })
+
+  it('Upgrades', async function () {
+    const ePayerFactory = (await ethers.getContractFactory(
+      'EtherPayer',
+      _deployer
+    )) as EtherPayer__factory
+
+    ePayer = (await upgrades.upgradeProxy(
+      ePayer.address,
+      ePayerFactory
+    )) as EtherPayer
+
+    await ePayer.deployed()
   })
 
   it('Pays', async function () {

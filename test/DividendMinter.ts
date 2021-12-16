@@ -61,6 +61,20 @@ describe('DividendMinter', function () {
     await dPool.deployed()
   })
 
+  it('Upgrades', async function () {
+    const dPoolFactory = (await ethers.getContractFactory(
+      'DividendMinter',
+      _deployer
+    )) as DividendMinter__factory
+
+    dPool = (await upgrades.upgradeProxy(
+      dPool.address,
+      dPoolFactory
+    )) as DividendMinter
+
+    await dPool.deployed()
+  })
+
   it('deployed', async function () {
     expect(await dPool.stakeToken()).to.equal(profitToken.address)
     expect(await dPool.rewardToken()).to.equal(dToken.address)

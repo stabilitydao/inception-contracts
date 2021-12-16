@@ -26,6 +26,22 @@ describe('DividendToken', function () {
     await dToken.deployed()
   })
 
+  it('Upgrades', async function () {
+    await dToken.grantRole(ethers.utils.id('UPGRADER_ROLE'), _deployer.address)
+
+    const dTokenFactory = (await ethers.getContractFactory(
+      'DividendToken',
+      _deployer
+    )) as DividendToken__factory
+
+    dToken = (await upgrades.upgradeProxy(
+      dToken.address,
+      dTokenFactory
+    )) as DividendToken
+
+    await dToken.deployed()
+  })
+
   it('Metadata', async function () {
     expect(await dToken.name()).to.be.equal('Stability Dividend')
     expect(await dToken.symbol()).to.be.equal('SDIV')
