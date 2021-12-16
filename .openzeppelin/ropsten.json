@@ -1836,6 +1836,185 @@
           }
         }
       }
+    },
+    "d7c7a74e6a4cfbf59d8bf7ba497185ed331acd07047a8a5e214839a40bdbb67a": {
+      "address": "0x83059e2762E5BE1D3e98f390Aae1a0ea720e1476",
+      "txHash": "0xba282a6bd38020eda5d671a895d44ff21c33c0d679afa88d777b8f7a6bfae987",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:37"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:42"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:215"
+          },
+          {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:81"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:68"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:82"
+          },
+          {
+            "contract": "DividendPayer",
+            "label": "_received",
+            "type": "t_array(t_struct(Received)4512_storage)dyn_storage",
+            "src": "contracts/payer/DividendPayer.sol:39"
+          },
+          {
+            "contract": "DividendPayer",
+            "label": "_totalReceivedFrom",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/payer/DividendPayer.sol:40"
+          },
+          {
+            "contract": "DividendPayer",
+            "label": "_totalReceived",
+            "type": "t_uint256",
+            "src": "contracts/payer/DividendPayer.sol:41"
+          },
+          {
+            "contract": "DividendPayer",
+            "label": "_payments",
+            "type": "t_mapping(t_address,t_array(t_struct(Payment)4519_storage)dyn_storage)",
+            "src": "contracts/payer/DividendPayer.sol:43"
+          },
+          {
+            "contract": "DividendPayer",
+            "label": "_totalPaidTo",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/payer/DividendPayer.sol:44"
+          },
+          {
+            "contract": "DividendPayer",
+            "label": "_totalPaid",
+            "type": "t_uint256",
+            "src": "contracts/payer/DividendPayer.sol:46"
+          },
+          {
+            "contract": "DividendPayer",
+            "label": "_sharesToken",
+            "type": "t_contract(DividendToken)5725",
+            "src": "contracts/payer/DividendPayer.sol:48"
+          },
+          {
+            "contract": "DividendPayer",
+            "label": "_paymentToken",
+            "type": "t_contract(ERC20Upgradeable)1731",
+            "src": "contracts/payer/DividendPayer.sol:49"
+          }
+        ],
+        "types": {
+          "t_array(t_struct(Received)4512_storage)dyn_storage": {
+            "label": "struct DividendPayer.Received[]"
+          },
+          "t_struct(Received)4512_storage": {
+            "label": "struct DividendPayer.Received",
+            "members": [
+              {
+                "label": "snapshotId",
+                "type": "t_uint256"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "from",
+                "type": "t_address"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_array(t_struct(Payment)4519_storage)dyn_storage)": {
+            "label": "mapping(address => struct DividendPayer.Payment[])"
+          },
+          "t_array(t_struct(Payment)4519_storage)dyn_storage": {
+            "label": "struct DividendPayer.Payment[]"
+          },
+          "t_struct(Payment)4519_storage": {
+            "label": "struct DividendPayer.Payment",
+            "members": [
+              {
+                "label": "snapshotId",
+                "type": "t_uint256"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "to",
+                "type": "t_address"
+              }
+            ]
+          },
+          "t_contract(DividendToken)5725": {
+            "label": "contract DividendToken"
+          },
+          "t_contract(ERC20Upgradeable)1731": {
+            "label": "contract ERC20Upgradeable"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
     }
   }
 }

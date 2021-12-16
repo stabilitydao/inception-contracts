@@ -218,36 +218,17 @@ abstract contract DividendPayer is Initializable, UUPSUpgradeable, ReentrancyGua
         uint256 payment = paymentPending(payee);
         require(payment > 0, "Account is not due any payment");
 
-        _paymentToken.transfer(payee, payment);
         emit PaymentReleased(payee, payment);
 
         _totalPaid += payment;
         _totalPaidTo[payee] += payment;
-        // not good that many snapshots will be
          uint256 nextSnapshotId = _sharesToken.snapshot();
-//        uint256 currentSnapshotId = _sharesToken.getCurrentSnapshotId();
         _payments[payee].push(Payment({
         snapshotId: nextSnapshotId,
         amount: payment,
         to: payee
         }));
-    }
-
-    /**
-     * @dev Sends {ERC20} tokens other than the `_paymentToken` to a given address.
-     * @param token Address of the ERC20 token.
-     * @param to Address to which the tokens are to be transferred.
-     * @param amount Amount of tokens to transfer.
-     *
-     * Requirements:
-     *
-     * - Only the owner of the contract can call this.
-     * - `token` must not be the same as `_paymentToken`.
-     */
-    function drainTokens(address token, address to, uint256 amount) external onlyOwner {
-        require(token != address(_paymentToken), "Payer: can't drain paymentToken.");
-
-        IERC20Upgradeable(token).transfer(to, amount);
+        _paymentToken.transfer(payee, payment);
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyOwner override {

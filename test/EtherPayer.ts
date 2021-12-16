@@ -67,13 +67,33 @@ describe('EtherPayer', function () {
   it('Pays', async function () {
     await wEth.connect(_devFund).approve(ePayer.address, 10)
     await ePayer.receivePayment(_devFund.address, 2)
-    expect(await ePayer.connect(_tester).paymentPending(_tester.address)).to.eq(2)
+    expect(await ePayer.connect(_tester).paymentPending(_tester.address)).to.eq(
+      2
+    )
 
     await ePayer.receivedPaymentsData(0)
 
     await ePayer.connect(_tester).releasePayment()
+
+    await ePayer.releasedPaymentsData(_tester.address, 0)
+
+    expect(await ePayer.connect(_tester).paymentPending(_tester.address)).to.eq(
+      0
+    )
+
     await ePayer.receivePayment(_devFund.address, 3)
     await ePayer.connect(_tester).releasePayment()
-    expect(await wEth.balanceOf(_tester.address)).to.eq(5)
+    expect(await wEth.balanceOf(_tester.address)).to.eq(3 + 2)
+    await expect(ePayer.connect(_tester).releasePayment()).to.be.revertedWith(
+      'Account is not due any payment'
+    )
+
+    expect(await ePayer.receivedPaymentsCount()).to.eq(1 + 1)
+
+    expect(await ePayer.totalReceivedFrom(_devFund.address)).to.eq(3 + 2)
+    expect(await ePayer.totalPaidTo(_tester.address)).to.eq(3 + 2)
+    expect(await ePayer.releasedPaymentsCount(_tester.address)).to.eq(1 + 1)
+    expect(await ePayer.totalPaid()).to.eq(3 + 2)
+    expect(await ePayer.totalReceived()).to.eq(3 + 2)
   })
 })
