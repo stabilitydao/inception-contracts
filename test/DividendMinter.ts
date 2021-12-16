@@ -91,10 +91,10 @@ describe('DividendMinter', function () {
 
     await expect(dPool.connect(_devFund).stake(9)).to.not.be.reverted
 
-    await ethers.provider.send('evm_mine', []);
-    await ethers.provider.send('evm_mine', []);
-    await ethers.provider.send('evm_mine', []);
-    await ethers.provider.send('evm_mine', []);
+    await ethers.provider.send('evm_mine', [])
+    await ethers.provider.send('evm_mine', [])
+    await ethers.provider.send('evm_mine', [])
+    await ethers.provider.send('evm_mine', [])
 
     expect(await dPool.startBlock()).to.eq(1)
 
@@ -103,6 +103,17 @@ describe('DividendMinter', function () {
     await expect(dPool.connect(_devFund).harvest()).to.not.be.reverted
 
     await expect(dPool.connect(_devFund).unstake(1)).to.not.be.reverted
+
+    await expect(dPool.update()).to.not.be.reverted
+
+    await dToken.revokeRole(ethers.utils.id('MINTER_ROLE'), dPool.address)
+
+    await ethers.provider.send('evm_mine', [])
+    await ethers.provider.send('evm_mine', [])
+    await ethers.provider.send('evm_mine', [])
+
+    await expect(dPool.update()).to.be.reverted
+    await expect(dPool.connect(_devFund).harvest()).to.be.reverted
 
     await dPool.connect(_devFund).emergencyWithdraw()
   })
