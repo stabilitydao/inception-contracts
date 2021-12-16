@@ -40,6 +40,7 @@ Stability is a profit generating protocol managed and developed by our decentral
 - ![GitHub Repo stars](https://img.shields.io/github/stars/OpenZeppelin/openzeppelin-contracts?style=plastic) **[OpenZeppelin](https://openzeppelin.com)** [OpenZeppelin/openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts)
 - ![GitHub Repo stars](https://img.shields.io/github/stars/ethers-io/ethers.js?style=plastic) **[Ethers](https://ethers.org/)** [ethers-io/ethers.js](https://github.com/ethers-io/ethers.js/)
 - ![GitHub Repo stars](https://img.shields.io/github/stars/nomiclabs/hardhat?style=plastic) **[Hardhat](https://hardhat.org/)** [nomiclabs/hardhat](https://github.com/nomiclabs/hardhat)
+- ![GitHub Repo stars](https://img.shields.io/github/stars/dethcrypto/TypeChain?style=plastic) **TypeChain** [dethcrypto/TypeChain](https://github.com/dethcrypto/TypeChain)
 - ![GitHub Repo stars](https://img.shields.io/github/stars/EthWorks/Waffle?style=plastic) **[Waffle](https://getwaffle.io/)** [EthWorks/Waffle](https://github.com/EthWorks/Waffle)
 
 ### Learning smart contract development

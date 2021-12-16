@@ -1,7 +1,10 @@
-require('@nomiclabs/hardhat-waffle')
-require('hardhat-deploy')
-require('hardhat-gas-reporter')
-require('solidity-coverage')
+import 'hardhat-deploy'
+import '@nomiclabs/hardhat-waffle'
+import '@nomiclabs/hardhat-etherscan'
+import 'solidity-coverage'
+import 'hardhat-gas-reporter'
+import '@openzeppelin/hardhat-upgrades'
+import '@typechain/hardhat'
 require('dotenv').config()
 const addressses = require('@stabilitydao/addresses/index.cjs')
 const { MAINNET, ROPSTEN, RINKEBY, GOERLI, KOVAN } = addressses
@@ -56,6 +59,7 @@ module.exports = {
       url: `${process.env.URL_ROPSTEN}`,
       saveDeployments: true,
       accounts,
+      gasPrice: 20000000000,
     },
     rinkeby: {
       url: `${process.env.URL_RINKEBY}`,

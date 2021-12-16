@@ -6,3 +6,4 @@ deployments/
 scripts/
 artifacts/
 cache/
+typechain-types/
