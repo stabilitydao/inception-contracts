@@ -7,8 +7,7 @@ import {
   DividendToken,
   DividendToken__factory,
   ProfitToken,
-} from "../typechain-types";
-
+} from '../typechain-types'
 
 describe('DividendMinter', function () {
   let profitToken: ProfitToken
@@ -27,8 +26,8 @@ describe('DividendMinter', function () {
 
   beforeEach(async function () {
     const dTokenFactory = (await ethers.getContractFactory(
-        'DividendToken',
-        _deployer
+      'DividendToken',
+      _deployer
     )) as DividendToken__factory
 
     dToken = (await upgrades.deployProxy(dTokenFactory, {
@@ -38,22 +37,26 @@ describe('DividendMinter', function () {
     await dToken.deployed()
 
     profitToken = <ProfitToken>(
-        await waffle.deployContract(
-            _deployer,
-            await artifacts.readArtifact('ProfitToken'),
-            [_devFund.address]
-        )
+      await waffle.deployContract(
+        _deployer,
+        await artifacts.readArtifact('ProfitToken'),
+        [_devFund.address]
+      )
     )
     await profitToken.deployed()
 
     const dPoolFactory = (await ethers.getContractFactory(
-        'DividendMinter',
-        _deployer
+      'DividendMinter',
+      _deployer
     )) as DividendMinter__factory
 
-    dPool = (await upgrades.deployProxy(dPoolFactory, [profitToken.address, dToken.address, 1, 100000],{
-      kind: 'uups',
-    })) as DividendMinter
+    dPool = (await upgrades.deployProxy(
+      dPoolFactory,
+      [profitToken.address, dToken.address, 1, 100000],
+      {
+        kind: 'uups',
+      }
+    )) as DividendMinter
 
     await dPool.deployed()
   })
@@ -65,12 +68,9 @@ describe('DividendMinter', function () {
   })
 
   it('stake, update', async function () {
-    await profitToken
-      .connect(_devFund)
-      .approve(dPool.address, 10)
+    await profitToken.connect(_devFund).approve(dPool.address, 10)
 
-    await expect(dPool.connect(_devFund).stake(9)).to.not.be
-      .reverted
+    await expect(dPool.connect(_devFund).stake(9)).to.not.be.reverted
 
     await expect(dPool.update()).to.not.be.reverted
     await expect(dPool.connect(_devFund).harvest()).to.not.be.reverted
