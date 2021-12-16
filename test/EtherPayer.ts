@@ -14,13 +14,15 @@ describe('EtherPayer', function () {
   let wEth: WETH9
   let ePayer: EtherPayer
   let _deployer: SignerWithAddress
+  let _devFund: SignerWithAddress
   let _tester: SignerWithAddress
 
   beforeEach(async function () {
-    const [deployer, tester] = await ethers.getSigners()
+    const [deployer, tester, devFund] = await ethers.getSigners()
 
     _deployer = deployer
     _tester = tester
+    _devFund = devFund
 
     const dTokenFactory = (await ethers.getContractFactory(
       'DividendToken',
@@ -56,16 +58,22 @@ describe('EtherPayer', function () {
 
     await ePayer.deployed()
     await dToken.grantRole(ethers.utils.id('SNAPSHOT_ROLE'), ePayer.address)
-    await dToken.grantRole(ethers.utils.id('MINTER_ROLE'), _deployer.address)
-    await dToken.mint(_tester.address, 10)
-    await wEth.approve(_deployer.address, 10)
-    await wEth.deposit({ value: 5, from: _deployer.address })
+    await dToken.grantRole(ethers.utils.id('MINTER_ROLE'), _devFund.address)
+    await dToken.connect(_devFund).mint(_tester.address, 10)
+    await wEth.approve(_devFund.address, 10)
+    await wEth.connect(_devFund).deposit({ value: 5, from: _devFund.address })
   })
 
   it('Pays', async function () {
-    await wEth.approve(ePayer.address, 2)
-    await ePayer.receivePayment(_deployer.address, 2)
+    await wEth.connect(_devFund).approve(ePayer.address, 10)
+    await ePayer.receivePayment(_devFund.address, 2)
+    expect(await ePayer.connect(_tester).paymentPending(_tester.address)).to.eq(2)
+
+    await ePayer.receivedPaymentsData(0)
+
     await ePayer.connect(_tester).releasePayment()
-    expect(await wEth.balanceOf(_tester.address)).to.eq(2)
+    await ePayer.receivePayment(_devFund.address, 3)
+    await ePayer.connect(_tester).releasePayment()
+    expect(await wEth.balanceOf(_tester.address)).to.eq(5)
   })
 })
