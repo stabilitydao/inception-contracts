@@ -3,7 +3,7 @@
   "description": "Smart contracts of Stability protocol",
   "license": "MIT",
   "homepage": "https://stabilitydao.org",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "scripts": {
     "build": "hardhat compile",
     "console": "hardhat console",
