@@ -13,6 +13,7 @@ contract Faucet is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     uint256 public amount;
 
     event Sent(address indexed to, uint256 amount);
+    event Changed(uint256 newAmount);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
@@ -20,7 +21,7 @@ contract Faucet is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function initialize() public initializer {
-        amount = 0.1 ether;
+        amount = 1 ether;
         __Ownable_init();
         __UUPSUpgradeable_init();
     }
@@ -35,6 +36,11 @@ contract Faucet is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         list[msg.sender] = block.number + 6500; //Once in about day
         pay.transfer(amount);
         emit Sent(msg.sender, amount);
+    }
+
+    function changeAmount(uint256 newAmount) public onlyOwner {
+        amount = newAmount;
+        emit Changed(amount);
     }
 
     function _authorizeUpgrade(address newImplementation)

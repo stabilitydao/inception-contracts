@@ -47,7 +47,7 @@ describe('Faucet unit test', () => {
     await faucet.deployed()
   })
 
-  it('Try to recive eth', async () => {
+  it('Give eth', async () => {
     let [signer] = await ethers.provider.listAccounts()
     const tx = await _deployer.sendTransaction({
       from: _deployer.address,
@@ -63,5 +63,15 @@ describe('Faucet unit test', () => {
     await expect(faucet.giveEther()).to.be.revertedWith(
       'You have taken recently'
     )
+  })
+
+  it('Change amount', async () => {
+    expect(await faucet.amount()).to.eq(ethers.utils.parseEther('1'))
+    await expect(faucet.changeAmount(ethers.utils.parseEther('2'))).to.not.be
+      .reverted
+    expect(await faucet.amount()).to.eq(ethers.utils.parseEther('2'))
+    await expect(
+      faucet.connect(_tester).changeAmount(ethers.utils.parseEther('3'))
+    ).to.be.reverted
   })
 })
