@@ -32,6 +32,7 @@ contract Faucet is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
     function giveEther() public {
         require(block.number > list[msg.sender], "You have taken recently");
+        require(address(this).balance > amount, "Ether is over..");
         address payable pay = payable(msg.sender);
         list[msg.sender] = block.number + 6500; //Once in about day
         pay.transfer(amount);

@@ -49,6 +49,9 @@ describe('Faucet unit test', () => {
 
   it('Give eth', async () => {
     let [signer] = await ethers.provider.listAccounts()
+
+    await expect(faucet.giveEther()).to.be.revertedWith('Ether is over')
+
     const tx = await _deployer.sendTransaction({
       from: _deployer.address,
       to: faucet.address,
