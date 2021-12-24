@@ -7,7 +7,7 @@ import '@openzeppelin/hardhat-upgrades'
 import '@typechain/hardhat'
 require('dotenv').config()
 const addressses = require('@stabilitydao/addresses/index.cjs')
-const { MAINNET, ROPSTEN, RINKEBY, GOERLI, KOVAN } = addressses
+const { MAINNET, ROPSTEN, RINKEBY, GOERLI, KOVAN, MUMBAI } = addressses
 
 const accounts = {
   mnemonic:
@@ -43,6 +43,7 @@ module.exports = {
       rinkeby: addressses[RINKEBY].devFund,
       goerli: addressses[GOERLI].devFund,
       kovan: addressses[KOVAN].devFund,
+      mumbai: addressses[MUMBAI].devFund,
     },
     tester: {
       default: 2,
@@ -54,6 +55,11 @@ module.exports = {
       saveDeployments: true,
       accounts,
       gasPrice: 113000000000,
+    },
+    polygon: {
+      url: `${process.env.URL_POLYGON}`,
+      saveDeployments: true,
+      accounts,
     },
     ropsten: {
       url: `${process.env.URL_ROPSTEN}`,
@@ -75,6 +81,13 @@ module.exports = {
       url: `${process.env.URL_KOVAN}`,
       saveDeployments: true,
       accounts,
+    },
+    mumbai: {
+      chainId: 80001,
+      url: `${process.env.URL_MUMBAI}`,
+      saveDeployments: true,
+      accounts,
+      gasPrice: 110000000000,
     },
     hardhat: {
       chainId: 1337, // https://hardhat.org/metamask-issue.html

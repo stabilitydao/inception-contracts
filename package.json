@@ -3,7 +3,7 @@
   "description": "Smart contracts of Stability protocol",
   "license": "MIT",
   "homepage": "https://stabilitydao.org",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "scripts": {
     "build": "hardhat compile",
     "console": "hardhat console",
@@ -17,6 +17,8 @@
     "goerli:verify": "hardhat --network goerli etherscan-verify --solc-input",
     "kovan:deploy": "hardhat --network kovan deploy",
     "kovan:verify": "hardhat --network kovan etherscan-verify --solc-input",
+    "mumbai:deploy": "hardhat --network mumbai deploy",
+    "mumbai:verify": "hardhat --network mumbai etherscan-verify --solc-input",
     "clean": "hardhat clean",
     "test": "hardhat test",
     "lint": "solhint 'contracts/**/*.sol' && prettier --write .",

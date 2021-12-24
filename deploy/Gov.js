@@ -49,6 +49,10 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
       votingDelay = 100
       votingPeriod = 6545
       proposalThreshold = ethers.utils.parseEther('10') // 10.0 tokens
+    } else if (hre.network.name == 'mumbai') {
+      votingDelay = 100
+      votingPeriod = 6545
+      proposalThreshold = ethers.utils.parseEther('10') // 10.0 tokens
     }
 
     const Gov = await ethers.getContractFactory('Gov')
