@@ -4,13 +4,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   const { deploy, get } = deployments
   const { deployer, devFund } = await getNamedAccounts()
-  const totalSupply = 1000000
   const chainId = await getChainId()
-
-  console.log('ChainId:', chainId)
-  console.log('Deployer address:', deployer)
-  console.log('Development Fund address:', devFund)
-  console.log('Total supply:', totalSupply)
 
   try {
     const deplpoyment = await get('ProfitToken')
@@ -21,6 +15,10 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   } catch (e) {
     // not deployed yet
   }
+
+  console.log('ChainId:', chainId)
+  console.log('Deployer address:', deployer)
+  console.log('Development Fund address:', devFund)
 
   await deploy('ProfitToken', {
     from: deployer,
