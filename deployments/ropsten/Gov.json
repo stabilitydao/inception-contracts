@@ -1,5 +1,5 @@
 {
-  "address": "0x005d71553aD3f8f919E5121aA45Bf24594DCE0d6",
+  "address": "0x76fFD18aB85039842813Dc7adED26636bD03451F",
   "abi": [
     {
       "inputs": [],
@@ -150,6 +150,25 @@
         {
           "indexed": false,
           "internalType": "uint256",
+          "name": "proposalId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "eta",
+          "type": "uint256"
+        }
+      ],
+      "name": "ProposalQueued",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
           "name": "oldProposalThreshold",
           "type": "uint256"
         },
@@ -168,18 +187,18 @@
       "inputs": [
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "oldQuorumNumerator",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "oldTimelock",
+          "type": "address"
         },
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "newQuorumNumerator",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "newTimelock",
+          "type": "address"
         }
       ],
-      "name": "QuorumNumeratorUpdated",
+      "name": "TimelockChange",
       "type": "event"
     },
     {
@@ -510,6 +529,26 @@
           "internalType": "contract ERC20VotesUpgradeable",
           "name": "_token",
           "type": "address"
+        },
+        {
+          "internalType": "contract TimelockControllerUpgradeable",
+          "name": "_timelock",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initVotingDelay",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initVotingPeriod",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initProposalThreshold",
+          "type": "uint256"
         }
       ],
       "name": "initialize",
@@ -552,6 +591,25 @@
         }
       ],
       "name": "proposalDeadline",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "proposalId",
+          "type": "uint256"
+        }
+      ],
+      "name": "proposalEta",
       "outputs": [
         {
           "internalType": "uint256",
@@ -660,6 +718,40 @@
     {
       "inputs": [
         {
+          "internalType": "address[]",
+          "name": "targets",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "values",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "calldatas",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "descriptionHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "queue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "blockNumber",
           "type": "uint256"
@@ -673,33 +765,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "quorumDenominator",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "quorumNumerator",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
+      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -788,6 +854,19 @@
     },
     {
       "inputs": [],
+      "name": "timelock",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "token",
       "outputs": [
         {
@@ -815,12 +894,12 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "newQuorumNumerator",
-          "type": "uint256"
+          "internalType": "contract TimelockControllerUpgradeable",
+          "name": "newTimelock",
+          "type": "address"
         }
       ],
-      "name": "updateQuorumNumerator",
+      "name": "updateTimelock",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

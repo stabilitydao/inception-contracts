@@ -17,8 +17,8 @@
       "kind": "uups"
     },
     {
-      "address": "0x005d71553aD3f8f919E5121aA45Bf24594DCE0d6",
-      "txHash": "0x79a1e5a3473568d5a3d9efe5bc3c87eaf6ff6260d18b3dab533dd72c8ca23e0a",
+      "address": "0x76fFD18aB85039842813Dc7adED26636bD03451F",
+      "txHash": "0xdfcfb23e7535c2a6ecdd9bf13fa4770d66e25c52c8e18775e5ad01f3bc3189b4",
       "kind": "uups"
     }
   ],
@@ -2152,9 +2152,9 @@
         }
       }
     },
-    "054ed61a164f245dc9cd5c67b9ba77330ed796deb6878cfd3ba6e1f8a2fbd62f": {
-      "address": "0x3Fd5E2f42AE39e830136fAaCbF57Ce08089a8AD9",
-      "txHash": "0xc342e0d9ca84884021c54a4fd5ceb90a3b9d7fbad9fc3790b859d2192d39d416",
+    "ad2e1c0f41ad9821c1fab67864f12d0d057c307337cc20fba29a204b12b405c9": {
+      "address": "0xdBC7b8Bc5590049c9Fbc6FE1Ad3859582403BA5f",
+      "txHash": "0xc3bb2b6c7ba7686c69e96a97466d97f8e3684a056a7ce3cfd2158762cf4e627a",
       "layout": {
         "storage": [
           {
@@ -2206,6 +2206,12 @@
             "src": "@openzeppelin/contracts-upgradeable/governance/IGovernorUpgradeable.sol:225"
           },
           {
+            "contract": "IGovernorTimelockUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/governance/extensions/IGovernorTimelockUpgradeable.sol:34"
+          },
+          {
             "contract": "GovernorUpgradeable",
             "label": "_name",
             "type": "t_string_storage",
@@ -2250,7 +2256,7 @@
           {
             "contract": "GovernorCountingSimpleUpgradeable",
             "label": "_proposalVotes",
-            "type": "t_mapping(t_uint256,t_struct(ProposalVote)1699_storage)",
+            "type": "t_mapping(t_uint256,t_struct(ProposalVote)2516_storage)",
             "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol:40"
           },
           {
@@ -2262,7 +2268,7 @@
           {
             "contract": "GovernorVotesUpgradeable",
             "label": "token",
-            "type": "t_contract(ERC20VotesUpgradeable)4696",
+            "type": "t_contract(ERC20VotesUpgradeable)5850",
             "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol:17"
           },
           {
@@ -2272,16 +2278,22 @@
             "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol:36"
           },
           {
-            "contract": "GovernorVotesQuorumFractionUpgradeable",
-            "label": "_quorumNumerator",
-            "type": "t_uint256",
-            "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol:16"
+            "contract": "GovernorTimelockControlUpgradeable",
+            "label": "_timelock",
+            "type": "t_contract(TimelockControllerUpgradeable)2468",
+            "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol:23"
           },
           {
-            "contract": "GovernorVotesQuorumFractionUpgradeable",
+            "contract": "GovernorTimelockControlUpgradeable",
+            "label": "_timelockIds",
+            "type": "t_mapping(t_uint256,t_bytes32)",
+            "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol:24"
+          },
+          {
+            "contract": "GovernorTimelockControlUpgradeable",
             "label": "__gap",
-            "type": "t_array(t_uint256)49_storage",
-            "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol:58"
+            "type": "t_array(t_uint256)48_storage",
+            "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol:163"
           },
           {
             "contract": "OwnableUpgradeable",
@@ -2321,13 +2333,25 @@
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"
           },
-          "t_contract(ERC20VotesUpgradeable)4696": {
+          "t_contract(TimelockControllerUpgradeable)2468": {
+            "label": "contract TimelockControllerUpgradeable"
+          },
+          "t_mapping(t_uint256,t_bytes32)": {
+            "label": "mapping(uint256 => bytes32)"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_array(t_uint256)48_storage": {
+            "label": "uint256[48]"
+          },
+          "t_contract(ERC20VotesUpgradeable)5850": {
             "label": "contract ERC20VotesUpgradeable"
           },
-          "t_mapping(t_uint256,t_struct(ProposalVote)1699_storage)": {
+          "t_mapping(t_uint256,t_struct(ProposalVote)2516_storage)": {
             "label": "mapping(uint256 => struct GovernorCountingSimpleUpgradeable.ProposalVote)"
           },
-          "t_struct(ProposalVote)1699_storage": {
+          "t_struct(ProposalVote)2516_storage": {
             "label": "struct GovernorCountingSimpleUpgradeable.ProposalVote",
             "members": [
               {
@@ -2368,11 +2392,11 @@
             "members": [
               {
                 "label": "voteStart",
-                "type": "t_struct(BlockNumber)6000_storage"
+                "type": "t_struct(BlockNumber)7154_storage"
               },
               {
                 "label": "voteEnd",
-                "type": "t_struct(BlockNumber)6000_storage"
+                "type": "t_struct(BlockNumber)7154_storage"
               },
               {
                 "label": "executed",
@@ -2384,7 +2408,7 @@
               }
             ]
           },
-          "t_struct(BlockNumber)6000_storage": {
+          "t_struct(BlockNumber)7154_storage": {
             "label": "struct TimersUpgradeable.BlockNumber",
             "members": [
               {
@@ -2395,12 +2419,6 @@
           },
           "t_uint64": {
             "label": "uint64"
-          },
-          "t_array(t_uint256)48_storage": {
-            "label": "uint256[48]"
-          },
-          "t_bytes32": {
-            "label": "bytes32"
           }
         }
       }

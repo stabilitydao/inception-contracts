@@ -29,18 +29,43 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   }
 
   const token = await deployments.get('ProfitToken')
+  const timelock = await deployments.get('GovTimelock')
 
   console.log('ChainId:', chainId)
   console.log('Deployer address:', deployer)
   console.log('ProfitToken address:', token.address)
+  console.log('Timelock controller address:', timelock.address)
 
   // noinspection PointlessBooleanExpressionJS
   if (!upgradeProxy) {
+    let votingDelay = 10
+    let votingPeriod = 30
+    let proposalThreshold = ethers.utils.parseEther('100') // 100.0 tokens
+    if (hre.network.name == 'mainnet') {
+      votingDelay = 6545 // 1 day
+      votingPeriod = 3 * 6545 // 3 days
+      // proposalThreshold = 100e18 // 100.0 tokens
+    } else if (hre.network.name == 'ropten') {
+      votingDelay = 100
+      votingPeriod = 6545
+      proposalThreshold = ethers.utils.parseEther('10') // 10.0 tokens
+    }
+
     const Gov = await ethers.getContractFactory('Gov')
 
-    const gov = await upgrades.deployProxy(Gov, [token.address], {
-      kind: 'uups',
-    })
+    const gov = await upgrades.deployProxy(
+      Gov,
+      [
+        token.address,
+        timelock.address,
+        votingDelay,
+        votingPeriod,
+        proposalThreshold,
+      ],
+      {
+        kind: 'uups',
+      }
+    )
 
     await gov.deployed()
 
@@ -57,6 +82,23 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
         receipt.blockNumber
       }) with ${receipt.gasUsed.toNumber()} gas`
     )
+
+    // const TIMELOCK_ADMIN_ROLE = ethers.utils.id('TIMELOCK_ADMIN_ROLE')
+    const PROPOSER_ROLE = ethers.utils.id('PROPOSER_ROLE')
+    const EXECUTOR_ROLE = ethers.utils.id('EXECUTOR_ROLE')
+
+    const timelockContract = await ethers.getContractAt(
+      'GovTimelock',
+      timelock.address
+    )
+
+    let tx
+
+    tx = await timelockContract.grantRole(PROPOSER_ROLE, gov.address)
+    console.log(`Grant timelock proposer role to governance (tx: ${tx.hash})`)
+
+    tx = await timelockContract.grantRole(EXECUTOR_ROLE, gov.address)
+    console.log(`Grant timelock executor role to governance (tx: ${tx.hash})`)
   } else {
     // try to upgrade
     const Gov = await ethers.getContractFactory('Gov')
@@ -81,4 +123,4 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 }
 
 module.exports.tags = ['Gov']
-module.exports.dependencies = ['ProfitToken']
+module.exports.dependencies = ['ProfitToken', 'GovTimelock']
