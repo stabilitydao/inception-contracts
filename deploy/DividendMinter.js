@@ -27,12 +27,12 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     const token = await deployments.get('ProfitToken')
     const dToken = await deployments.get('DividendToken')
 
-    let rewardTokensPerBlock = '1000000000000000000'
-    let mintingStartBlock = await ethers.provider.getBlockNumber()
+    let rewardTokensPerBlock = ethers.utils.parseEther('1')
+    let mintingStartBlock = await ethers.provider.getBlockNumber() + 10
 
-    /*if (hre.network.name == 'mainnet') {
-          mintingStartBlock = ...
-      }*/
+    if (hre.network.name == 'polygon') {
+          mintingStartBlock = 23100000
+    }
 
     console.log('ChainId:', chainId)
     console.log('Deployer address:', deployer)
@@ -66,7 +66,6 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
       }) with ${receipt.gasUsed.toNumber()} gas`
     )
 
-    // const DEFAULT_ADMIN_ROLE = ethers.utils.id(ethers.constants.AddressZero)
     const MINTER_ROLE = ethers.utils.id('MINTER_ROLE')
 
     const dTokenContract = await ethers.getContractAt(

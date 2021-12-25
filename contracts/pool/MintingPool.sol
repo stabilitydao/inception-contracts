@@ -32,9 +32,6 @@ abstract contract MintingPool is IPool, Initializable, UUPSUpgradeable, OwnableU
     // Accumulated RewardTokens per share, times 1e12.
     uint256 public accRewardTokensPerShare;
 
-    // The block number when RewardToken mining starts.
-    uint256 public startBlock;
-
     // Info of each user that stakes LP tokens.
     mapping (address => UserInfo) public userInfo;
 
@@ -52,9 +49,7 @@ abstract contract MintingPool is IPool, Initializable, UUPSUpgradeable, OwnableU
         stakeToken = _stakeToken;
         rewardToken = _rewardToken;
         rewardTokensPerBlock = _rewardTokensPerBlock;
-        startBlock = _startBlock;
-        lastRewardBlock = startBlock;
-
+        lastRewardBlock = _startBlock;
         __Ownable_init();
         __UUPSUpgradeable_init();
     }

@@ -80,7 +80,6 @@ describe('DividendMinter', function () {
     expect(await dPool.rewardToken()).to.equal(dToken.address)
     expect(await dPool.rewardTokensPerBlock()).to.eq(1)
     expect(await dPool.getMultiplier(1, 2)).to.eq(1)
-    expect(await dPool.startBlock()).to.eq(14)
   })
 
   it('stake, pending, unstake', async function () {
