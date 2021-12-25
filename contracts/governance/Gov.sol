@@ -5,12 +5,16 @@ import "@openzeppelin/contracts-upgradeable/governance/GovernorUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorSettingsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable, GovernorCountingSimpleUpgradeable, GovernorVotesUpgradeable, GovernorTimelockControlUpgradeable, OwnableUpgradeable, UUPSUpgradeable {
+contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable, GovernorCountingSimpleUpgradeable, GovernorVotesUpgradeable, GovernorVotesQuorumFractionUpgradeable, GovernorTimelockControlUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant INSPECTOR_ROLE = keccak256("INSPECTOR_ROLE");
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
         // solhint-disable-previous-line no-empty-blocks
@@ -21,31 +25,28 @@ contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable,
         TimelockControllerUpgradeable _timelock,
         uint256 initVotingDelay,
         uint256 initVotingPeriod,
-        uint256 initProposalThreshold
+        uint256 initProposalThreshold,
+        uint256 initQuorumNumberator
     ) public initializer {
         __Governor_init("Gov");
         __GovernorSettings_init(initVotingDelay, initVotingPeriod, initProposalThreshold);
         __GovernorCountingSimple_init();
         __GovernorVotes_init(_token);
+        __GovernorVotesQuorumFraction_init(initQuorumNumberator);
         __GovernorTimelockControl_init(_timelock);
-        __Ownable_init();
+        __AccessControl_init();
         __UUPSUpgradeable_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function quorum(uint256 blockNumber) public pure override returns (uint256) {
-        // solhint-disable-previous-line no-unused-vars
-        return 1000e18;
-    }
-
-    function _authorizeUpgrade(address newImplementation)
-    internal
-    onlyOwner
-    override
+    function quorum(uint256 blockNumber)
+    public
+    view
+    override(IGovernorUpgradeable, GovernorVotesQuorumFractionUpgradeable)
+    returns (uint256)
     {
-        // solhint-disable-previous-line no-empty-blocks
+        return super.quorum(blockNumber);
     }
-
-    // The following functions are overrides required by Solidity.
 
     function votingDelay()
     public
@@ -100,11 +101,12 @@ contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable,
         return super.proposalThreshold();
     }
 
-    function _execute(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
-    internal
-    override(GovernorUpgradeable, GovernorTimelockControlUpgradeable)
+    function cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+    public
+    onlyRole(INSPECTOR_ROLE)
+    returns (uint256)
     {
-        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+        return _cancel(targets, values, calldatas, descriptionHash);
     }
 
     function _cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
@@ -113,6 +115,13 @@ contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable,
     returns (uint256)
     {
         return super._cancel(targets, values, calldatas, descriptionHash);
+    }
+
+    function _execute(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+    internal
+    override(GovernorUpgradeable, GovernorTimelockControlUpgradeable)
+    {
+        super._execute(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _executor()
@@ -127,9 +136,17 @@ contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable,
     function supportsInterface(bytes4 interfaceId)
     public
     view
-    override(GovernorUpgradeable, GovernorTimelockControlUpgradeable)
+    override(GovernorUpgradeable, GovernorTimelockControlUpgradeable, AccessControlUpgradeable)
     returns (bool)
     {
         return super.supportsInterface(interfaceId);
+    }
+
+    function _authorizeUpgrade(address newImplementation)
+    internal
+    onlyRole(UPGRADER_ROLE)
+    override
+    {
+        // solhint-disable-previous-line no-empty-blocks
     }
 }

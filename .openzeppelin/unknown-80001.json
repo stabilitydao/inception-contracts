@@ -17,8 +17,8 @@
       "kind": "uups"
     },
     {
-      "address": "0xd4A5f0A6Bf09c1DC042254329ac144D99412f3a5",
-      "txHash": "0xa2ef2889f1a88799610dd04e618ef1ea3915aab640fca534a44feba1127cb958",
+      "address": "0xC2eAfC3F3Ee1677A1C0B827Aa3a410D74653FC91",
+      "txHash": "0xe3fcacf51c49dbba5f16ad81807b6a091d592fd2b1319d417fcdee0215329404",
       "kind": "uups"
     }
   ],
@@ -576,9 +576,9 @@
         }
       }
     },
-    "ad2e1c0f41ad9821c1fab67864f12d0d057c307337cc20fba29a204b12b405c9": {
-      "address": "0x48469a0481254d5945E7E56c1Eb9861429c02f44",
-      "txHash": "0xe2ccae9026688be8e0637b7988b9d50e192d192df44e78fd3835f6ea4a5a7abd",
+    "41e74c4f6eea36900323a42a05a8061c2e5e3c702a4ac1dacb365a233295742b": {
+      "address": "0x69678E6bf7c11e6796016Df7449DB51C43FCb3fD",
+      "txHash": "0xe61aecd226dbff12cbcf0581aa181eb6c6b4e9839efce57e7b7713bbe82ddb47",
       "layout": {
         "storage": [
           {
@@ -692,7 +692,7 @@
           {
             "contract": "GovernorVotesUpgradeable",
             "label": "token",
-            "type": "t_contract(ERC20VotesUpgradeable)5850",
+            "type": "t_contract(ERC20VotesUpgradeable)5981",
             "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol:17"
           },
           {
@@ -700,6 +700,18 @@
             "label": "__gap",
             "type": "t_array(t_uint256)50_storage",
             "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol:36"
+          },
+          {
+            "contract": "GovernorVotesQuorumFractionUpgradeable",
+            "label": "_quorumNumerator",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol:16"
+          },
+          {
+            "contract": "GovernorVotesQuorumFractionUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol:58"
           },
           {
             "contract": "GovernorTimelockControlUpgradeable",
@@ -720,16 +732,16 @@
             "src": "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol:163"
           },
           {
-            "contract": "OwnableUpgradeable",
-            "label": "_owner",
-            "type": "t_address",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+            "contract": "AccessControlUpgradeable",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)43_storage)",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:64"
           },
           {
-            "contract": "OwnableUpgradeable",
+            "contract": "AccessControlUpgradeable",
             "label": "__gap",
             "type": "t_array(t_uint256)49_storage",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:82"
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:232"
           },
           {
             "contract": "ERC1967UpgradeUpgradeable",
@@ -751,8 +763,33 @@
           "t_uint256": {
             "label": "uint256"
           },
+          "t_mapping(t_bytes32,t_struct(RoleData)43_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_struct(RoleData)43_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
           "t_address": {
             "label": "address"
+          },
+          "t_bool": {
+            "label": "bool"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"
@@ -763,13 +800,10 @@
           "t_mapping(t_uint256,t_bytes32)": {
             "label": "mapping(uint256 => bytes32)"
           },
-          "t_bytes32": {
-            "label": "bytes32"
-          },
           "t_array(t_uint256)48_storage": {
             "label": "uint256[48]"
           },
-          "t_contract(ERC20VotesUpgradeable)5850": {
+          "t_contract(ERC20VotesUpgradeable)5981": {
             "label": "contract ERC20VotesUpgradeable"
           },
           "t_mapping(t_uint256,t_struct(ProposalVote)2516_storage)": {
@@ -796,12 +830,6 @@
               }
             ]
           },
-          "t_mapping(t_address,t_bool)": {
-            "label": "mapping(address => bool)"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
           "t_array(t_uint256)47_storage": {
             "label": "uint256[47]"
           },
@@ -816,11 +844,11 @@
             "members": [
               {
                 "label": "voteStart",
-                "type": "t_struct(BlockNumber)7154_storage"
+                "type": "t_struct(BlockNumber)7285_storage"
               },
               {
                 "label": "voteEnd",
-                "type": "t_struct(BlockNumber)7154_storage"
+                "type": "t_struct(BlockNumber)7285_storage"
               },
               {
                 "label": "executed",
@@ -832,7 +860,7 @@
               }
             ]
           },
-          "t_struct(BlockNumber)7154_storage": {
+          "t_struct(BlockNumber)7285_storage": {
             "label": "struct TimersUpgradeable.BlockNumber",
             "members": [
               {

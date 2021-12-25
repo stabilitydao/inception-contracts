@@ -1,13 +1,6 @@
 import { expect } from 'chai'
 import { artifacts, waffle, ethers, upgrades } from 'hardhat'
-import {
-  ProfitToken,
-  Gov,
-  Gov__factory,
-  GovTimelock,
-  XGov__factory,
-  XGov,
-} from '../typechain-types'
+import { ProfitToken, Gov, Gov__factory, GovTimelock } from '../typechain-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 describe('Gov', function () {
@@ -21,6 +14,7 @@ describe('Gov', function () {
   const votingDelay = 10
   const votingPeriod = 30
   const proposalThreshold = ethers.utils.parseEther('10')
+  const quorum = 1
 
   beforeEach(async function () {
     const [deployer, tester, devFund] = await ethers.getSigners()
@@ -62,6 +56,7 @@ describe('Gov', function () {
         votingDelay,
         votingPeriod,
         proposalThreshold,
+        quorum,
       ],
       {
         kind: 'uups',
@@ -76,6 +71,8 @@ describe('Gov', function () {
   })
 
   it('Upgrades', async function () {
+    await gov.grantRole(ethers.utils.id('UPGRADER_ROLE'), _deployer.address)
+
     const govFactory = (await ethers.getContractFactory(
       'Gov',
       _deployer
@@ -94,7 +91,7 @@ describe('Gov', function () {
     expect(await gov.votingPeriod()).to.eq(votingPeriod)
     expect(
       await gov.quorum((await ethers.provider.getBlockNumber()) - 1)
-    ).to.eq(ethers.utils.parseEther('1000')) // 1000e18
+    ).to.eq(ethers.utils.parseEther('10000')) // 10000e18
 
     expect(
       await gov.supportsInterface(ethers.utils.hexlify([1, 3, 4, 5]))
@@ -214,7 +211,7 @@ describe('Gov', function () {
     )
   })
 
-  it('Change governance settings', async function () {
+  it('Change proposal threshold', async function () {
     // change proposal threshold
     const newProposalThreshold = ethers.utils.parseEther('20')
     const proposalDesc = 'Proposal #2: change proposal threshold'
@@ -289,64 +286,119 @@ describe('Gov', function () {
     expect(await gov.proposalThreshold()).to.eq(newProposalThreshold)
   })
 
-  it('Internal cancel method is ok', async function () {
-    //
-    const newProposalThreshold = ethers.utils.parseEther('20')
-    const proposalDesc = 'xGov test proposal'
+  it('Cancel bad proposal', async function () {
+    const proposalDesc = 'Bad proposal'
     await token
       .connect(_devFund)
       .transfer(_tester.address, ethers.utils.parseEther('10000'))
     await token.connect(_tester).delegate(_tester.address)
 
-    // deploy xGov
-    const xGovFactory = (await ethers.getContractFactory(
-      'XGov',
-      _deployer
-    )) as XGov__factory
-
-    const xGov = (await upgrades.deployProxy(
-      xGovFactory,
-      [
-        token.address,
-        timelock.address,
-        votingDelay,
-        votingPeriod,
-        proposalThreshold,
-      ],
-      {
-        kind: 'uups',
-      }
-    )) as XGov
-
-    await xGov.deployed()
-
-    const calldata = xGov.interface.encodeFunctionData('setProposalThreshold', [
-      newProposalThreshold,
+    const calldata = token.interface.encodeFunctionData('transfer', [
+      _deployer.address,
+      ethers.utils.parseEther('9000000'),
     ])
 
     await expect(
-      xGov
+      gov
         .connect(_tester)
-        .propose([xGov.address], [0], [calldata], proposalDesc)
+        .propose([token.address], [0], [calldata], proposalDesc)
     ).to.be.not.reverted
 
-    const proposalId = await xGov.hashProposal(
-      [xGov.address],
+    const proposalId = await gov.hashProposal(
+      [token.address],
       [0],
       [calldata],
       ethers.utils.id(proposalDesc)
     )
 
     // proposal in Pending state
-    expect(await xGov.state(proposalId)).to.eq(0)
+    expect(await gov.state(proposalId)).to.eq(0)
 
     await expect(
-      xGov.x_cancel(
-        [xGov.address],
+      gov.cancel(
+        [token.address],
         [0],
         [calldata],
         ethers.utils.id(proposalDesc)
       )
+    ).to.be.revertedWith('is missing role')
+
+    await gov.grantRole(ethers.utils.id('INSPECTOR_ROLE'), _devFund.address)
+
+    await expect(
+      gov
+        .connect(_devFund)
+        .cancel([token.address], [0], [calldata], ethers.utils.id(proposalDesc))
+    ).to.not.be.reverted
+
+    // proposal is canlcelled
+    expect(await gov.state(proposalId)).to.eq(2)
+  })
+
+  it('Change quorum', async function () {
+    // change quorum numerator
+    const newQuorumNumerator = 10
+    const proposalDesc = 'Proposal #3: change quorum numerator'
+    await token
+      .connect(_devFund)
+      .transfer(_tester.address, ethers.utils.parseEther('10000'))
+    await token.connect(_tester).delegate(_tester.address)
+
+    const calldata = gov.interface.encodeFunctionData('updateQuorumNumerator', [
+      newQuorumNumerator,
+    ])
+
+    await expect(
+      gov.connect(_tester).propose([gov.address], [0], [calldata], proposalDesc)
     ).to.be.not.reverted
+
+    const proposalId = await gov.hashProposal(
+      [gov.address],
+      [0],
+      [calldata],
+      ethers.utils.id(proposalDesc)
+    )
+
+    // mine blocks
+    for (let i = 0; i <= votingDelay; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // proposal in Active state
+    expect(await gov.state(proposalId)).to.eq(1)
+
+    // cast vote
+    await expect(gov.connect(_tester).castVote(proposalId, 1)).to.be.not
+      .reverted
+
+    // mine blocks
+    for (let i = 0; i < votingPeriod; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // proposal in Succeed state
+    expect(await gov.state(proposalId)).to.eq(4)
+
+    // queue proposal to timelock
+    await expect(
+      gov.queue([gov.address], [0], [calldata], ethers.utils.id(proposalDesc))
+    ).to.not.be.reverted
+
+    // mine blocks
+    for (let i = 0; i < timelockDelay; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // execute proposal
+    await expect(
+      gov.execute([gov.address], [0], [calldata], ethers.utils.id(proposalDesc))
+    ).to.not.be.reverted
+
+    // proposal in Executed state
+    expect(await gov.state(proposalId)).to.eq(7)
+
+    await ethers.provider.send('evm_mine', [])
+
+    expect(await gov.quorumNumerator()).to.eq(newQuorumNumerator)
   })
 })

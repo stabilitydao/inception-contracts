@@ -6,7 +6,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const upgradeProxy = null // ropsten: ''
 
   const { save, get } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, devFund } = await getNamedAccounts()
   const chainId = await getChainId()
 
   console.log('')
@@ -33,26 +33,24 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   console.log('ChainId:', chainId)
   console.log('Deployer address:', deployer)
+  console.log('DevFund address:', devFund)
   console.log('ProfitToken address:', token.address)
   console.log('Timelock controller address:', timelock.address)
 
   // noinspection PointlessBooleanExpressionJS
   if (!upgradeProxy) {
-    let votingDelay = 10
-    let votingPeriod = 30
+    let votingDelay = 1100 // about 4 hours (block time: 13 sec)
+    let votingPeriod = 6645 // about 1 day
     let proposalThreshold = ethers.utils.parseEther('100') // 100.0 tokens
+    let quorum = 1 // 1%
+
     if (hre.network.name == 'mainnet') {
-      votingDelay = 6545 // 1 day
-      votingPeriod = 3 * 6545 // 3 days
-      // proposalThreshold = 100e18 // 100.0 tokens
-    } else if (hre.network.name == 'ropten') {
-      votingDelay = 100
-      votingPeriod = 6545
-      proposalThreshold = ethers.utils.parseEther('10') // 10.0 tokens
+      votingDelay = 13140 // 2 days
+      votingPeriod = 40320 // 6 days
+      proposalThreshold = ethers.utils.parseEther('1000') // 1000.0 tokens
     } else if (hre.network.name == 'mumbai') {
-      votingDelay = 100
-      votingPeriod = 6545
-      proposalThreshold = ethers.utils.parseEther('10') // 10.0 tokens
+      votingDelay = 6800 // about 4 hours (blocktime: 2.1 sec)
+      votingPeriod = 41100 // about 1 day
     }
 
     const Gov = await ethers.getContractFactory('Gov')
@@ -65,6 +63,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
         votingDelay,
         votingPeriod,
         proposalThreshold,
+        quorum,
       ],
       {
         kind: 'uups',
@@ -88,8 +87,10 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     )
 
     // const TIMELOCK_ADMIN_ROLE = ethers.utils.id('TIMELOCK_ADMIN_ROLE')
+    const UPGRADER_ROLE = ethers.utils.id('UPGRADER_ROLE')
     const PROPOSER_ROLE = ethers.utils.id('PROPOSER_ROLE')
     const EXECUTOR_ROLE = ethers.utils.id('EXECUTOR_ROLE')
+    const INSPECTOR_ROLE = ethers.utils.id('INSPECTOR_ROLE')
 
     const timelockContract = await ethers.getContractAt(
       'GovTimelock',
@@ -99,10 +100,68 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     let tx
 
     tx = await timelockContract.grantRole(PROPOSER_ROLE, gov.address)
-    console.log(`Grant timelock proposer role to governance (tx: ${tx.hash})`)
+    process.stdout.write(
+      `Grant timelock PROPOSER role to governance (tx: ${tx.hash})...: `
+    )
+
+    receipt = await tx.wait()
+    if (receipt.status) {
+      console.log(
+        `done (block: ${
+          receipt.blockNumber
+        }) with ${receipt.gasUsed.toNumber()} gas`
+      )
+    } else {
+      console.log(`REVERTED!`)
+    }
 
     tx = await timelockContract.grantRole(EXECUTOR_ROLE, gov.address)
-    console.log(`Grant timelock executor role to governance (tx: ${tx.hash})`)
+    process.stdout.write(
+      `Grant timelock EXECUTOR role to governance (tx: ${tx.hash})...: `
+    )
+
+    receipt = await tx.wait()
+    if (receipt.status) {
+      console.log(
+        `done (block: ${
+          receipt.blockNumber
+        }) with ${receipt.gasUsed.toNumber()} gas`
+      )
+    } else {
+      console.log(`REVERTED!`)
+    }
+
+    tx = await gov.grantRole(UPGRADER_ROLE, timelock.address)
+    process.stdout.write(
+      `Grant governance UPGRADER role to timelock address (tx: ${tx.hash})...: `
+    )
+
+    receipt = await tx.wait()
+    if (receipt.status) {
+      console.log(
+        `done (block: ${
+          receipt.blockNumber
+        }) with ${receipt.gasUsed.toNumber()} gas`
+      )
+    } else {
+      console.log(`REVERTED!`)
+    }
+
+    tx = await gov.grantRole(INSPECTOR_ROLE, devFund)
+    process.stdout.write(
+      `Grant governance INSPECTOR role to development fund (tx: ${tx.hash})...: `
+    )
+
+    receipt = await tx.wait()
+    if (receipt.status) {
+      console.log(
+        `done (block: ${
+          receipt.blockNumber
+        }) with ${receipt.gasUsed.toNumber()} gas`
+      )
+    } else {
+      console.log(`REVERTED!`)
+    }
   } else {
     // try to upgrade
     const Gov = await ethers.getContractFactory('Gov')
