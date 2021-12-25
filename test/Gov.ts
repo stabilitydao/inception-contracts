@@ -1,6 +1,13 @@
 import { expect } from 'chai'
 import { artifacts, waffle, ethers, upgrades } from 'hardhat'
-import { ProfitToken, Gov, Gov__factory, GovTimelock } from '../typechain-types'
+import {
+  ProfitToken,
+  Gov,
+  Gov__factory,
+  GovTimelock,
+  XGov__factory,
+  XGov,
+} from '../typechain-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 describe('Gov', function () {
@@ -88,6 +95,10 @@ describe('Gov', function () {
     expect(
       await gov.quorum((await ethers.provider.getBlockNumber()) - 1)
     ).to.eq(ethers.utils.parseEther('1000')) // 1000e18
+
+    expect(
+      await gov.supportsInterface(ethers.utils.hexlify([1, 3, 4, 5]))
+    ).to.eq(false)
   })
 
   it('Transfer tokens from treasure', async function () {
@@ -128,6 +139,9 @@ describe('Gov', function () {
       [calldata],
       ethers.utils.id(proposalDesc)
     )
+
+    // text internal _cancel method just for coverage
+    // gov.x_cancel()
 
     // proposal in Pending state
     expect(await gov.state(proposalId)).to.eq(0)
@@ -273,5 +287,66 @@ describe('Gov', function () {
     await ethers.provider.send('evm_mine', [])
 
     expect(await gov.proposalThreshold()).to.eq(newProposalThreshold)
+  })
+
+  it('Internal cancel method is ok', async function () {
+    //
+    const newProposalThreshold = ethers.utils.parseEther('20')
+    const proposalDesc = 'xGov test proposal'
+    await token
+      .connect(_devFund)
+      .transfer(_tester.address, ethers.utils.parseEther('10000'))
+    await token.connect(_tester).delegate(_tester.address)
+
+    // deploy xGov
+    const xGovFactory = (await ethers.getContractFactory(
+      'XGov',
+      _deployer
+    )) as XGov__factory
+
+    const xGov = (await upgrades.deployProxy(
+      xGovFactory,
+      [
+        token.address,
+        timelock.address,
+        votingDelay,
+        votingPeriod,
+        proposalThreshold,
+      ],
+      {
+        kind: 'uups',
+      }
+    )) as XGov
+
+    await xGov.deployed()
+
+    const calldata = xGov.interface.encodeFunctionData('setProposalThreshold', [
+      newProposalThreshold,
+    ])
+
+    await expect(
+      xGov
+        .connect(_tester)
+        .propose([xGov.address], [0], [calldata], proposalDesc)
+    ).to.be.not.reverted
+
+    const proposalId = await xGov.hashProposal(
+      [xGov.address],
+      [0],
+      [calldata],
+      ethers.utils.id(proposalDesc)
+    )
+
+    // proposal in Pending state
+    expect(await xGov.state(proposalId)).to.eq(0)
+
+    await expect(
+      xGov.x_cancel(
+        [xGov.address],
+        [0],
+        [calldata],
+        ethers.utils.id(proposalDesc)
+      )
+    ).to.be.not.reverted
   })
 })
