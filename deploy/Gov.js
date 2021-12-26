@@ -3,11 +3,17 @@ const { ethers, upgrades } = require('hardhat')
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   // type proxy address for upgrade contract
   // deployer must have upgrade access
-  const upgradeProxy = null // ropsten: ''
+  const upgradeProxy = null // poly: '0x7EE76C309ed8AdCfE9681E05c7612706014274a3'
 
   const { save, get } = deployments
   const { deployer, devFund } = await getNamedAccounts()
   const chainId = await getChainId()
+
+  // const TIMELOCK_ADMIN_ROLE = ethers.utils.id('TIMELOCK_ADMIN_ROLE')
+  const UPGRADER_ROLE = ethers.utils.id('UPGRADER_ROLE')
+  const PROPOSER_ROLE = ethers.utils.id('PROPOSER_ROLE')
+  const EXECUTOR_ROLE = ethers.utils.id('EXECUTOR_ROLE')
+  const INSPECTOR_ROLE = ethers.utils.id('INSPECTOR_ROLE')
 
   console.log('')
 
@@ -39,6 +45,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   // noinspection PointlessBooleanExpressionJS
   if (!upgradeProxy) {
+    // return
     let votingDelay = 1100 // about 4 hours (block time: 13 sec)
     let votingPeriod = 6645 // about 1 day
     let proposalThreshold = ethers.utils.parseEther('100') // 100.0 tokens
@@ -47,7 +54,11 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     if (hre.network.name == 'mainnet') {
       votingDelay = 13140 // 2 days
       votingPeriod = 40320 // 6 days
-      proposalThreshold = ethers.utils.parseEther('1000') // 1000.0 tokens
+      proposalThreshold = ethers.utils.parseEther('1000') // 1000.0 tokens / 0.1%
+    } else if (hre.network.name == 'polygon') {
+      votingDelay = 82000 // 2 days (blocktime: 2.1 sec)
+      votingPeriod = 246000 // 6 days
+      proposalThreshold = ethers.utils.parseEther('10000') // 10000.0 tokens / 1%
     } else if (hre.network.name == 'mumbai') {
       votingDelay = 6800 // about 4 hours (blocktime: 2.1 sec)
       votingPeriod = 41100 // about 1 day
@@ -85,12 +96,6 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
         receipt.blockNumber
       }) with ${receipt.gasUsed.toNumber()} gas`
     )
-
-    // const TIMELOCK_ADMIN_ROLE = ethers.utils.id('TIMELOCK_ADMIN_ROLE')
-    const UPGRADER_ROLE = ethers.utils.id('UPGRADER_ROLE')
-    const PROPOSER_ROLE = ethers.utils.id('PROPOSER_ROLE')
-    const EXECUTOR_ROLE = ethers.utils.id('EXECUTOR_ROLE')
-    const INSPECTOR_ROLE = ethers.utils.id('INSPECTOR_ROLE')
 
     const timelockContract = await ethers.getContractAt(
       'GovTimelock',
