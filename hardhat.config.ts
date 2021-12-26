@@ -5,7 +5,6 @@ import 'solidity-coverage'
 import 'hardhat-gas-reporter'
 import '@openzeppelin/hardhat-upgrades'
 import '@typechain/hardhat'
-import 'hardhat-exposed'
 require('dotenv').config()
 const addressses = require('@stabilitydao/addresses/index.cjs')
 const { POLYGON, ROPSTEN, RINKEBY, GOERLI, KOVAN, MUMBAI } = addressses
@@ -44,7 +43,7 @@ module.exports = {
       rinkeby: addressses[RINKEBY].devFund,
       goerli: addressses[GOERLI].devFund,
       kovan: addressses[KOVAN].devFund,
-      mumbai: addressses[MUMBAI].devFund,
+      mumbai: addressses[ROPSTEN].devFund,
     },
     tester: {
       default: 2,
