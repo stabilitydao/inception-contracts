@@ -28,10 +28,10 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     const dToken = await deployments.get('DividendToken')
 
     let rewardTokensPerBlock = ethers.utils.parseEther('1')
-    let mintingStartBlock = await ethers.provider.getBlockNumber() + 10
+    let mintingStartBlock = (await ethers.provider.getBlockNumber()) + 10
 
     if (hre.network.name == 'polygon') {
-          mintingStartBlock = 23100000
+      mintingStartBlock = 23100000
     }
 
     console.log('ChainId:', chainId)

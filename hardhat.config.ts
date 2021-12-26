@@ -8,7 +8,7 @@ import '@typechain/hardhat'
 import 'hardhat-exposed'
 require('dotenv').config()
 const addressses = require('@stabilitydao/addresses/index.cjs')
-const { MAINNET, ROPSTEN, RINKEBY, GOERLI, KOVAN, MUMBAI } = addressses
+const { POLYGON, ROPSTEN, RINKEBY, GOERLI, KOVAN, MUMBAI } = addressses
 
 const accounts = {
   mnemonic:
@@ -39,12 +39,12 @@ module.exports = {
     },
     devFund: {
       hardhat: 1,
-      mainnet: addressses[MAINNET].devFund,
+      polygon: addressses[POLYGON].devFund,
       ropsten: addressses[ROPSTEN].devFund,
       rinkeby: addressses[RINKEBY].devFund,
       goerli: addressses[GOERLI].devFund,
       kovan: addressses[KOVAN].devFund,
-      mumbai: addressses[ROPSTEN].devFund,
+      mumbai: addressses[MUMBAI].devFund,
     },
     tester: {
       default: 2,
@@ -58,9 +58,11 @@ module.exports = {
       gasPrice: 113000000000,
     },
     polygon: {
+      chainId: 137,
       url: `${process.env.URL_POLYGON}`,
       saveDeployments: true,
       accounts,
+      gasPrice: 100000000000,
     },
     ropsten: {
       url: `${process.env.URL_ROPSTEN}`,

@@ -765,8 +765,8 @@
     antlr4ts "^0.5.0-alpha.4"
 
 "@stabilitydao/addresses@stabilitydao/addresses":
-  version "0.3.0"
-  resolved "https://codeload.github.com/stabilitydao/addresses/tar.gz/ba74ff94a1503e2e42b833a9bca083bdd7bf5238"
+  version "0.4.0"
+  resolved "https://codeload.github.com/stabilitydao/addresses/tar.gz/8058091ebeb0afd73cc25f2ddf23da4e1f0dbf4f"
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
