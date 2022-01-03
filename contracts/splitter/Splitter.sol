@@ -1,69 +1,74 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "../interfaces/IPayer.sol";
 
-abstract contract Splitter is Initializable, UUPSUpgradeable, OwnableUpgradeable {
-    // Splitting asset token
-    // IERC20Upgradeable public token; -- Do we need ??
+contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant CHANGER_ROLE = keccak256("CHANGER_ROLE");
+    bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
 
     uint8 public div;
     uint8 public gov;
     uint8 public dev;
 
-    address payable public payer;
-    address payable public treasure;
-    address payable public devFund;
+    address public treasure;
+    address public devFund;
 
-    function __Splitter_init(
-        // IERC20Upgradeable _token, -- Do we need ??
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {
+        // solhint-disable-previous-line no-empty-blocks
+    }
+
+    function initialize(
         uint8 _div,
         uint8 _gov,
         uint8 _dev,
-        address payable _payer,
         address payable _treasure,
         address payable _devFund
-    ) internal initializer {
+    ) public initializer {
+        treasure = _treasure;
+        devFund = _devFund;
+        check(_div, _gov, _dev);
         div = _div;
         gov = _gov;
         dev = _dev;
-        payer = _payer;
-        treasure = _treasure;
-        devFund = _devFund;
-        __Ownable_init();
+        __AccessControl_init();
         __UUPSUpgradeable_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     function change(
         uint8 _div,
         uint8 _gov,
         uint8 _dev
-    ) public onlyOwner {
-        require(_div >= 10);
-        require(_div <= 90);
-        require(_gov >= 10);
-        require(_gov <= 90);
-        require(_dev >= 2);
-        require(_dev <= 50);
-        require(_div + _gov + _dev == 100);
-
+    ) public onlyRole(CHANGER_ROLE) {
+        check(_div, _gov, _dev);
         div = _div;
         gov = _gov;
         dev = _dev;
     }
 
-    // Fallback Function to Call splitPayment() whenever ETH is sent to this contract
-    receive() external payable {
-        splitPayment();
+    function check(
+        uint8 _div,
+        uint8 _gov,
+        uint8 _dev
+    ) internal virtual {
+        require(_div + _gov + _dev == 100, "The sum is not 100");
+        require(_div >= 10, "Too little dividend");
+        require(_div <= 60, "Too much dividend");
+        require(_gov >= 10, "Few treasures");
+        require(_gov <= 60, "Many treasures");
+        require(_dev >= 10, "Not enough for devs");
+        require(_dev <= 60, "Too much for devs");
     }
 
-    function splitPayment() public payable onlyOwner {
-        // Record the amount of ETH that was sent to this splitter contract.
-        uint256 amtReceived = msg.value;
-
-        uint256 onePercent = amtReceived/100;
+    function run(address token, address dPayer) public onlyRole(EXECUTOR_ROLE) {
+        uint256 amount = IERC20Upgradeable(token).balanceOf(address(this));
+        uint256 onePercent = amount / 100;
 
         // Percentage to send to Dividend Payer contract
         uint256 pDiv = div * onePercent;
@@ -75,14 +80,13 @@ abstract contract Splitter is Initializable, UUPSUpgradeable, OwnableUpgradeable
         uint256 pDevFund = dev * onePercent;
 
         // distribute contract token balance to dividend payer contract, goveranance and devFund
+        IERC20Upgradeable(token).approve(dPayer, pDiv);
+        IPayer(dPayer).receivePayment(address(this), pDiv);
+        IERC20Upgradeable(token).transfer(treasure, pGov);
+        IERC20Upgradeable(token).transfer(devFund, pDevFund);
+    }
 
-        // approve token on contract balance -- we dont need to approve
-
-        // call Payer contract method receivePayment() with payer share
-        payer.transfer(pDiv); // I think I'm Done here, You just need to update the code of the DividendPayer.sol, and add a fallback Function
-        // send gov share to treasure address
-        treasure.transfer(pGov);
-        // send dev share to devFund address
-        devFund.transfer(pDevFund);
+    function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER_ROLE) override {
+        // solhint-disable-previous-line no-empty-blocks
     }
 }
