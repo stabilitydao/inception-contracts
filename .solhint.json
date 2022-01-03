@@ -2,7 +2,6 @@
   "extends": "solhint:recommended",
   "rules": {
     "compiler-version": ["error", "^0.8.9"],
-    "func-visibility": ["warn", { "ignoreConstructors": true }],
-    "quotes": ["off", "double"]
+    "func-visibility": ["warn", { "ignoreConstructors": true }]
   }
 }

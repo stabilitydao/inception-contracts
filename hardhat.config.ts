@@ -1,10 +1,13 @@
-require('@nomiclabs/hardhat-waffle')
-require('hardhat-deploy')
-require('hardhat-gas-reporter')
-require('solidity-coverage')
+import 'hardhat-deploy'
+import '@nomiclabs/hardhat-waffle'
+import '@nomiclabs/hardhat-etherscan'
+import 'solidity-coverage'
+import 'hardhat-gas-reporter'
+import '@openzeppelin/hardhat-upgrades'
+import '@typechain/hardhat'
 require('dotenv').config()
 const addressses = require('@stabilitydao/addresses/index.cjs')
-const { MAINNET, ROPSTEN, RINKEBY, GOERLI, KOVAN } = addressses
+const { POLYGON, ROPSTEN, RINKEBY, GOERLI, KOVAN, MUMBAI } = addressses
 
 const accounts = {
   mnemonic:
@@ -35,11 +38,12 @@ module.exports = {
     },
     devFund: {
       hardhat: 1,
-      mainnet: addressses[MAINNET].devFund,
+      polygon: addressses[POLYGON].devFund,
       ropsten: addressses[ROPSTEN].devFund,
       rinkeby: addressses[RINKEBY].devFund,
       goerli: addressses[GOERLI].devFund,
       kovan: addressses[KOVAN].devFund,
+      mumbai: addressses[ROPSTEN].devFund,
     },
     tester: {
       default: 2,
@@ -52,10 +56,18 @@ module.exports = {
       accounts,
       gasPrice: 113000000000,
     },
+    polygon: {
+      chainId: 137,
+      url: `${process.env.URL_POLYGON}`,
+      saveDeployments: true,
+      accounts,
+      gasPrice: 100000000000,
+    },
     ropsten: {
       url: `${process.env.URL_ROPSTEN}`,
       saveDeployments: true,
       accounts,
+      gasPrice: 20000000000,
     },
     rinkeby: {
       url: `${process.env.URL_RINKEBY}`,
@@ -71,6 +83,13 @@ module.exports = {
       url: `${process.env.URL_KOVAN}`,
       saveDeployments: true,
       accounts,
+    },
+    mumbai: {
+      chainId: 80001,
+      url: `${process.env.URL_MUMBAI}`,
+      saveDeployments: true,
+      accounts,
+      gasPrice: 110000000000,
     },
     hardhat: {
       chainId: 1337, // https://hardhat.org/metamask-issue.html

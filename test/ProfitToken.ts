@@ -1,7 +1,7 @@
-const { expect } = require('chai')
-const { ethers } = require('hardhat')
+import { expect } from 'chai'
+import { ethers } from 'hardhat'
 
-describe('Token contract', function () {
+describe('Protif token', function () {
   before(async function () {
     this.Token = await ethers.getContractFactory('ProfitToken')
     const [devFund, tester] = await ethers.getSigners()
