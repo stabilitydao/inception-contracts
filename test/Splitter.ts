@@ -172,4 +172,12 @@ describe('Splitter', function () {
     expect(await splitter.gov()).to.eq(30)
     expect(await splitter.dev()).to.eq(30)
   })
+
+  it('Emit events', async function () {
+    await splitter.grantRole(ethers.utils.id('CHANGER_ROLE'), _deployer.address)
+
+    await expect(splitter.change(40, 30, 30))
+      .to.emit(splitter, 'Changed')
+      .withArgs(40, 30, 30)
+  })
 })

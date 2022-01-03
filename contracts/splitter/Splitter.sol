@@ -18,6 +18,9 @@ contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     address public treasure;
     address public devFund;
 
+    event Changed(uint8 div, uint8 gov, uint8 dev);
+    event Split(address token, uint256 amount);
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
         // solhint-disable-previous-line no-empty-blocks
@@ -50,6 +53,7 @@ contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         div = _div;
         gov = _gov;
         dev = _dev;
+        emit Changed(_div, _gov, _dev);
     }
 
     function check(
@@ -84,6 +88,8 @@ contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         IPayer(dPayer).receivePayment(address(this), pDiv);
         IERC20Upgradeable(token).transfer(treasure, pGov);
         IERC20Upgradeable(token).transfer(devFund, pDevFund);
+
+        emit Split(token, amount);
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER_ROLE) override {
