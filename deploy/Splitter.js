@@ -3,7 +3,7 @@ const { ethers, upgrades } = require('hardhat')
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   // type proxy address for upgrade contract
   // deployer must have upgrade access
-  const upgradeProxy = null // poly: ''
+  const upgradeProxy = null // ropsten: '0x41c07333E5D979e6E3915eD7eb253D52cA538c01'
 
   const { save, get } = deployments
   const { deployer, devFund } = await getNamedAccounts()
