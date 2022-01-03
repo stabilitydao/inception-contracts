@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../token/DividendToken.sol";
+import "../interfaces/IPayer.sol";
 
 /**
  * @title DividendPayer
@@ -24,7 +25,7 @@ import "../token/DividendToken.sol";
  *
  * Inspired by OpenZeppelin PaymentSplitter and SharjeelSafdar ERC20PaymentSplitter
  */
-abstract contract DividendPayer is Initializable, UUPSUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable {
+abstract contract DividendPayer is Initializable, UUPSUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, IPayer {
     struct Received {
         uint256 snapshotId;
         uint256 amount;
