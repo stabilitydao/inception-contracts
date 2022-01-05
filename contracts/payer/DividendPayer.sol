@@ -232,6 +232,23 @@ abstract contract DividendPayer is Initializable, UUPSUpgradeable, ReentrancyGua
         _paymentToken.transfer(payee, payment);
     }
 
+    function drainMinterShare(address pool, address devFund) external onlyOwner {
+        address payee = pool;
+        uint256 payment = paymentPending(payee);
+
+        emit PaymentReleased(payee, payment);
+
+        _totalPaid += payment;
+        _totalPaidTo[payee] += payment;
+        uint256 nextSnapshotId = _sharesToken.snapshot();
+        _payments[payee].push(Payment({
+        snapshotId: nextSnapshotId,
+        amount: payment,
+        to: payee
+        }));
+        _paymentToken.transfer(devFund, payment);
+    }
+
     function _authorizeUpgrade(address newImplementation) internal onlyOwner override {
         // solhint-disable-previous-line no-empty-blocks
     }
