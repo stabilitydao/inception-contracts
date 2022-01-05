@@ -61,7 +61,7 @@ module.exports = {
       url: `${process.env.URL_POLYGON}`,
       saveDeployments: true,
       accounts,
-      gasPrice: 650000000000,
+      gasPrice: 900000000000, // 900 gwei
     },
     ropsten: {
       url: `${process.env.URL_ROPSTEN}`,
