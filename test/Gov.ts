@@ -1,9 +1,16 @@
 import { expect } from 'chai'
 import { artifacts, waffle, ethers, upgrades } from 'hardhat'
-import { ProfitToken, Gov, Gov__factory, GovTimelock } from '../typechain-types'
+import {
+  ProfitToken,
+  GovTimelock,
+  Gov,
+  Gov__factory,
+  ERC721VotesMock,
+} from '../typechain-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 describe('Gov', function () {
+  let govNft: ERC721VotesMock
   let token: ProfitToken
   let gov: Gov
   let timelock: GovTimelock
@@ -68,6 +75,15 @@ describe('Gov', function () {
     // grant timelock proposer and executor roles to governance
     await timelock.grantRole(ethers.utils.id('PROPOSER_ROLE'), gov.address)
     await timelock.grantRole(ethers.utils.id('EXECUTOR_ROLE'), gov.address)
+
+    govNft = <ERC721VotesMock>(
+      await waffle.deployContract(
+        _deployer,
+        await artifacts.readArtifact('ERC721VotesMock'),
+        ['Dummy NFT', 'DNFT']
+      )
+    )
+    await govNft.deployed()
   })
 
   it('Upgrades', async function () {
@@ -323,7 +339,7 @@ describe('Gov', function () {
       )
     ).to.be.revertedWith('is missing role')
 
-    await gov.grantRole(ethers.utils.id('INSPECTOR_ROLE'), _devFund.address)
+    await gov.grantRole(ethers.utils.id('MODERATOR_ROLE'), _devFund.address)
 
     await expect(
       gov
@@ -400,5 +416,45 @@ describe('Gov', function () {
     await ethers.provider.send('evm_mine', [])
 
     expect(await gov.quorumNumerator()).to.eq(newQuorumNumerator)
+  })
+
+  it('NFT voting', async function () {
+    await expect(gov.addNFT(govNft.address, 1)).to.be.revertedWith(
+      'is missing role'
+    )
+    await gov.grantRole(
+      ethers.utils.id('POWER_CHANGER_ROLE'),
+      _deployer.address
+    )
+
+    // PROFIT token multiplier: 1000
+    // NFT with multiplier 10 * 1000 * 10**18: 10 PROFIT has same voting power as 1 NFT
+    gov.addNFT(govNft.address, ethers.utils.parseEther('10000'))
+
+    await govNft.mint(_deployer.address, 1)
+    expect(await govNft.balanceOf(_deployer.address)).to.eq(1)
+    await govNft.delegate(_deployer.address)
+    expect(
+      await gov.getVotes(
+        _deployer.address,
+        (await ethers.provider.getBlockNumber()) - 1
+      )
+    ).to.eq(0)
+
+    const newQuorumNumerator = 10
+    const proposalDesc = 'Proposal #3: change quorum numerator'
+    const calldata = gov.interface.encodeFunctionData('updateQuorumNumerator', [
+      newQuorumNumerator,
+    ])
+    await expect(gov.propose([gov.address], [0], [calldata], proposalDesc)).to
+      .be.not.reverted
+
+    // votes must be 10 * 10**18
+    expect(
+      await gov.getVotes(
+        _deployer.address,
+        (await ethers.provider.getBlockNumber()) - 1
+      )
+    ).to.eq(ethers.utils.parseEther('10'))
   })
 })

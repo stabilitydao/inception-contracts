@@ -13,7 +13,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const UPGRADER_ROLE = ethers.utils.id('UPGRADER_ROLE')
   const PROPOSER_ROLE = ethers.utils.id('PROPOSER_ROLE')
   const EXECUTOR_ROLE = ethers.utils.id('EXECUTOR_ROLE')
-  const INSPECTOR_ROLE = ethers.utils.id('INSPECTOR_ROLE')
+  const MODERATOR_ROLE = ethers.utils.id('MODERATOR_ROLE')
 
   console.log('')
 
@@ -152,9 +152,9 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
       console.log(`REVERTED!`)
     }
 
-    tx = await gov.grantRole(INSPECTOR_ROLE, devFund)
+    tx = await gov.grantRole(MODERATOR_ROLE, devFund)
     process.stdout.write(
-      `Grant governance INSPECTOR role to development fund (tx: ${tx.hash})...: `
+      `Grant governance MODERATOR role to development fund (tx: ${tx.hash})...: `
     )
 
     receipt = await tx.wait()

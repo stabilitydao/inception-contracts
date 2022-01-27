@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts-upgradeable/governance/GovernorUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorSettingsUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable-4.5/governance/GovernorUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable-4.5/governance/extensions/GovernorTimelockControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable-4.5/governance/extensions/GovernorSettingsUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable-4.5/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable-4.5/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable-4.5/proxy/utils/UUPSUpgradeable.sol";
+import "./GovVotes.sol";
+import "./GovVotesQuorumFraction.sol";
 
-contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable, GovernorCountingSimpleUpgradeable, GovernorVotesUpgradeable, GovernorVotesQuorumFractionUpgradeable, GovernorTimelockControlUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
+contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable, GovernorCountingSimpleUpgradeable, GovVotes, GovVotesQuorumFraction, GovernorTimelockControlUpgradeable, AccessControlUpgradeable, UUPSUpgradeable {
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    bytes32 public constant INSPECTOR_ROLE = keccak256("INSPECTOR_ROLE");
+    bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
+    bytes32 public constant POWER_CHANGER_ROLE = keccak256("POWER_CHANGER_ROLE");
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
@@ -30,8 +31,8 @@ contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable,
         __Governor_init("Gov");
         __GovernorSettings_init(initVotingDelay, initVotingPeriod, initProposalThreshold);
         __GovernorCountingSimple_init();
-        __GovernorVotes_init(_token);
-        __GovernorVotesQuorumFraction_init(initQuorumNumberator);
+        __GovVotes_init(_token);
+        __GovVotesQuorumFraction_init(initQuorumNumberator);
         __GovernorTimelockControl_init(_timelock);
         __AccessControl_init();
         __UUPSUpgradeable_init();
@@ -41,7 +42,7 @@ contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable,
     function quorum(uint256 blockNumber)
     public
     view
-    override(IGovernorUpgradeable, GovernorVotesQuorumFractionUpgradeable)
+    override(IGovernorUpgradeable, GovVotesQuorumFraction)
     returns (uint256)
     {
         return super.quorum(blockNumber);
@@ -68,7 +69,7 @@ contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable,
     function getVotes(address account, uint256 blockNumber)
     public
     view
-    override(IGovernorUpgradeable, GovernorVotesUpgradeable)
+    override(IGovernorUpgradeable, GovVotes)
     returns (uint256)
     {
         return super.getVotes(account, blockNumber);
@@ -100,9 +101,25 @@ contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable,
         return super.proposalThreshold();
     }
 
+    function addFT(ERC20VotesUpgradeable token, uint256 multiplier) public onlyRole(POWER_CHANGER_ROLE) {
+        super._addFT(token, multiplier);
+    }
+
+    function setFTMultiplier(uint256 id, uint256 multiplier) public onlyRole(POWER_CHANGER_ROLE)  {
+        super._setFTMultiplier(id, multiplier);
+    }
+
+    function addNFT(ERC721VotesUpgradeable token, uint256 multiplier) public onlyRole(POWER_CHANGER_ROLE) {
+        super._addNFT(token, multiplier);
+    }
+
+    function setNFTMultiplier(uint256 id, uint256 multiplier) public onlyRole(POWER_CHANGER_ROLE)  {
+        super._setNFTMultiplier(id, multiplier);
+    }
+
     function cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
     public
-    onlyRole(INSPECTOR_ROLE)
+    onlyRole(MODERATOR_ROLE)
     returns (uint256)
     {
         return _cancel(targets, values, calldatas, descriptionHash);
