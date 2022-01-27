@@ -3,13 +3,20 @@
 <h1>Stability Core</h1>
 </div>
 <p align="center">
-  <a href="https://github.com/stabilitydao/core/actions/workflows/tests.yml?query=branch%3Amain"><img src="https://github.com/stabilitydao/core/actions/workflows/tests.yml/badge.svg?branch=main" /></a>
+  <a href="https://github.com/stabilitydao/core/tree/main"><img src="https://img.shields.io/badge/branch-main-brightgreen&?style=flat&logo=github"></a><a href="https://github.com/stabilitydao/core/actions/workflows/tests.yml?query=branch%3Amain"><img src="https://github.com/stabilitydao/core/actions/workflows/tests.yml/badge.svg?branch=main" /></a>
   <a href="https://github.com/stabilitydao/core/actions/workflows/lint.yml?query=branch%3Amain"><img src="https://github.com/stabilitydao/core/actions/workflows/lint.yml/badge.svg?branch=main" /></a>
   <a href="https://app.codecov.io/gh/stabilitydao/core"><img src="https://codecov.io/gh/stabilitydao/core/branch/main/graph/badge.svg?token=EO6E2Z0Y5Z" /></a>
-<a href="https://github.com/stabilitydao/core/blob/main/LICENSE"><img src="https://img.shields.io/github/license/stabilitydao/core?style=flat" /></a>
 </p>
 <p align="center">
-<b>Source code of smart contracts for Stability protocol</b> 
+  <a href="https://github.com/stabilitydao/core"><img src="https://img.shields.io/badge/branch-develop-blue?logo=github"></a><a href="https://github.com/stabilitydao/core/actions/workflows/tests.yml?query=branch%3Adevelop"><img src="https://github.com/stabilitydao/core/actions/workflows/tests.yml/badge.svg?branch=develop" /></a>
+  <a href="https://github.com/stabilitydao/core/actions/workflows/lint.yml?query=branch%3Adevelop"><img src="https://github.com/stabilitydao/core/actions/workflows/lint.yml/badge.svg?branch=develop" /></a>
+  <a href="https://app.codecov.io/gh/stabilitydao/core"><img src="https://codecov.io/gh/stabilitydao/core/branch/develop/graph/badge.svg?token=EO6E2Z0Y5Z" /></a>
+</p>
+<p align="center">
+  <a href="https://github.com/stabilitydao/core/blob/main/LICENSE"><img src="https://img.shields.io/github/license/stabilitydao/core?style=for-the-badge&color=success" /></a>
+</p>
+<p align="center">
+<b>Source code of smart contracts for Stability protocol</b>
 </p>
 
 ## What is Stability?
