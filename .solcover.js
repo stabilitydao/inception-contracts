@@ -1,3 +1,3 @@
 module.exports = {
-  skipFiles: ['token/WETH9.sol'],
+  skipFiles: ['mocks/','token/WETH9.sol'],
 }
