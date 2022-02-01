@@ -6,6 +6,7 @@ import {
   Gov,
   Gov__factory,
   ERC721VotesMock,
+  ERC20VotesMock,
 } from '../typechain-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
@@ -429,7 +430,7 @@ describe('Gov', function () {
 
     // PROFIT token multiplier: 1000
     // NFT with multiplier 10 * 1000 * 10**18: 10 PROFIT has same voting power as 1 NFT
-    gov.addNFT(govNft.address, ethers.utils.parseEther('10000'))
+    await gov.addNFT(govNft.address, ethers.utils.parseEther('10000'))
 
     await govNft.mint(_deployer.address, 1)
     expect(await govNft.balanceOf(_deployer.address)).to.eq(1)
@@ -456,5 +457,130 @@ describe('Gov', function () {
         (await ethers.provider.getBlockNumber()) - 1
       )
     ).to.eq(ethers.utils.parseEther('10'))
+  })
+
+  it('Voting power management', async function () {
+    const ft = <ERC20VotesMock>(
+      await waffle.deployContract(
+        _deployer,
+        await artifacts.readArtifact('ERC20VotesMock')
+      )
+    )
+    await ft.deployed()
+    expect(await ft.symbol()).to.eq('MTK')
+    await gov.grantRole(
+      ethers.utils.id('POWER_CHANGER_ROLE'),
+      _deployer.address
+    )
+
+    await gov.addFT(ft.address, 200)
+
+    await ft.transfer(_tester.address, ethers.utils.parseEther('5'))
+
+    await token.connect(_tester).delegate(_tester.address)
+    await ft.connect(_tester).delegate(_tester.address)
+    await govNft.connect(_tester).delegate(_tester.address)
+
+    // make random transfer of tokens to update snapshot
+    await ft.transfer(_devFund.address, 1)
+
+    expect(
+      await gov.getVotes(
+        _tester.address,
+        (await ethers.provider.getBlockNumber()) - 1
+      )
+    ).to.eq(ethers.utils.parseEther('1'))
+
+    await gov.setFTMultiplier(1, 1000)
+
+    expect(
+      await gov.getVotes(
+        _tester.address,
+        (await ethers.provider.getBlockNumber()) - 1
+      )
+    ).to.eq(ethers.utils.parseEther('5'))
+
+    // proposal threshold == 10 * 10**18
+    // voting power of _tester == 5 * 10**18
+    await token
+      .connect(_devFund)
+      .transfer(timelock.address, ethers.utils.parseEther('100000'))
+    await expect(
+      gov
+        .connect(_tester)
+        .propose(
+          [token.address],
+          [0],
+          [
+            token.interface.encodeFunctionData('transfer', [
+              _deployer.address,
+              ethers.utils.parseEther('100000'),
+            ]),
+          ],
+          'Proposal #1: Give grant to team'
+        )
+    ).to.be.revertedWith(
+      'GovernorCompatibilityBravo: proposer votes below proposal threshold'
+    )
+
+    await token
+      .connect(_devFund)
+      .transfer(_tester.address, ethers.utils.parseEther('3'))
+
+    // random transfer
+    await token
+      .connect(_devFund)
+      .transfer(_deployer.address, ethers.utils.parseEther('1'))
+
+    expect(
+      await gov.getVotes(
+        _tester.address,
+        (await ethers.provider.getBlockNumber()) - 1
+      )
+    ).to.eq(ethers.utils.parseEther('8'))
+
+    await gov.addNFT(govNft.address, ethers.utils.parseEther('500'))
+    await govNft.mint(_tester.address, 1)
+    await govNft.mint(_tester.address, 2)
+
+    // random mint
+    await govNft.mint(_deployer.address, 3)
+
+    expect(
+      await gov.getVotes(
+        _tester.address,
+        (await ethers.provider.getBlockNumber()) - 1
+      )
+    ).to.eq(ethers.utils.parseEther('9'))
+
+    await gov.setNFTMultiplier(0, ethers.utils.parseEther('1000'))
+
+    expect(
+      await gov.getVotes(
+        _tester.address,
+        (await ethers.provider.getBlockNumber()) - 1
+      )
+    ).to.eq(ethers.utils.parseEther('10'))
+
+    await expect(
+      gov
+        .connect(_tester)
+        .propose(
+          [token.address],
+          [0],
+          [
+            token.interface.encodeFunctionData('transfer', [
+              _deployer.address,
+              ethers.utils.parseEther('100000'),
+            ]),
+          ],
+          'Proposal #1: Give grant to team'
+        )
+    ).to.be.not.reverted
+
+    // (1000000+1000000+3)×0,01 * 10**18
+    expect(
+      await gov.quorum((await ethers.provider.getBlockNumber()) - 1)
+    ).to.eq('20000030000000000000000')
   })
 })
