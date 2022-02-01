@@ -50,6 +50,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     let votingPeriod = 6645 // about 1 day
     let proposalThreshold = ethers.utils.parseEther('100') // 100.0 tokens
     let quorum = 1 // 1%
+    let lateQuorumBlocks = 100
 
     if (hre.network.name == 'mainnet') {
       votingDelay = 13140 // 2 days
@@ -58,10 +59,12 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     } else if (hre.network.name == 'polygon') {
       votingDelay = 82000 // 2 days (blocktime: 2.1 sec)
       votingPeriod = 246000 // 6 days
+      lateQuorumBlocks = 1700 // 1 hour
       proposalThreshold = ethers.utils.parseEther('10000') // 10000.0 tokens / 1%
     } else if (hre.network.name == 'mumbai') {
       votingDelay = 6800 // about 4 hours (blocktime: 2.1 sec)
       votingPeriod = 41100 // about 1 day
+      lateQuorumBlocks = 285 // 10 mins
     }
 
     const Gov = await ethers.getContractFactory('Gov')
@@ -75,6 +78,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
         votingPeriod,
         proposalThreshold,
         quorum,
+        lateQuorumBlocks,
       ],
       {
         kind: 'uups',

@@ -23,6 +23,7 @@ describe('Gov', function () {
   const votingPeriod = 30
   const proposalThreshold = ethers.utils.parseEther('10')
   const quorum = 1
+  const lateQuorumBlocks = 10
 
   beforeEach(async function () {
     const [deployer, tester, devFund] = await ethers.getSigners()
@@ -65,6 +66,7 @@ describe('Gov', function () {
         votingPeriod,
         proposalThreshold,
         quorum,
+        lateQuorumBlocks,
       ],
       {
         kind: 'uups',
@@ -582,5 +584,93 @@ describe('Gov', function () {
     expect(
       await gov.quorum((await ethers.provider.getBlockNumber()) - 1)
     ).to.eq('20000030000000000000000')
+  })
+
+  it('Prevent late quorum', async function () {
+    // change prevent late quorum extension and test it
+    const newLateQuorumExtension = 100
+    const proposalDesc = 'Proposal #10: change late quorum extension'
+    await token
+      .connect(_devFund)
+      .transfer(_tester.address, ethers.utils.parseEther('10000'))
+    await token.connect(_tester).delegate(_tester.address)
+
+    const calldata = gov.interface.encodeFunctionData(
+      'setLateQuorumVoteExtension',
+      [newLateQuorumExtension]
+    )
+
+    await expect(
+      gov.connect(_tester).propose([gov.address], [0], [calldata], proposalDesc)
+    ).to.be.not.reverted
+
+    const proposalId = await gov.hashProposal(
+      [gov.address],
+      [0],
+      [calldata],
+      ethers.utils.id(proposalDesc)
+    )
+
+    // proposal in Pending state
+    expect(await gov.state(proposalId)).to.eq(0)
+
+    // cant cast vote while pending
+    await expect(gov.castVote(proposalId, 0)).to.be.revertedWith(
+      'Governor: vote not currently active'
+    )
+
+    // mine 100 blocks
+    for (let i = 0; i < votingDelay; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // proposal in Active state
+    expect(await gov.state(proposalId)).to.eq(1)
+
+    // mine blocks
+    for (let i = 0; i < votingPeriod - 2; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // cast vote
+    await expect(gov.connect(_tester).castVote(proposalId, 1)).to.be.not
+      .reverted
+
+    for (let i = 0; i < 5; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // proposal in Active state
+    expect(await gov.state(proposalId)).to.eq(1)
+
+    for (let i = 0; i < lateQuorumBlocks - 4; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // extended voting period was extended
+    // proposal in Succeed state
+    expect(await gov.state(proposalId)).to.eq(4)
+
+    // queue proposal to timelock
+    await expect(
+      gov.queue([gov.address], [0], [calldata], ethers.utils.id(proposalDesc))
+    ).to.not.be.reverted
+
+    // mine blocks
+    for (let i = 0; i < timelockDelay; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // execute proposal
+    await expect(
+      gov.execute([gov.address], [0], [calldata], ethers.utils.id(proposalDesc))
+    ).to.not.be.reverted
+
+    // proposal in Executed state
+    expect(await gov.state(proposalId)).to.eq(7)
+
+    await ethers.provider.send('evm_mine', [])
+
+    expect(await gov.lateQuorumVoteExtension()).to.eq(newLateQuorumExtension)
   })
 })
