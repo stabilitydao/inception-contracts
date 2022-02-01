@@ -1,13 +1,13 @@
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log('')
-  console.log('== GovTimelock deployment ==')
+  console.log('== Treasure deployment ==')
 
   const { deploy, get } = deployments
   const { deployer } = await getNamedAccounts()
   const chainId = await getChainId()
 
   try {
-    const deplpoyment = await get('GovTimelock')
+    const deplpoyment = await get('Treasure')
     console.log(
       `GovTimelock already deployed to ${hre.network.name} at ${deplpoyment.address}`
     )
@@ -25,7 +25,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log('Deployer address:', deployer)
   console.log('Timelock minDelay:', minDelay)
 
-  await deploy('GovTimelock', {
+  await deploy('Treasure', {
     from: deployer,
     log: true,
     args: [minDelay, [], []],
