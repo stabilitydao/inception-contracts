@@ -6,16 +6,16 @@ import {
   DividendToken__factory,
   EtherPayer,
   EtherPayer__factory,
-  GovTimelock,
   Splitter,
   Splitter__factory,
+  Treasure,
   WETH9,
 } from '../typechain-types'
 
 describe('Splitter', function () {
   let splitter: Splitter
   let wEth: WETH9
-  let timelock: GovTimelock
+  let timelock: Treasure
   let ePayer: EtherPayer
   let dToken: DividendToken
   let _deployer: SignerWithAddress
@@ -29,10 +29,10 @@ describe('Splitter', function () {
     _tester = tester
     _devFund = devFund
 
-    timelock = <GovTimelock>(
+    timelock = <Treasure>(
       await waffle.deployContract(
         _deployer,
-        await artifacts.readArtifact('GovTimelock'),
+        await artifacts.readArtifact('Treasure'),
         [10, [], []]
       )
     )

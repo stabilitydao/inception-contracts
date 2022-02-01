@@ -35,7 +35,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   }
 
   const token = await deployments.get('ProfitToken')
-  const timelock = await deployments.get('GovTimelock')
+  const timelock = await deployments.get('Treasure')
 
   console.log('ChainId:', chainId)
   console.log('Deployer address:', deployer)
@@ -102,7 +102,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     )
 
     const timelockContract = await ethers.getContractAt(
-      'GovTimelock',
+      'Treasure',
       timelock.address
     )
 

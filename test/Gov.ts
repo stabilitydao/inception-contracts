@@ -2,11 +2,11 @@ import { expect } from 'chai'
 import { artifacts, waffle, ethers, upgrades } from 'hardhat'
 import {
   ProfitToken,
-  GovTimelock,
   Gov,
   Gov__factory,
   ERC721VotesMock,
   ERC20VotesMock,
+  Treasure,
 } from '../typechain-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
@@ -14,7 +14,7 @@ describe('Gov', function () {
   let govNft: ERC721VotesMock
   let token: ProfitToken
   let gov: Gov
-  let timelock: GovTimelock
+  let timelock: Treasure
   let _deployer: SignerWithAddress
   let _devFund: SignerWithAddress
   let _tester: SignerWithAddress
@@ -42,10 +42,10 @@ describe('Gov', function () {
     )
     await token.deployed()
 
-    timelock = <GovTimelock>(
+    timelock = <Treasure>(
       await waffle.deployContract(
         _deployer,
-        await artifacts.readArtifact('GovTimelock'),
+        await artifacts.readArtifact('Treasure'),
         [10, [], []]
       )
     )
