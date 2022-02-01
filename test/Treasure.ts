@@ -6,11 +6,13 @@ import {
   Gov__factory,
   ERC721VotesMock,
   Treasure,
+  ERC1155Mock,
 } from '../typechain-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 describe('Treasure', function () {
   let govNft: ERC721VotesMock
+  let erc1155: ERC1155Mock
   let token: ProfitToken
   let gov: Gov
   let timelock: Treasure
@@ -86,6 +88,15 @@ describe('Treasure', function () {
       )
     )
     await govNft.deployed()
+
+    erc1155 = <ERC1155Mock>(
+      await waffle.deployContract(
+        _deployer,
+        await artifacts.readArtifact('ERC1155Mock'),
+        ['https://uri']
+      )
+    )
+    await erc1155.deployed()
   })
 
   it('Gov deployed', async function () {
@@ -106,7 +117,6 @@ describe('Treasure', function () {
   it('Transfer NFT to and from treasure', async function () {
     await govNft.mint(_deployer.address, 1)
     expect(await govNft.balanceOf(_deployer.address)).to.eq(1)
-
     await expect(
       govNft['safeTransferFrom(address,address,uint256)'](
         _deployer.address,
@@ -114,9 +124,33 @@ describe('Treasure', function () {
         1
       )
     ).to.be.not.reverted
-
     expect(await govNft.balanceOf(timelock.address)).to.eq(1)
     expect(await govNft.ownerOf(1)).to.eq(timelock.address)
+
+    await erc1155.mint(_deployer.address, 1, 10, [])
+    expect(await erc1155.balanceOf(_deployer.address, 1)).to.eq(10)
+    await expect(
+      erc1155['safeTransferFrom'](
+        _deployer.address,
+        timelock.address,
+        1,
+        10,
+        []
+      )
+    ).to.be.not.reverted
+    expect(await erc1155.balanceOf(timelock.address, 1)).to.eq(10)
+
+    await erc1155.mint(_deployer.address, 2, 5, [])
+    await erc1155.mint(_deployer.address, 3, 15, [])
+    await expect(
+      erc1155['safeBatchTransferFrom'](
+        _deployer.address,
+        timelock.address,
+        [2, 3],
+        [3, 6],
+        []
+      )
+    ).to.be.not.reverted
 
     await token.connect(_devFund).delegate(_devFund.address)
 
