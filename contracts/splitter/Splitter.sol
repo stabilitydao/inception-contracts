@@ -19,7 +19,7 @@ contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     address public devFund;
 
     event Changed(uint8 div, uint8 gov, uint8 dev);
-    event Split(address token, uint256 amount);
+    event Split(address indexed token, uint256 amount);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
@@ -66,7 +66,7 @@ contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         require(_div <= 60, "Too much dividend");
         require(_gov >= 10, "Few treasures");
         require(_gov <= 60, "Many treasures");
-        require(_dev >= 10, "Not enough for devs");
+        require(_dev >= 20, "Not enough for devs");
         require(_dev <= 60, "Too much for devs");
     }
 
@@ -87,6 +87,7 @@ contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         if (IERC20Upgradeable(token).allowance(address(this), address(dPayer)) < pDiv) {
             IERC20Upgradeable(token).approve(dPayer, type(uint256).max);
         }
+
         // distribute contract token balance to dividend payer contract, goveranance and devFund
         IPayer(dPayer).receivePayment(address(this), pDiv);
         IERC20Upgradeable(token).transfer(treasure, pGov);
