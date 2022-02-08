@@ -83,8 +83,11 @@ contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         // Percentage to send to devFund Multisig Wallet
         uint256 pDevFund = dev * onePercent;
 
+        // approve dPayer to spend tokens
+        if (IERC20Upgradeable(token).allowance(address(this), address(dPayer)) != type(uint256).max) {
+            IERC20Upgradeable(token).approve(dPayer, type(uint256).max);
+        }
         // distribute contract token balance to dividend payer contract, goveranance and devFund
-        IERC20Upgradeable(token).approve(dPayer, pDiv);
         IPayer(dPayer).receivePayment(address(this), pDiv);
         IERC20Upgradeable(token).transfer(treasure, pGov);
         IERC20Upgradeable(token).transfer(devFund, pDevFund);
