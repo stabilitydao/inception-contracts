@@ -84,7 +84,7 @@ contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         uint256 pDevFund = dev * onePercent;
 
         // approve dPayer to spend tokens
-        if (IERC20Upgradeable(token).allowance(address(this), address(dPayer)) != type(uint256).max) {
+        if (IERC20Upgradeable(token).allowance(address(this), address(dPayer)) < pDiv) {
             IERC20Upgradeable(token).approve(dPayer, type(uint256).max);
         }
         // distribute contract token balance to dividend payer contract, goveranance and devFund
