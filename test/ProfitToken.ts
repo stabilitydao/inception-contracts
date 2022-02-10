@@ -40,26 +40,26 @@ describe('Protif token', function () {
   it('Can burnFrom only allowed tokens', async function () {
     await expect(
       this.token.burnFrom(this.devFund.address, 1)
-    ).to.be.revertedWith('ERC20: burn amount exceeds allowance')
+    ).to.be.revertedWith('ERC20: insufficient allowance')
     await this.token.approve(this.devFund.address, 8)
     await expect(this.token.burnFrom(this.devFund.address, 7)).to.not.be
       .reverted
     await expect(
       this.token.burnFrom(this.devFund.address, 2)
-    ).to.be.revertedWith('ERC20: burn amount exceeds allowance')
+    ).to.be.revertedWith('ERC20: insufficient allowance')
     await this.token.increaseAllowance(this.devFund.address, 2)
     await expect(this.token.burnFrom(this.devFund.address, 2)).to.not.be
       .reverted
     await this.token.decreaseAllowance(this.devFund.address, 1)
     await expect(
       this.token.burnFrom(this.devFund.address, 2)
-    ).to.be.revertedWith('ERC20: burn amount exceeds allowance')
+    ).to.be.revertedWith('ERC20: insufficient allowance')
   })
 
   it('Can burnFrom only allowed tokens', async function () {
     await expect(
       this.token.transferFrom(this.devFund.address, this.tester.address, 10)
-    ).to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+    ).to.be.revertedWith('ERC20: insufficient allowance')
     await this.token.approve(this.devFund.address, 10)
     await expect(
       this.token.transferFrom(this.devFund.address, this.tester.address, 10)

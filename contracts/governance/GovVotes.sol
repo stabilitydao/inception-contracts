@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts-upgradeable-4.5/governance/GovernorUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable-4.5/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable-4.5/token/ERC721/extensions/draft-ERC721VotesUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable-4.5/utils/math/MathUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable-4.5/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable-4.5/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/governance/GovernorUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/draft-ERC721VotesUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 
 /**
  * @dev Custom extension of {Governor} for voting weight extraction from an {ERC20Votes} and {ERC721Votes} multiple token.

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts-4.5/token/ERC721/extensions/draft-ERC721Votes.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
 
 contract ERC721VotesMock is ERC721Votes {
     constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
