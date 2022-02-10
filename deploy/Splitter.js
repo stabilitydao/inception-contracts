@@ -33,7 +33,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     console.log(`Proxy address: ${upgradeProxy}`)
   }
 
-  const timelock = await deployments.get('Treasure')
+  const timelock = await deployments.get('StabilityDAO')
 
   console.log('ChainId:', chainId)
   console.log('Deployer address:', deployer)

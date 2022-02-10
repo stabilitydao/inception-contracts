@@ -5,8 +5,8 @@ import {
   Gov,
   Gov__factory,
   ERC721VotesMock,
-  Treasure,
   ERC1155Mock,
+  StabilityDAO,
 } from '../typechain-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
@@ -15,7 +15,7 @@ describe('Treasure', function () {
   let erc1155: ERC1155Mock
   let token: ProfitToken
   let gov: Gov
-  let timelock: Treasure
+  let timelock: StabilityDAO
   let _deployer: SignerWithAddress
   let _devFund: SignerWithAddress
   let _tester: SignerWithAddress
@@ -43,10 +43,10 @@ describe('Treasure', function () {
     )
     await token.deployed()
 
-    timelock = <Treasure>(
+    timelock = <StabilityDAO>(
       await waffle.deployContract(
         _deployer,
-        await artifacts.readArtifact('Treasure'),
+        await artifacts.readArtifact('StabilityDAO'),
         [10, [], []]
       )
     )
@@ -99,7 +99,7 @@ describe('Treasure', function () {
     await erc1155.deployed()
   })
 
-  it('Gov deployed', async function () {
+  it('Timelocked governance deployed', async function () {
     expect(await gov.name()).to.eq('Gov')
     expect(await gov.version()).to.eq('1')
     expect(await gov.proposalThreshold()).to.eq(proposalThreshold)
@@ -111,6 +111,10 @@ describe('Treasure', function () {
 
     expect(
       await gov.supportsInterface(ethers.utils.hexlify([1, 3, 4, 5]))
+    ).to.eq(false)
+
+    expect(
+      await timelock.supportsInterface(ethers.utils.hexlify([1, 3, 4, 5]))
     ).to.eq(false)
   })
 

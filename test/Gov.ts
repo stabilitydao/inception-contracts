@@ -6,7 +6,7 @@ import {
   Gov__factory,
   ERC721VotesMock,
   ERC20VotesMock,
-  Treasure,
+  StabilityDAO,
 } from '../typechain-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
@@ -14,7 +14,7 @@ describe('Gov', function () {
   let govNft: ERC721VotesMock
   let token: ProfitToken
   let gov: Gov
-  let timelock: Treasure
+  let timelock: StabilityDAO
   let _deployer: SignerWithAddress
   let _devFund: SignerWithAddress
   let _tester: SignerWithAddress
@@ -42,10 +42,10 @@ describe('Gov', function () {
     )
     await token.deployed()
 
-    timelock = <Treasure>(
+    timelock = <StabilityDAO>(
       await waffle.deployContract(
         _deployer,
-        await artifacts.readArtifact('Treasure'),
+        await artifacts.readArtifact('StabilityDAO'),
         [10, [], []]
       )
     )
