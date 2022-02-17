@@ -47,6 +47,19 @@ describe('ProfitMaker NFT', function () {
     ).to.eq(false)
   })
 
+  it('Upgrades', async function () {
+    const factory = (await ethers.getContractFactory(
+      'ProfitMaker'
+    )) as ProfitMaker__factory
+
+    profitMaker = (await upgrades.upgradeProxy(
+      profitMaker.address,
+      factory
+    )) as ProfitMaker
+
+    await profitMaker.deployed()
+  })
+
   it('Mint', async function () {
     await expect(profitMaker.safeMint(_tester.address)).to.be.revertedWith(
       'Not enough PROFIT tokens'
