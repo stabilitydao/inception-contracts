@@ -42,6 +42,9 @@ describe('ProfitMaker NFT', function () {
     expect(await profitMaker.name()).to.be.equal('Profit Maker')
     expect(await profitMaker.symbol()).to.be.equal('PM')
     expect(await profitMaker.totalSupply()).to.be.equal(0)
+    expect(
+      await profitMaker.supportsInterface(ethers.utils.hexlify([1, 3, 4, 5]))
+    ).to.eq(false)
   })
 
   it('Mint', async function () {
@@ -168,5 +171,20 @@ describe('ProfitMaker NFT', function () {
     expect(await profitToken.balanceOf(_tester.address)).to.eq(
       ethers.utils.parseEther('70')
     )
+
+    await time.increase(time.duration.seconds(1000))
+
+    await expect(profitMaker.releaseToBalance(profitToken.address)).to.be.not
+      .reverted
+
+    // unlock released / 2
+    expect(await profitMaker.balanceToHarvest(profitToken.address, 1)).to.equal(
+      ethers.utils.parseEther('9930')
+    )
+    expect(
+      await profitMaker
+        .connect(_tester)
+        .balanceToHarvest(profitToken.address, 0)
+    ).to.equal(ethers.utils.parseEther('9930'))
   })
 })

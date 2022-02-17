@@ -541,7 +541,7 @@ describe('Gov', function () {
       )
     ).to.eq(ethers.utils.parseEther('8'))
 
-    await gov.addNFT(govNft.address, ethers.utils.parseEther('500'), true)
+    await gov.addNFT(govNft.address, ethers.utils.parseEther('500'), false)
     await govNft.mint(_tester.address, 1)
     await govNft.mint(_tester.address, 2)
 
@@ -580,9 +580,10 @@ describe('Gov', function () {
         )
     ).to.be.not.reverted
 
+    // without noQuorum '20000030000000000000000' == (1000000+1000000+3)×0,01 * 10**18
     expect(
       await gov.quorum((await ethers.provider.getBlockNumber()) - 1)
-    ).to.eq('20000000000000000000000') // without noQuorum '20000030000000000000000' == (1000000+1000000+3)×0,01 * 10**18
+    ).to.eq('20000030000000000000000')
   })
 
   it('Prevent late quorum', async function () {
