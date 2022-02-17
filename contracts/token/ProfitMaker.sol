@@ -18,7 +18,7 @@ contract ProfitMaker is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable
     event Released(address indexed token, uint256 amount);
     event SetMintTime(uint64 from, uint64 to);
 
-    IERC20Upgradeable public _profitToken;
+    IERC20Upgradeable public profitToken;
     uint64 public mintingStart;
     uint64 public mintingEnd;
 
@@ -26,7 +26,7 @@ contract ProfitMaker is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable
         uint64 start;
         uint64 duration;
         uint256 released;
-        uint256[] userBalance;
+        uint256[] balances;
     }
 
     mapping(address => Unlock) public unlocks;
@@ -37,7 +37,7 @@ contract ProfitMaker is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable
     constructor() initializer {}
 
     function initialize(IERC20Upgradeable profitToken_) initializer public {
-        _profitToken = profitToken_;
+        profitToken = profitToken_;
         __ERC721_init("Profit Maker", "PM");
         __ERC721Enumerable_init();
         __Ownable_init();
@@ -49,21 +49,32 @@ contract ProfitMaker is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable
     }
 
     function safeMint(address to) public {
-        require(_profitToken.balanceOf(msg.sender) >= 10000 ether, "Not enough PROFIT tokens");
+        require(profitToken.balanceOf(msg.sender) >= 10000 ether, "Not enough PROFIT tokens");
         require(mintingStart <= uint64(block.timestamp), "Mint is not available right now");
         require(mintingEnd >= uint64(block.timestamp), "Mint is not available right now");
         uint256 tokenId = _tokenIdCounter.current();
         require(tokenId < 80, "All tokens have already been minted");
-        _profitToken.transferFrom(msg.sender, address(this), 10000 ether);
+        profitToken.transferFrom(msg.sender, address(this), 10000 ether);
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
+    }
+
+    function setUnlock(address token_, uint64 start_, uint64 duration_) public onlyOwner {
+        unlocks[token_].start = start_;
+        unlocks[token_].duration = duration_;
     }
 
     /**
      * @dev Amount of token already released
      */
-    function released(address token) public view virtual returns (uint256) {
-        return unlocks[token].released;
+    function released(address token_) public view virtual returns (uint256) {
+        return unlocks[token_].released;
+    }
+
+    function balanceToHarvest(address token_, uint256 tokenId_) public view returns (uint256) {
+        require(ownerOf(tokenId_) == msg.sender, "You are not owner of token.");
+        require(unlocks[token_].start > 0, "Token dont have unlock.");
+        return unlocks[token_].balances[tokenId_];
     }
 
     /**
@@ -72,10 +83,11 @@ contract ProfitMaker is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable
     function harvest(address token_, uint256 tokenId_) public {
         require(ownerOf(tokenId_) == msg.sender, "You are not owner of token.");
         require(unlocks[token_].start > 0, "Token dont have unlock.");
-        uint256 releasable = unlocks[token_].userBalance[tokenId_];
+        uint256 releasable = unlocks[token_].balances[tokenId_];
         require(releasable > 0, "No tokens to harvest");
-        unlocks[token_].userBalance[tokenId_] = 0;
+        unlocks[token_].balances[tokenId_] = 0;
         SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(token_), msg.sender, releasable);
+        emit Harvest(token_, msg.sender, releasable);
     }
 
     /**
@@ -85,11 +97,18 @@ contract ProfitMaker is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable
      */
     function releaseToBalance(address token) public {
         uint256 releasable = vestedAmount(token, uint64(block.timestamp)) - released(token);
+        require(releasable > 0, "Zero to release");
+
         unlocks[token].released += releasable;
 
         uint256 totalUsers = _tokenIdCounter.current();
+        uint256 toRelease = releasable / totalUsers;
         for (uint256 i; i <= totalUsers; i++) {
-            unlocks[token].userBalance[i] += releasable / totalUsers;
+            if (unlocks[token].balances.length > i) {
+                unlocks[token].balances[i] += toRelease;
+            } else {
+                unlocks[token].balances.push(toRelease);
+            }
         }
 
         emit Released(token, releasable);

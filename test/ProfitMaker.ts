@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { ethers, upgrades } from 'hardhat'
-
+const { time } = require('@openzeppelin/test-helpers')
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import {
   ProfitMaker,
@@ -81,6 +81,92 @@ describe('ProfitMaker NFT', function () {
     expect(await profitMaker.ownerOf(0)).to.equal(_tester.address)
     expect(await profitMaker.tokenURI(0)).to.be.equal(
       'https://api.stabilitydao.org/maker/0'
+    )
+  })
+
+  it('Vesting', async function () {
+    await profitToken
+      .connect(_devFund)
+      .transfer(_tester.address, ethers.utils.parseEther('10000'))
+    await profitToken
+      .connect(_devFund)
+      .transfer(_deployer.address, ethers.utils.parseEther('10000'))
+    let now = (
+      await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    ).timestamp
+    await profitMaker.setMintState(now, now + 86400)
+    await profitToken
+      .connect(_tester)
+      .approve(profitMaker.address, ethers.utils.parseEther('10000'))
+    await profitToken
+      .connect(_deployer)
+      .approve(profitMaker.address, ethers.utils.parseEther('10000'))
+    await profitMaker.connect(_tester).safeMint(_tester.address)
+    await profitMaker.connect(_deployer).safeMint(_deployer.address)
+
+    await expect(
+      profitMaker.releaseToBalance(profitToken.address)
+    ).to.be.revertedWith('Zero to release')
+    await profitMaker.setUnlock(profitToken.address, now + 1000, 1000)
+
+    await time.increase(time.duration.seconds(994))
+
+    now = (
+      await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    ).timestamp
+
+    // 20 000 / 1000
+    expect(await profitMaker.vestedAmount(profitToken.address, now)).to.eq(
+      ethers.utils.parseEther('20')
+    )
+
+    await time.increase(1)
+
+    now = (
+      await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    ).timestamp
+    expect(await profitMaker.vestedAmount(profitToken.address, now)).to.equal(
+      ethers.utils.parseEther('40')
+    )
+
+    await expect(profitMaker.releaseToBalance(profitToken.address)).to.be.not
+      .reverted
+
+    expect((await profitMaker.unlocks(profitToken.address))[2]).to.equal(
+      ethers.utils.parseEther('60')
+    )
+
+    // unlock released / 2
+    expect(await profitMaker.balanceToHarvest(profitToken.address, 1)).to.equal(
+      ethers.utils.parseEther('30')
+    )
+
+    await profitMaker.harvest(profitToken.address, 1)
+    await profitMaker.connect(_tester).harvest(profitToken.address, 0)
+
+    expect(await profitToken.balanceOf(_deployer.address)).to.eq(
+      ethers.utils.parseEther('30')
+    )
+    expect(await profitToken.balanceOf(_tester.address)).to.eq(
+      ethers.utils.parseEther('30')
+    )
+
+    expect(await profitMaker.balanceToHarvest(profitToken.address, 1)).to.equal(
+      ethers.utils.parseEther('0')
+    )
+
+    await time.increase(time.duration.second)
+    await expect(profitMaker.releaseToBalance(profitToken.address)).to.be.not
+      .reverted
+
+    await profitMaker.harvest(profitToken.address, 1)
+    await profitMaker.connect(_tester).harvest(profitToken.address, 0)
+
+    expect(await profitToken.balanceOf(_deployer.address)).to.eq(
+      ethers.utils.parseEther('70')
+    )
+    expect(await profitToken.balanceOf(_tester.address)).to.eq(
+      ethers.utils.parseEther('70')
     )
   })
 })
