@@ -422,7 +422,7 @@ describe('Gov', function () {
   })
 
   it('NFT voting', async function () {
-    await expect(gov.addNFT(govNft.address, 1)).to.be.revertedWith(
+    await expect(gov.addNFT(govNft.address, 1, true)).to.be.revertedWith(
       'is missing role'
     )
     await gov.grantRole(
@@ -432,7 +432,7 @@ describe('Gov', function () {
 
     // PROFIT token multiplier: 1000
     // NFT with multiplier 10 * 1000 * 10**18: 10 PROFIT has same voting power as 1 NFT
-    await gov.addNFT(govNft.address, ethers.utils.parseEther('10000'))
+    await gov.addNFT(govNft.address, ethers.utils.parseEther('10000'), false)
 
     await govNft.mint(_deployer.address, 1)
     expect(await govNft.balanceOf(_deployer.address)).to.eq(1)
@@ -541,7 +541,7 @@ describe('Gov', function () {
       )
     ).to.eq(ethers.utils.parseEther('8'))
 
-    await gov.addNFT(govNft.address, ethers.utils.parseEther('500'))
+    await gov.addNFT(govNft.address, ethers.utils.parseEther('500'), true)
     await govNft.mint(_tester.address, 1)
     await govNft.mint(_tester.address, 2)
 
@@ -580,10 +580,9 @@ describe('Gov', function () {
         )
     ).to.be.not.reverted
 
-    // (1000000+1000000+3)×0,01 * 10**18
     expect(
       await gov.quorum((await ethers.provider.getBlockNumber()) - 1)
-    ).to.eq('20000030000000000000000')
+    ).to.eq('20000000000000000000000') // without noQuorum '20000030000000000000000' == (1000000+1000000+3)×0,01 * 10**18
   })
 
   it('Prevent late quorum', async function () {
