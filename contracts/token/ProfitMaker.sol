@@ -36,7 +36,7 @@ contract ProfitMaker is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
-    function initialize(IERC20Upgradeable profitToken_) initializer public {
+    function initialize(IERC20Upgradeable profitToken_) public initializer {
         profitToken = profitToken_;
         __ERC721_init("Profit Maker", "PM");
         __ERC721Enumerable_init();
