@@ -24,7 +24,10 @@ abstract contract GovVotes is Initializable, GovernorUpgradeable {
     struct GovNFT {
         ERC721VotesUpgradeable token;
         uint256 multiplier;
+        bool noQuorum;
     }
+
+    uint64 public VOTES_BASE_MULTIPLIER;
 
     GovFT[] public govFT;
     GovNFT[] public govNFT;
@@ -44,10 +47,11 @@ abstract contract GovVotes is Initializable, GovernorUpgradeable {
             votes += govNFT[i].token.getPastVotes(account, blockNumber).mul(govNFT[i].multiplier);
         }
 
-        return votes.div(1000);
+        return votes.div(VOTES_BASE_MULTIPLIER);
     }
 
     function __GovVotes_init(ERC20VotesUpgradeable tokenAddress) internal initializer {
+        VOTES_BASE_MULTIPLIER = 1000;
         __Context_init_unchained();
         __ERC165_init_unchained();
         __IGovernor_init_unchained();
@@ -57,7 +61,7 @@ abstract contract GovVotes is Initializable, GovernorUpgradeable {
     function __GovernorVotes_init_unchained(ERC20VotesUpgradeable tokenAddress) internal initializer {
         govFT.push(GovFT({
             token: tokenAddress,
-            multiplier: 1 * 1000 // 1x == 1000
+            multiplier: VOTES_BASE_MULTIPLIER // 1x == 1000
         }));
     }
 
@@ -72,10 +76,11 @@ abstract contract GovVotes is Initializable, GovernorUpgradeable {
         govFT[id].multiplier = multiplier;
     }
 
-    function _addNFT(ERC721VotesUpgradeable token, uint256 multiplier) internal virtual {
+    function _addNFT(ERC721VotesUpgradeable token, uint256 multiplier, bool noQuorum_) internal virtual {
         govNFT.push(GovNFT({
         token: token,
-        multiplier: multiplier // 1x == 1000
+        multiplier: multiplier, // 1x == 1000
+        noQuorum: noQuorum_
         }));
     }
 

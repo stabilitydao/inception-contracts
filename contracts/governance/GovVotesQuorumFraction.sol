@@ -42,12 +42,14 @@ abstract contract GovVotesQuorumFraction is Initializable, GovVotes {
         uint256 totalSupply;
         uint256 length = govFT.length;
         for (uint256 i; i < length; i++) {
-            totalSupply += govFT[i].token.getPastTotalSupply(blockNumber).mul(govFT[i].multiplier).div(1000);
+            totalSupply += govFT[i].token.getPastTotalSupply(blockNumber).mul(govFT[i].multiplier).div(VOTES_BASE_MULTIPLIER);
         }
 
         length = govNFT.length;
         for (uint256 i; i < length; i++) {
-            totalSupply += govNFT[i].token.getPastTotalSupply(blockNumber).mul(govNFT[i].multiplier).div(1000);
+            if (!govNFT[i].noQuorum) {
+                totalSupply += govNFT[i].token.getPastTotalSupply(blockNumber).mul(govNFT[i].multiplier).div(VOTES_BASE_MULTIPLIER);
+            }
         }
 
         return (totalSupply * quorumNumerator()) / quorumDenominator();

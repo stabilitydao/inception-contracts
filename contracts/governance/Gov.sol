@@ -121,8 +121,8 @@ contract Gov is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable,
         super._setFTMultiplier(id, multiplier);
     }
 
-    function addNFT(ERC721VotesUpgradeable token, uint256 multiplier) public onlyRole(POWER_CHANGER_ROLE) {
-        super._addNFT(token, multiplier);
+    function addNFT(ERC721VotesUpgradeable token, uint256 multiplier, bool noQuorum) public onlyRole(POWER_CHANGER_ROLE) {
+        super._addNFT(token, multiplier, noQuorum);
     }
 
     function setNFTMultiplier(uint256 id, uint256 multiplier) public onlyRole(POWER_CHANGER_ROLE)  {
