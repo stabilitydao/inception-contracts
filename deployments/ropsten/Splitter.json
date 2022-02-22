@@ -1,5 +1,5 @@
 {
-  "address": "0x41c07333E5D979e6E3915eD7eb253D52cA538c01",
+  "address": "0x61a44D81e769dE218DB71B3145658B9e66cc62c0",
   "abi": [
     {
       "inputs": [],
@@ -142,7 +142,7 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
           "name": "token",
           "type": "address"
@@ -392,6 +392,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "proxiableUUID",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "bytes32",
@@ -508,5 +521,6 @@
       "stateMutability": "payable",
       "type": "function"
     }
-  ]
+  ],
+  "numDeployments": 1
 }
