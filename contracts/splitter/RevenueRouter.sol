@@ -67,15 +67,6 @@ contract RevenueRouter is Ownable {
         emit NewInputTokenAdded(_tokenToSwap, _poolFee);
     }
 
-    // function to remove tokenIn
-    function removeToken(uint256 _index) external onlyOwner {
-        require(_index < inputToken.length, "index out of bound");
-        for (uint256 i = _index; i < inputToken.length - 1; i++) {
-            inputToken[i] = inputToken[i + 1];
-        }
-        inputToken.pop();
-    }
-
     // function to remove tokenIn (spends less gas)
     function deleteToken(uint256 _index) external onlyOwner {
         require(_index < inputToken.length, "index out of bound");
@@ -103,7 +94,7 @@ contract RevenueRouter is Ownable {
                 });
                 // approve dexRouter to spend tokens
                 if (IERC20(tokenIn.tokenToSwap).allowance(address(this), address(dexRouter)) < tokenBal) {
-                    IERC20(tokenIn.tokenToSwap).approve(address(dexRouter), type(uint256).max);
+                    TransferHelper.safeApprove(tokenIn.tokenToSwap, address(dexRouter), type(uint256).max);
                 }
                 amountOut = dexRouter.exactInputSingle(params);
                 // Swap WETH to PROFIT
@@ -119,7 +110,7 @@ contract RevenueRouter is Ownable {
                 });
                 // approve dexRouter to spend WETH
                 if (IERC20(WETH).allowance(address(this), address(dexRouter)) < amountOut) {
-                    IERC20(WETH).approve(address(dexRouter), type(uint256).max);
+                    TransferHelper.safeApprove(WETH, address(dexRouter), type(uint256).max);
                 }
                 amountOut = dexRouter.exactInputSingle(params2);
                 emit SwappedTokenForProfit(tokenIn.tokenToSwap, PROFIT, splitter, amountOut);
@@ -140,7 +131,7 @@ contract RevenueRouter is Ownable {
                 });
                 // approve dexRouter to spend TOKEN
                 if (IERC20(tokenIn.tokenToSwap).allowance(address(this), address(dexRouter)) < tokenBal) {
-                    IERC20(tokenIn.tokenToSwap).approve(address(dexRouter), type(uint256).max);
+                    TransferHelper.safeApprove(tokenIn.tokenToSwap, address(dexRouter), type(uint256).max);
                 }
                 amountOut = dexRouter.exactInputSingle(params);
                 // Swap WMATIC to WETH
@@ -156,7 +147,7 @@ contract RevenueRouter is Ownable {
                 });
                 // approve dexRouter to spend WMATIC
                 if (IERC20(WMATIC).allowance(address(this), address(dexRouter)) < amountOut) {
-                    IERC20(WMATIC).approve(address(dexRouter), type(uint256).max);
+                    TransferHelper.safeApprove(WMATIC, address(dexRouter), type(uint256).max);
                 }
                 amountOut = dexRouter.exactInputSingle(params2);
                 // Swap WETH to PROFIT
@@ -172,7 +163,7 @@ contract RevenueRouter is Ownable {
                 });
                 // approve dexRouter to spend WETH
                 if (IERC20(WETH).allowance(address(this), address(dexRouter)) < amountOut) {
-                    IERC20(WETH).approve(address(dexRouter), type(uint256).max);
+                    TransferHelper.safeApprove(WETH, address(dexRouter), type(uint256).max);
                 }
                 amountOut = dexRouter.exactInputSingle(params3);
                 emit SwappedTokenForProfit(tokenIn.tokenToSwap, PROFIT, splitter, amountOut);
@@ -192,7 +183,7 @@ contract RevenueRouter is Ownable {
                 });
                 // approve dexRouter to spend TOKEN
                 if (IERC20(tokenIn.tokenToSwap).allowance(address(this), address(dexRouter)) < tokenBal) {
-                    IERC20(tokenIn.tokenToSwap).approve(address(dexRouter), type(uint256).max);
+                    TransferHelper.safeApprove(tokenIn.tokenToSwap, address(dexRouter), type(uint256).max);
                 }
                 amountOut = dexRouter.exactInputSingle(params);
                 // Swap USDT to WETH
@@ -208,7 +199,7 @@ contract RevenueRouter is Ownable {
                 });
                 // approve dexRouter to spend USDT
                 if (IERC20(USDT).allowance(address(this), address(dexRouter)) < amountOut) {
-                    IERC20(USDT).approve(address(dexRouter), type(uint256).max);
+                    TransferHelper.safeApprove(USDT, address(dexRouter), type(uint256).max);
                 }
                 amountOut = dexRouter.exactInputSingle(params2);
                 // Swap WETH to PROFIT
@@ -224,7 +215,7 @@ contract RevenueRouter is Ownable {
                 });
                 // approve dexRouter to spend WETH
                 if (IERC20(WETH).allowance(address(this), address(dexRouter)) < amountOut) {
-                    IERC20(WETH).approve(address(dexRouter), type(uint256).max);
+                    TransferHelper.safeApprove(WETH, address(dexRouter), type(uint256).max);
                 }
                 amountOut = dexRouter.exactInputSingle(params3);
                 emit SwappedTokenForProfit(tokenIn.tokenToSwap, PROFIT, splitter, amountOut);
