@@ -6,14 +6,16 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
-
+import "../interfaces/ISplitter.sol";
+import "../interfaces/IPayer.sol";
 
 contract RevenueRouter is Ownable {
     address public PROFIT;
     address public BASE;
     uint24 public BASE_FEE;
-    address public splitter;
 
+    ISplitter public splitter;
+    IPayer public profitPayer;
     IV3SwapRouter public dexRouter;
 
     event SwappedTokenForProfit(address tokenIn, address tokenOut, address recipient, uint256 amountOut);
@@ -23,14 +25,16 @@ contract RevenueRouter is Ownable {
         address PROFIT_,
         address BASE_,
         uint24 BASE_FEE_,
-        IV3SwapRouter _dexRouter,
-        address _splitter
+        IV3SwapRouter dexRouter_,
+        ISplitter splitter_,
+        IPayer profitPayer_
     ) {
         PROFIT = PROFIT_;
         BASE = BASE_;
         BASE_FEE = BASE_FEE_;
-        dexRouter = _dexRouter;
-        splitter = _splitter;
+        dexRouter = dexRouter_;
+        splitter = splitter_;
+        profitPayer = profitPayer_;
     }
 
     // important to receive ETH
@@ -68,7 +72,12 @@ contract RevenueRouter is Ownable {
         inputToken.pop();
     }
 
-    function swapTokens() external returns (uint256 amountOut) {
+    function run() external {
+        swapTokens();
+        splitter.run(address(PROFIT), address(profitPayer));
+    }
+
+    function swapTokens() public returns (uint256 amountOut) {
         for (uint256 i = 0; i < inputToken.length; i++) {
             InputToken storage tokenIn = inputToken[i];
             uint256 tokenBal = IERC20(tokenIn.revenueToken).balanceOf(address(this));
@@ -106,7 +115,6 @@ contract RevenueRouter is Ownable {
                         TransferHelper.safeApprove(BASE, address(dexRouter), type(uint256).max);
                     }
                     amountOut = dexRouter.exactInputSingle(params2);
-                    emit SwappedTokenForProfit(tokenIn.revenueToken, PROFIT, splitter, amountOut);
                 } else {
                     // If TOKEN is Paired with swapToToken
                     // Swap TOKEN to USDT
@@ -120,8 +128,8 @@ contract RevenueRouter is Ownable {
                     sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend TOKEN
-                    if (IERC20(tokenIn.swapToToken).allowance(address(this), address(dexRouter)) < tokenBal) {
-                        TransferHelper.safeApprove(tokenIn.swapToToken, address(dexRouter), type(uint256).max);
+                    if (IERC20(tokenIn.revenueToken).allowance(address(this), address(dexRouter)) < tokenBal) {
+                        TransferHelper.safeApprove(tokenIn.revenueToken, address(dexRouter), type(uint256).max);
                     }
                     amountOut = dexRouter.exactInputSingle(params);
                     // Swap USDT to WETH
@@ -156,8 +164,9 @@ contract RevenueRouter is Ownable {
                         TransferHelper.safeApprove(BASE, address(dexRouter), type(uint256).max);
                     }
                     amountOut = dexRouter.exactInputSingle(params3);
-                    emit SwappedTokenForProfit(tokenIn.revenueToken, PROFIT, splitter, amountOut);
                 }
+
+                emit SwappedTokenForProfit(tokenIn.revenueToken, PROFIT, address(splitter), amountOut);
             }
         }
     }
