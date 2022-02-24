@@ -4,8 +4,9 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
+import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
+
 
 contract RevenueRouter is Ownable {
     address public PROFIT;
@@ -13,11 +14,7 @@ contract RevenueRouter is Ownable {
     uint24 public BASE_FEE;
     address public splitter;
 
-    // TODO: Need to create struct for weth, wmatic, usdt. With respective fees
-
-    // function to set new router and pair
-
-    ISwapRouter public dexRouter;
+    IV3SwapRouter public dexRouter;
 
     event SwappedTokenForProfit(address tokenIn, address tokenOut, address recipient, uint256 amountOut);
     event NewInputTokenAdded(address indexed revenueToken, address indexed swapToToken, uint24 poolFee);
@@ -26,7 +23,7 @@ contract RevenueRouter is Ownable {
         address PROFIT_,
         address BASE_,
         uint24 BASE_FEE_,
-        ISwapRouter _dexRouter,
+        IV3SwapRouter _dexRouter,
         address _splitter
     ) {
         PROFIT = PROFIT_;
@@ -80,15 +77,14 @@ contract RevenueRouter is Ownable {
                 // If TOKEN is Paired with BASE token (WETH now)
                 if (tokenIn.swapToToken == BASE) {
                     // Swap TOKEN to WETH
-                    ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+                    IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: tokenIn.revenueToken,
                     tokenOut: BASE,
                     fee: BASE_FEE,
                     recipient: address(this),
                     amountIn: tokenBal,
                     amountOutMinimum: 0,
-                    sqrtPriceLimitX96: 0,
-                    deadline: 0
+                    sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend tokens
                     if (IERC20(tokenIn.revenueToken).allowance(address(this), address(dexRouter)) < tokenBal) {
@@ -96,15 +92,14 @@ contract RevenueRouter is Ownable {
                     }
                     amountOut = dexRouter.exactInputSingle(params);
                     // Swap WETH to PROFIT
-                    ISwapRouter.ExactInputSingleParams memory params2 = ISwapRouter.ExactInputSingleParams({
+                    IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: BASE,
                     tokenOut: PROFIT,
                     fee: BASE_FEE,
                     recipient: address(splitter),
                     amountIn: amountOut,
                     amountOutMinimum: 0,
-                    sqrtPriceLimitX96: 0,
-                    deadline: 0
+                    sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend WETH
                     if (IERC20(BASE).allowance(address(this), address(dexRouter)) < amountOut) {
@@ -115,15 +110,14 @@ contract RevenueRouter is Ownable {
                 } else {
                     // If TOKEN is Paired with swapToToken
                     // Swap TOKEN to USDT
-                    ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+                    IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: tokenIn.revenueToken,
                     tokenOut: tokenIn.swapToToken,
                     fee: tokenIn.poolFee,
                     recipient: address(this),
                     amountIn: tokenBal,
                     amountOutMinimum: 0,
-                    sqrtPriceLimitX96: 0,
-                    deadline: 0
+                    sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend TOKEN
                     if (IERC20(tokenIn.swapToToken).allowance(address(this), address(dexRouter)) < tokenBal) {
@@ -132,15 +126,14 @@ contract RevenueRouter is Ownable {
                     amountOut = dexRouter.exactInputSingle(params);
                     // Swap USDT to WETH
                     // uint256 usdtBal = IERC20(USDT).balanceOf(address(this));
-                    ISwapRouter.ExactInputSingleParams memory params2 = ISwapRouter.ExactInputSingleParams({
+                    IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: tokenIn.swapToToken,
                     tokenOut: BASE,
                     fee: BASE_FEE,
                     recipient: address(this),
                     amountIn: amountOut,
                     amountOutMinimum: 0,
-                    sqrtPriceLimitX96: 0,
-                    deadline: 0
+                    sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend USDT
                     if (IERC20(tokenIn.swapToToken).allowance(address(this), address(dexRouter)) < amountOut) {
@@ -149,15 +142,14 @@ contract RevenueRouter is Ownable {
                     amountOut = dexRouter.exactInputSingle(params2);
                     // Swap WETH to PROFIT
                     // uint256 wethBal = IERC20(WETH).balanceOf(address(this));
-                    ISwapRouter.ExactInputSingleParams memory params3 = ISwapRouter.ExactInputSingleParams({
+                    IV3SwapRouter.ExactInputSingleParams memory params3 = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: BASE,
                     tokenOut: PROFIT,
                     fee: BASE_FEE,
                     recipient: address(splitter),
                     amountIn: amountOut,
                     amountOutMinimum: 0,
-                    sqrtPriceLimitX96: 0,
-                    deadline: 0
+                    sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend WETH
                     if (IERC20(BASE).allowance(address(this), address(dexRouter)) < amountOut) {
