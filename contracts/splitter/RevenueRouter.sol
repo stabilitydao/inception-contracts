@@ -13,32 +13,9 @@ contract RevenueRouter is Ownable {
     address public PROFIT;
     address public BASE;
     uint24 public BASE_FEE;
-
     ISplitter public splitter;
     IPayer public profitPayer;
-    IV3SwapRouter public dexRouter;
-
-    event SwappedTokenForProfit(address tokenIn, address tokenOut, address recipient, uint256 amountOut);
-    event NewInputTokenAdded(address indexed revenueToken, address indexed swapToToken, uint24 poolFee);
-
-    constructor (
-        address PROFIT_,
-        address BASE_,
-        uint24 BASE_FEE_,
-        IV3SwapRouter dexRouter_,
-        ISplitter splitter_,
-        IPayer profitPayer_
-    ) {
-        PROFIT = PROFIT_;
-        BASE = BASE_;
-        BASE_FEE = BASE_FEE_;
-        dexRouter = dexRouter_;
-        splitter = splitter_;
-        profitPayer = profitPayer_;
-    }
-
-    // important to receive ETH
-    receive() external payable {}
+    IV3SwapRouter public v3Router;
 
     struct InputToken {
         address revenueToken;
@@ -48,6 +25,28 @@ contract RevenueRouter is Ownable {
 
     // An array of tokens that can be swapped to PROFIT.
     InputToken[] public inputToken;
+
+    event SwappedTokenForProfit(address tokenIn, address tokenOut, address recipient, uint256 amountOut);
+    event NewInputTokenAdded(address indexed revenueToken, address indexed swapToToken, uint24 poolFee);
+
+    constructor (
+        address PROFIT_,
+        address BASE_,
+        uint24 BASE_FEE_,
+        IV3SwapRouter v3Router_,
+        ISplitter splitter_,
+        IPayer profitPayer_
+    ) {
+        PROFIT = PROFIT_;
+        BASE = BASE_;
+        BASE_FEE = BASE_FEE_;
+        v3Router = v3Router_;
+        splitter = splitter_;
+        profitPayer = profitPayer_;
+    }
+
+    // important to receive ETH
+    receive() external payable {}
 
     function addedTokens() external view returns (uint256) {
         return inputToken.length;
@@ -96,10 +95,10 @@ contract RevenueRouter is Ownable {
                     sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend tokens
-                    if (IERC20(tokenIn.revenueToken).allowance(address(this), address(dexRouter)) < tokenBal) {
-                        TransferHelper.safeApprove(tokenIn.revenueToken, address(dexRouter), type(uint256).max);
+                    if (IERC20(tokenIn.revenueToken).allowance(address(this), address(v3Router)) < tokenBal) {
+                        TransferHelper.safeApprove(tokenIn.revenueToken, address(v3Router), type(uint256).max);
                     }
-                    amountOut = dexRouter.exactInputSingle(params);
+                    amountOut = v3Router.exactInputSingle(params);
                     // Swap WETH to PROFIT
                     IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: BASE,
@@ -111,10 +110,10 @@ contract RevenueRouter is Ownable {
                     sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend WETH
-                    if (IERC20(BASE).allowance(address(this), address(dexRouter)) < amountOut) {
-                        TransferHelper.safeApprove(BASE, address(dexRouter), type(uint256).max);
+                    if (IERC20(BASE).allowance(address(this), address(v3Router)) < amountOut) {
+                        TransferHelper.safeApprove(BASE, address(v3Router), type(uint256).max);
                     }
-                    amountOut = dexRouter.exactInputSingle(params2);
+                    amountOut = v3Router.exactInputSingle(params2);
                 } else {
                     // If TOKEN is Paired with swapToToken
                     // Swap TOKEN to USDT
@@ -128,10 +127,10 @@ contract RevenueRouter is Ownable {
                     sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend TOKEN
-                    if (IERC20(tokenIn.revenueToken).allowance(address(this), address(dexRouter)) < tokenBal) {
-                        TransferHelper.safeApprove(tokenIn.revenueToken, address(dexRouter), type(uint256).max);
+                    if (IERC20(tokenIn.revenueToken).allowance(address(this), address(v3Router)) < tokenBal) {
+                        TransferHelper.safeApprove(tokenIn.revenueToken, address(v3Router), type(uint256).max);
                     }
-                    amountOut = dexRouter.exactInputSingle(params);
+                    amountOut = v3Router.exactInputSingle(params);
                     // Swap USDT to WETH
                     // uint256 usdtBal = IERC20(USDT).balanceOf(address(this));
                     IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
@@ -144,10 +143,10 @@ contract RevenueRouter is Ownable {
                     sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend USDT
-                    if (IERC20(tokenIn.swapToToken).allowance(address(this), address(dexRouter)) < amountOut) {
-                        TransferHelper.safeApprove(tokenIn.swapToToken, address(dexRouter), type(uint256).max);
+                    if (IERC20(tokenIn.swapToToken).allowance(address(this), address(v3Router)) < amountOut) {
+                        TransferHelper.safeApprove(tokenIn.swapToToken, address(v3Router), type(uint256).max);
                     }
-                    amountOut = dexRouter.exactInputSingle(params2);
+                    amountOut = v3Router.exactInputSingle(params2);
                     // Swap WETH to PROFIT
                     // uint256 wethBal = IERC20(WETH).balanceOf(address(this));
                     IV3SwapRouter.ExactInputSingleParams memory params3 = IV3SwapRouter.ExactInputSingleParams({
@@ -160,10 +159,10 @@ contract RevenueRouter is Ownable {
                     sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend WETH
-                    if (IERC20(BASE).allowance(address(this), address(dexRouter)) < amountOut) {
-                        TransferHelper.safeApprove(BASE, address(dexRouter), type(uint256).max);
+                    if (IERC20(BASE).allowance(address(this), address(v3Router)) < amountOut) {
+                        TransferHelper.safeApprove(BASE, address(v3Router), type(uint256).max);
                     }
-                    amountOut = dexRouter.exactInputSingle(params3);
+                    amountOut = v3Router.exactInputSingle(params3);
                 }
 
                 emit SwappedTokenForProfit(tokenIn.revenueToken, PROFIT, address(splitter), amountOut);
