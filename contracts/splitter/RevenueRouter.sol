@@ -4,9 +4,10 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
 import "@uniswap/swap-router-contracts/contracts/interfaces/IV2SwapRouter.sol";
+import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
+import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "../interfaces/ISplitter.sol";
 import "../interfaces/IPayer.sol";
 
@@ -51,6 +52,9 @@ contract RevenueRouter is Ownable {
         // @dev Uniswap V2 router
         address v2Router;
 
+        // @dev old Uniswap V2 router with swapExactTokensForTokens with deadline param
+        bool legacyV2Router;
+
         // @dev swap outputToken to BASE through this v2Router
         bool swapToBase;
 
@@ -66,7 +70,7 @@ contract RevenueRouter is Ownable {
     event V3RouteUpdated(uint256 routeIndex, address inputToken, address outputToken, uint24 poolFee, uint24 outputBasePoolFee, bool active);
     event V3RouteDeleted(uint256 routeIndex);
     event V2RouteAdded(address indexed inputToken, address indexed outputToken, address indexed router);
-    event V2RouteUpdated(uint256 routeIndex, address inputToken, address outputToken, address v2Router, bool active, bool swapToBase);
+    event V2RouteUpdated(uint256 routeIndex, address inputToken, address outputToken, address v2Router, bool active, bool swapToBase, bool legacyV2Router);
     event V2RouteDeleted(uint256 routeIndex);
 
     constructor (
@@ -111,13 +115,14 @@ contract RevenueRouter is Ownable {
         emit V3RouteAdded(inputToken_, outputToken_, poolFee_, outputBasePoolFee_);
     }
 
-    function addV2Route(address inputToken_, address outputToken_, address v2Router_, bool swapToBase_) external onlyOwner {
+    function addV2Route(address inputToken_, address outputToken_, address v2Router_, bool swapToBase_, bool legacyV2Router_) external onlyOwner {
         v2Routes.push(
             V2Route({
         inputToken: inputToken_,
         outputToken: outputToken_,
         v2Router: v2Router_,
         swapToBase: swapToBase_,
+        legacyV2Router: legacyV2Router_,
         active: true
         })
         );
@@ -151,13 +156,14 @@ contract RevenueRouter is Ownable {
         emit V3RouteUpdated(index_, inputToken_, outputToken_, poolFee_, outputBasePoolFee_, active_);
     }
 
-    function updateV2Route(uint256 index_,  address inputToken_, address outputToken_, address v2Router_, bool active_, bool swapToBase_) external onlyOwner {
+    function updateV2Route(uint256 index_,  address inputToken_, address outputToken_, address v2Router_, bool active_, bool swapToBase_, bool legacyV2Router_) external onlyOwner {
         v2Routes[index_].inputToken = inputToken_;
         v2Routes[index_].outputToken = outputToken_;
         v2Routes[index_].v2Router = v2Router_;
         v2Routes[index_].swapToBase = swapToBase_;
         v2Routes[index_].active = active_;
-        emit V2RouteUpdated(index_, inputToken_, outputToken_, v2Router_, active_, swapToBase_);
+        v2Routes[index_].legacyV2Router = legacyV2Router_;
+        emit V2RouteUpdated(index_, inputToken_, outputToken_, v2Router_, active_, swapToBase_, legacyV2Router_);
     }
 
     function run() external {
@@ -185,7 +191,11 @@ contract RevenueRouter is Ownable {
                     TransferHelper.safeApprove(v2route.inputToken, v2route.v2Router, type(uint256).max);
                 }
 
-                amount = IV2SwapRouter(v2route.v2Router).swapExactTokensForTokens(tokenBal, 0, path, address(this));
+                if (v2route.legacyV2Router) {
+                    amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(tokenBal, 0, path, address(this), 0)[0];
+                } else {
+                    amount = IV2SwapRouter(v2route.v2Router).swapExactTokensForTokens(tokenBal, 0, path, address(this));
+                }
 
                 if (v2route.outputToken != BASE && v2route.swapToBase == true) {
                     path[0] = v2route.outputToken;
@@ -194,7 +204,11 @@ contract RevenueRouter is Ownable {
                         TransferHelper.safeApprove(v2route.outputToken, v2route.v2Router, type(uint256).max);
                     }
 
-                    amount = IV2SwapRouter(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this));
+                    if (v2route.legacyV2Router) {
+                        amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this), 0)[0];
+                    } else {
+                        amount = IV2SwapRouter(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this));
+                    }
                 }
 
                 // Swap WETH to PROFIT on v3
