@@ -2,13 +2,17 @@ import { artifacts, waffle, ethers, upgrades } from 'hardhat'
 import { expect } from 'chai'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import {
-  DividendToken, ERC20Mock,
-  ProfitPayer, ProfitToken, RevenueRouter,
+  DividendToken,
+  ERC20Mock,
+  ProfitPayer,
+  ProfitToken,
+  RevenueRouter,
   Splitter,
-  StabilityDAO, V3SwapRouter,
+  StabilityDAO,
+  V3SwapRouter,
   WETH9,
 } from '../typechain-types'
-import {id, parseEther} from "ethers/lib/utils";
+import { id, parseEther } from 'ethers/lib/utils'
 
 describe('RevenueRouter', function () {
   let router: RevenueRouter
@@ -41,14 +45,11 @@ describe('RevenueRouter', function () {
     await timelock.deployed()
 
     splitter = (await upgrades.deployProxy(
-        (await ethers.getContractFactory(
-            'Splitter',
-            _deployer
-        )),
+      await ethers.getContractFactory('Splitter', _deployer),
       [40, 30, 30, timelock.address, _devFund.address],
-        {
-          kind: 'uups',
-        }
+      {
+        kind: 'uups',
+      }
     )) as Splitter
     await splitter.deployed()
 
@@ -64,24 +65,20 @@ describe('RevenueRouter', function () {
     await usd.deployed()
 
     dToken = (await upgrades.deployProxy(
-        (await ethers.getContractFactory(
-            'DividendToken',
-            _deployer
-        )),
-        {
-          kind: 'uups',
-        }
+      await ethers.getContractFactory('DividendToken', _deployer),
+      {
+        kind: 'uups',
+      }
     )) as DividendToken
     await dToken.deployed()
 
-    profit = await (await ethers.getContractFactory('ProfitToken')).deploy(devFund.address)
+    profit = await (
+      await ethers.getContractFactory('ProfitToken')
+    ).deploy(devFund.address)
     await profit.deployed()
 
     pPayer = (await upgrades.deployProxy(
-        (await ethers.getContractFactory(
-            'ProfitPayer',
-            _deployer
-        )),
+      await ethers.getContractFactory('ProfitPayer', _deployer),
       [dToken.address, profit.address],
       {
         kind: 'uups',
@@ -93,13 +90,15 @@ describe('RevenueRouter', function () {
     v3Router = await (await ethers.getContractFactory('V3SwapRouter')).deploy()
     await v3Router.deployed()
 
-    router = await (await ethers.getContractFactory('RevenueRouter')).deploy(
-        profit.address,
-        wEth.address,
-        10000,
-        v3Router.address,
-        splitter.address,
-        pPayer.address
+    router = await (
+      await ethers.getContractFactory('RevenueRouter')
+    ).deploy(
+      profit.address,
+      wEth.address,
+      10000,
+      v3Router.address,
+      splitter.address,
+      pPayer.address
     )
     await router.deployed()
   })
@@ -112,12 +111,7 @@ describe('RevenueRouter', function () {
     await splitter.grantRole(ethers.utils.id('EXECUTOR_ROLE'), router.address)
 
     await usd.transfer(router.address, parseEther('1'))
-    await router.addV3Route(
-        usd.address,
-        wEth.address,
-        3000,
-        0
-    )
+    await router.addV3Route(usd.address, wEth.address, 3000, 0)
 
     // because V3 is mock, need to send PROFIT to splitter by hands
     await profit.connect(_devFund).transfer(splitter.address, parseEther('10'))
@@ -130,5 +124,4 @@ describe('RevenueRouter', function () {
     // 40% splitted to ProfitPayer with 2 SDIV holders
     expect(await pPayer.paymentPending(_tester.address)).to.eq(parseEther('2'))
   })
-
 })
