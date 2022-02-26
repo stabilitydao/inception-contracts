@@ -185,7 +185,7 @@ contract RevenueRouter is Ownable {
                     TransferHelper.safeApprove(v2route.inputToken, v2route.v2Router, type(uint256).max);
                 }
 
-                amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(tokenBal, 0, path, address(this), block.timestamp)[0];
+                amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(tokenBal, 0, path, address(this), block.timestamp)[1];
 
                 if (v2route.outputToken != BASE && v2route.swapToBase == true) {
                     path[0] = v2route.outputToken;
@@ -194,7 +194,7 @@ contract RevenueRouter is Ownable {
                         TransferHelper.safeApprove(v2route.outputToken, v2route.v2Router, type(uint256).max);
                     }
 
-                    amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this), block.timestamp)[0];
+                    amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this), block.timestamp)[1];
                 }
 
                 // Swap WETH to PROFIT on v3
@@ -265,7 +265,6 @@ contract RevenueRouter is Ownable {
                     amount = v3Router.exactInputSingle(params);
 
                     // Swap v3route.outputToken to BASE
-                    // uint256 usdtBal = IERC20(USDT).balanceOf(address(this));
                     IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: v3route.outputToken,
                     tokenOut: BASE,
@@ -285,7 +284,6 @@ contract RevenueRouter is Ownable {
                 }
 
                 // Swap BASE to PROFIT
-                // uint256 wethBal = IERC20(WETH).balanceOf(address(this));
                 IV3SwapRouter.ExactInputSingleParams memory params3 = IV3SwapRouter.ExactInputSingleParams({
                 tokenIn: BASE,
                 tokenOut: PROFIT,
