@@ -58,16 +58,35 @@ contract RevenueRouter is Ownable {
         bool active;
     }
 
+    /**
+     * @dev Route to send revenue tokens without swaps
+     */
+    struct DirectRoute {
+        // @dev revenue token
+        address token;
+
+        // @dev send to
+        address to;
+
+        // @dev route can be decativated
+        bool active;
+    }
+
     V3Route[] public v3Routes;
     V2Route[] public v2Routes;
+    DirectRoute[] public directRoutes;
 
-    event SwapToProfit(uint256 profitOut);
-    event V3RouteAdded(address indexed inputToken, address indexed outputToken, uint24 poolFee, uint24 outputBasePoolFee_);
+    event ProfitGeneration(uint256 amount);
+    event Send(address indexed token, address indexed to, uint256 amount);
+    event V3RouteAdded(address indexed inputToken, address indexed outputToken, uint24 poolFee, uint24 outputBasePoolFee);
     event V3RouteUpdated(uint256 routeIndex, address inputToken, address outputToken, uint24 poolFee, uint24 outputBasePoolFee, bool active);
     event V3RouteDeleted(uint256 routeIndex);
     event V2RouteAdded(address indexed inputToken, address indexed outputToken, address indexed router);
     event V2RouteUpdated(uint256 routeIndex, address inputToken, address outputToken, address v2Router, bool active, bool swapToBase);
     event V2RouteDeleted(uint256 routeIndex);
+    event DirectRouteAdded(address indexed token, address to);
+    event DirectRouteUpdated(uint256 routeIndex, address token, address to, bool active);
+    event DirectRouteDeleted(uint256 routeIndex);
 
     constructor (
         address PROFIT_,
@@ -94,6 +113,10 @@ contract RevenueRouter is Ownable {
 
     function totalV2Routes() external view returns (uint256) {
         return v2Routes.length;
+    }
+
+    function totalDirectRoutes() external view returns (uint256) {
+        return directRoutes.length;
     }
 
     // Add a new token to list of tokens that can be swapped to PROFIT.
@@ -125,6 +148,18 @@ contract RevenueRouter is Ownable {
         emit V2RouteAdded(inputToken_, outputToken_, v2Router_);
     }
 
+    function addDirectRoute(address token_, address to_) external onlyOwner {
+        directRoutes.push(
+            DirectRoute({
+        token: token_,
+        to: to_,
+        active: true
+        })
+        );
+
+        emit DirectRouteAdded(token_, to_);
+    }
+
     // function to remove tokenIn (spends less gas)
     function deleteV3Route(uint256 index_) external onlyOwner {
         require(index_ < v3Routes.length, "index out of bound");
@@ -140,6 +175,14 @@ contract RevenueRouter is Ownable {
         v2Routes.pop();
 
         emit V2RouteDeleted(index_);
+    }
+
+    function deleteDirectRoute(uint256 index_) external onlyOwner {
+        require(index_ < directRoutes.length, "index out of bound");
+        directRoutes[index_] = directRoutes[directRoutes.length - 1];
+        directRoutes.pop();
+
+        emit DirectRouteDeleted(index_);
     }
 
     function updateV3Route(uint256 index_, address inputToken_, address outputToken_, uint24 poolFee_, uint24 outputBasePoolFee_, bool active_) external onlyOwner {
@@ -160,9 +203,36 @@ contract RevenueRouter is Ownable {
         emit V2RouteUpdated(index_, inputToken_, outputToken_, v2Router_, active_, swapToBase_);
     }
 
+    function updateDirectRoute(uint256 index_,  address token_, address to_, bool active_) external onlyOwner {
+        directRoutes[index_].token = token_;
+        directRoutes[index_].to = to_;
+        directRoutes[index_].active = active_;
+        emit DirectRouteUpdated(index_, token_, to_, active_);
+    }
+
     function run() external {
-        swapTokens();
-        splitter.run(address(PROFIT), address(profitPayer));
+        sendTokens();
+        uint256 amount = swapTokens();
+        if (amount > 0) {
+            splitter.run(address(PROFIT), address(profitPayer));
+            emit ProfitGeneration(amount);
+        }
+    }
+
+    function sendTokens() public {
+        for (uint256 i = 0; i < directRoutes.length; i++) {
+            DirectRoute storage directroute = directRoutes[i];
+
+            if (directroute.active == false) {
+                continue;
+            }
+
+            uint256 tokenBal = IERC20(directroute.token).balanceOf(address(this));
+            if (tokenBal > 0) {
+                IERC20(directroute.token).transfer(directroute.to, tokenBal);
+                emit Send(directroute.token, directroute.to, tokenBal);
+            }
+        }
     }
 
     function swapTokens() public returns (uint256 amountOut) {
@@ -187,7 +257,7 @@ contract RevenueRouter is Ownable {
 
                 amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(tokenBal, 0, path, address(this), block.timestamp)[1];
 
-                if (v2route.outputToken != BASE && v2route.swapToBase == true) {
+                if (v2route.outputToken != BASE && v2route.swapToBase) {
                     path[0] = v2route.outputToken;
                     path[1] = BASE;
                     if (IERC20(v2route.outputToken).allowance(address(this), v2route.v2Router) < amount) {
@@ -197,21 +267,23 @@ contract RevenueRouter is Ownable {
                     amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this), block.timestamp)[1];
                 }
 
-                // Swap WETH to PROFIT on v3
-                IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
-                tokenIn: BASE,
-                tokenOut: PROFIT,
-                fee: BASE_FEE,
-                recipient: address(splitter),
-                amountIn: amount,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-                });
-                // approve dexRouter to spend WETH
-                if (IERC20(BASE).allowance(address(this), address(v3Router)) < amount) {
-                    TransferHelper.safeApprove(BASE, address(v3Router), type(uint256).max);
+                if (v2route.outputToken == BASE || v2route.swapToBase) {
+                    // Swap WETH to PROFIT on v3
+                    IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
+                    tokenIn: BASE,
+                    tokenOut: PROFIT,
+                    fee: BASE_FEE,
+                    recipient: address(splitter),
+                    amountIn: amount,
+                    amountOutMinimum: 0,
+                    sqrtPriceLimitX96: 0
+                    });
+                    // approve dexRouter to spend WETH
+                    if (IERC20(BASE).allowance(address(this), address(v3Router)) < amount) {
+                        TransferHelper.safeApprove(BASE, address(v3Router), type(uint256).max);
+                    }
+                    amountOut += v3Router.exactInputSingle(params2);
                 }
-                amountOut += v3Router.exactInputSingle(params2);
             }
         }
 
@@ -275,7 +347,7 @@ contract RevenueRouter is Ownable {
                     sqrtPriceLimitX96: 0
                     });
 
-                    // approve dexRouter to spend USDT
+                    // approve dexRouter to spend outputToken
                     if (IERC20(v3route.outputToken).allowance(address(this), address(v3Router)) < amount) {
                         TransferHelper.safeApprove(v3route.outputToken, address(v3Router), type(uint256).max);
                     }
@@ -300,14 +372,9 @@ contract RevenueRouter is Ownable {
                 amountOut += v3Router.exactInputSingle(params3);
             }
         }
-
-        if (amountOut > 0) {
-            emit SwapToProfit(amountOut);
-        }
     }
 
     function withdraw(address _token, address _to, uint256 _amount) public onlyOwner {
         IERC20(_token).transfer(_to, _amount);
     }
-
 }

@@ -2,13 +2,10 @@
 pragma solidity ^0.8.9;
 
 import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
-//import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract V3SwapRouter is IV3SwapRouter {
+contract V3SwapRouterMock is IV3SwapRouter {
     function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint256 amountOut) {
         amountOut = params.amountIn * 2;
-//        IERC20(params.tokenOut).transferFrom(msg.sender, params.recipient, amountOut);
-        return amountOut;
     }
 
     function exactInput(ExactInputParams calldata params) external payable returns (uint256 amountOut) {
