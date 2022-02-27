@@ -374,7 +374,12 @@ contract RevenueRouter is Ownable {
         }
     }
 
-    function withdraw(address _token, address _to, uint256 _amount) public onlyOwner {
+    function withdrawERC20(address _token, address _to, uint256 _amount) public onlyOwner {
         IERC20(_token).transfer(_to, _amount);
+    }
+
+    function withdrawETH(address _to, uint256 ethAmount) public onlyOwner returns (bool success) {
+        (success,) =  _to.call{value: ethAmount}("");
+        require(success, "Failed to send Ether");
     }
 }

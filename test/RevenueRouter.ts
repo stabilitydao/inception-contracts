@@ -215,7 +215,7 @@ describe('RevenueRouter', function () {
     expect(await router.totalV2Routes()).to.eq(0)
     expect(await router.totalV3Routes()).to.eq(1)
 
-    await router.withdraw(usdc.address, _tester.address, 555)
+    await router.withdrawERC20(usdc.address, _tester.address, 555)
     expect(await usdc.balanceOf(_tester.address)).to.eq(555)
   })
 
@@ -238,5 +238,15 @@ describe('RevenueRouter', function () {
     await expect(router.run())
       .to.emit(router, 'ProfitGeneration')
       .withArgs(parseEther('18.0000000000000008'))
+  })
+
+  it('Withdraws ETH From RevenueRouter', async function () {
+    await _deployer.sendTransaction({
+      to: router.address,
+      value: parseEther('3'),
+    })
+    await router.withdrawETH(_tester.address, parseEther('1'))
+    const routerEthBal = await ethers.provider.getBalance(router.address)
+    await expect(routerEthBal == parseEther('2'))
   })
 })
