@@ -5,6 +5,7 @@ pragma abicoder v2;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
+import "@uniswap/swap-router-contracts/contracts/interfaces/IQuoter.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "../interfaces/ISplitter.sol";
@@ -17,6 +18,7 @@ contract RevenueRouter is Ownable {
     ISplitter public splitter;
     IPayer public profitPayer;
     IV3SwapRouter public v3Router;
+    IQuoter public quoter;
 
     /**
      * @dev Route to swap revenue token to PROFIT on Uniswap V3 DEX
@@ -93,6 +95,7 @@ contract RevenueRouter is Ownable {
         address BASE_,
         uint24 BASE_FEE_,
         IV3SwapRouter v3Router_,
+        IQuoter quoter_,
         ISplitter splitter_,
         IPayer profitPayer_
     ) {
@@ -100,6 +103,7 @@ contract RevenueRouter is Ownable {
         BASE = BASE_;
         BASE_FEE = BASE_FEE_;
         v3Router = v3Router_;
+        quoter = quoter_;
         splitter = splitter_;
         profitPayer = profitPayer_;
     }
@@ -267,7 +271,7 @@ contract RevenueRouter is Ownable {
                     amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this), block.timestamp)[1];
                 }
 
-                if (v2route.outputToken == BASE || v2route.swapToBase) {
+                if (v2route.outputToken == BASE) {
                     // Swap WETH to PROFIT on v3
                     IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: BASE,
@@ -381,5 +385,101 @@ contract RevenueRouter is Ownable {
     function withdrawETH(address _to, uint256 ethAmount) public onlyOwner returns (bool success) {
         (success,) =  _to.call{value: ethAmount}("");
         require(success, "Failed to send Ether");
+    }
+
+    function estimateProfit() external returns (uint256 estimatedOutput) {
+        uint256 amount;
+        uint256 i;
+        address tokenIn;
+        address tokenOut;
+        uint24 fee;
+        uint256 amountIn;
+        uint160 sqrtPriceLimitX96;
+
+        for (i = 0; i < v2Routes.length; i++) {
+            V2Route storage v2route = v2Routes[i];
+
+            if (v2route.active == false) {
+                continue;
+            }
+
+            uint256 tokenBal = IERC20(v2route.inputToken).balanceOf(address(this));
+            if (tokenBal > 0) {
+                address[] memory path = new address[](2);
+                path[0] = v2route.inputToken;
+                path[1] = v2route.outputToken;
+
+                amount = IUniswapV2Router01(v2route.v2Router).getAmountsOut(tokenBal, path)[1];
+
+                if (v2route.outputToken != BASE && v2route.swapToBase) {
+                    path[0] = v2route.outputToken;
+                    path[1] = BASE;
+
+                    amount = IUniswapV2Router01(v2route.v2Router).getAmountsOut(amount, path)[1];
+                }
+
+                if (v2route.outputToken == BASE) {
+                    // Estimate output for swap of WETH to PROFIT on v3
+                    tokenIn = BASE;
+                    tokenOut = PROFIT;
+                    fee = BASE_FEE;
+                    amountIn = amount;
+                    sqrtPriceLimitX96 = 0;
+
+                    estimatedOutput += quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+                }
+            }
+        }
+
+        for (i = 0; i < v3Routes.length; i++) {
+            V3Route storage v3route = v3Routes[i];
+
+            if (v3route.active == false) {
+                continue;
+            }
+
+            uint256 tokenBal = IERC20(v3route.inputToken).balanceOf(address(this));
+
+            if (tokenBal > 0) {
+                // If TOKEN is Paired with BASE token (WETH now)
+                if (v3route.outputToken == BASE) {
+                    // Estimate amountOut for swap of TOKEN to WETH
+                    tokenIn = v3route.inputToken;
+                    tokenOut = BASE;
+                    fee = BASE_FEE;
+                    amountIn = tokenBal;
+                    sqrtPriceLimitX96 = 0;
+
+                    amount = quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+                } else {
+                    // TOKEN is Paired with v3route.outputToken
+                    // Estimate amountOut for swap of TOKEN to v3route.outputToken
+                    tokenIn  = v3route.inputToken;
+                    tokenOut = v3route.outputToken;
+                    fee = v3route.poolFee;
+                    amountIn = tokenBal;
+                    sqrtPriceLimitX96 = 0;
+
+                    amount = quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+
+                    // Estimate amountOut for swap of v3route.outputToken to BASE
+                    tokenIn  = v3route.outputToken;
+                    tokenOut = BASE;
+                    fee = v3route.outputBasePoolFee;
+                    amountIn = amount;
+                    sqrtPriceLimitX96 = 0;
+
+                    amount = quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+                }
+
+                // Estimate amountOut for swap of BASE to PROFIT
+                tokenIn  = BASE;
+                tokenOut = PROFIT;
+                fee = BASE_FEE;
+                amountIn = amount;
+                sqrtPriceLimitX96 = 0;
+                estimatedOutput += quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+            }
+        }
     }
 }
