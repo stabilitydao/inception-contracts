@@ -5,11 +5,13 @@ pragma abicoder v2;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
-import "@uniswap/swap-router-contracts/contracts/interfaces/IQuoter.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "../interfaces/ISplitter.sol";
 import "../interfaces/IPayer.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
+import "../libraries/FixidityLib.sol";
 
 contract RevenueRouter is Ownable {
     address public PROFIT;
@@ -18,7 +20,7 @@ contract RevenueRouter is Ownable {
     ISplitter public splitter;
     IPayer public profitPayer;
     IV3SwapRouter public v3Router;
-    IQuoter public quoter;
+    IUniswapV3Factory private factory;
 
     /**
      * @dev Route to swap revenue token to PROFIT on Uniswap V3 DEX
@@ -95,17 +97,17 @@ contract RevenueRouter is Ownable {
         address BASE_,
         uint24 BASE_FEE_,
         IV3SwapRouter v3Router_,
-        IQuoter quoter_,
         ISplitter splitter_,
-        IPayer profitPayer_
+        IPayer profitPayer_,
+        IUniswapV3Factory factory_
     ) {
         PROFIT = PROFIT_;
         BASE = BASE_;
         BASE_FEE = BASE_FEE_;
         v3Router = v3Router_;
-        quoter = quoter_;
         splitter = splitter_;
         profitPayer = profitPayer_;
+        factory = factory_;
     }
 
     // important to receive ETH
@@ -271,7 +273,7 @@ contract RevenueRouter is Ownable {
                     amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this), block.timestamp)[1];
                 }
 
-                if (v2route.outputToken == BASE) {
+                if (v2route.outputToken == BASE || v2route.outputToken != BASE) {
                     // Swap WETH to PROFIT on v3
                     IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: BASE,
@@ -387,14 +389,47 @@ contract RevenueRouter is Ownable {
         require(success, "Failed to send Ether");
     }
 
-    function estimateProfit() external returns (uint256 estimatedOutput) {
+    function getOutputAmount(uint amountIn, address tokenIn, address tokenOut, uint24 poolFee) public view returns (uint amountOut) {
+        require(tokenIn != tokenOut, "tokenIn == tokenOut");
+        IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(tokenIn, tokenOut, poolFee));
+        uint tokenOutPrice;
+        (address token0, address token1) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);
+        (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
+        if (tokenOut == token1) {
+            // tokenOutPrice = uint256((sqrtPriceX96 / 2**96) * (sqrtPriceX96 / 2**96));
+            uint sqrtPrice = uint(sqrtPriceX96);
+            int sqrtPriceInt = int(sqrtPrice);
+            int denominator1 = int(2**76);
+            int denominator2 = int(2**20);
+            int x = FixidityLib.divide(sqrtPriceInt, denominator1);
+            int y = FixidityLib.divide(x,denominator2);
+            int out = ((y/1E24) * (y/1E24)) / int(1E24);
+            // If tokenOut == token1, we have to divide amountOut by 1E24.
+            tokenOutPrice = uint(out);
+        } else if (tokenOut == token0) {
+            // uint256 price = uint256((sqrtPriceX96 / 2**96) * (sqrtPriceX96 / 2**96));
+            uint sqrtPrice = uint(sqrtPriceX96);
+            int sqrtPriceInt = int(sqrtPrice);
+            int denominator1 = int(2**76);
+            int denominator2 = int(2**20);
+            int x = FixidityLib.divide(sqrtPriceInt, denominator1);
+            int y = FixidityLib.divide(x,denominator2);
+            int price = ((y/1E24) * (y/1E24)) / int(1E24);
+            int out = FixidityLib.divide(1,price);
+            tokenOutPrice = uint(out);
+        }
+        amountOut = uint(amountIn * tokenOutPrice);
+    }
+
+    function estimateProfit() external view returns (uint256 estimatedOutput, uint256 steps) {
         uint256 amount;
         uint256 i;
         address tokenIn;
         address tokenOut;
         uint24 fee;
         uint256 amountIn;
-        uint160 sqrtPriceLimitX96;
+        uint256 output;
+        (, address token1) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);
 
         for (i = 0; i < v2Routes.length; i++) {
             V2Route storage v2route = v2Routes[i];
@@ -418,15 +453,25 @@ contract RevenueRouter is Ownable {
                     amount = IUniswapV2Router01(v2route.v2Router).getAmountsOut(amount, path)[1];
                 }
 
-                if (v2route.outputToken == BASE) {
+                if (v2route.outputToken == BASE || v2route.outputToken != BASE) {
                     // Estimate output for swap of WETH to PROFIT on v3
                     tokenIn = BASE;
                     tokenOut = PROFIT;
                     fee = BASE_FEE;
                     amountIn = amount;
-                    sqrtPriceLimitX96 = 0;
-
-                    estimatedOutput += quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+                    
+                    if (tokenOut == token1) {
+                        steps += 1;
+                        if (steps > 1){
+                            uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                            output = outputAmt/1E24;
+                            estimatedOutput += output;
+                        } else {
+                            estimatedOutput += getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                        }
+                    } else {
+                        estimatedOutput += getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                    }                    
                 }
             }
         }
@@ -448,37 +493,77 @@ contract RevenueRouter is Ownable {
                     tokenOut = BASE;
                     fee = BASE_FEE;
                     amountIn = tokenBal;
-                    sqrtPriceLimitX96 = 0;
-
-                    amount = quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+                    
+                    if (tokenOut == token1) {
+                        steps += 1;
+                        if (steps > 1){
+                            uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                            output = outputAmt/1E24;
+                            amount = output;
+                        } else {
+                            amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                        }
+                    } else {
+                        amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                    }
                 } else {
                     // TOKEN is Paired with v3route.outputToken
                     // Estimate amountOut for swap of TOKEN to v3route.outputToken
                     tokenIn  = v3route.inputToken;
                     tokenOut = v3route.outputToken;
                     fee = v3route.poolFee;
-                    amountIn = tokenBal;
-                    sqrtPriceLimitX96 = 0;
-
-                    amount = quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+                    amountIn = tokenBal;                    
+                    
+                    if (tokenOut == token1) {
+                        steps += 1;
+                        if (steps > 1){
+                            uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                            output = outputAmt/1E24;
+                            amount = output;
+                        } else {
+                            amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                        }
+                    } else {
+                        amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                    }
 
                     // Estimate amountOut for swap of v3route.outputToken to BASE
                     tokenIn  = v3route.outputToken;
                     tokenOut = BASE;
                     fee = v3route.outputBasePoolFee;
-                    amountIn = amount;
-                    sqrtPriceLimitX96 = 0;
+                    amountIn = amount;                    
 
-                    amount = quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+                    if (tokenOut == token1) {
+                        steps += 1;
+                        if (steps > 1){
+                            uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                            output = outputAmt/1E24;
+                            amount = output;
+                        } else {
+                            amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                        }
+                    } else {
+                        amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                    }
                 }
 
                 // Estimate amountOut for swap of BASE to PROFIT
                 tokenIn  = BASE;
                 tokenOut = PROFIT;
                 fee = BASE_FEE;
-                amountIn = amount;
-                sqrtPriceLimitX96 = 0;
-                estimatedOutput += quoter.quoteExactInputSingle(tokenIn, tokenOut, fee, amountIn, sqrtPriceLimitX96);
+                amountIn = amount;                                
+                if (tokenOut == token1) {
+                    steps += 1;
+                    if (steps > 1){
+                        uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                        output = outputAmt/1E24;
+                        estimatedOutput += output;
+                    } else {
+                        estimatedOutput += getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                    }
+                } else {
+                    estimatedOutput += getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                }
             }
         }
     }
