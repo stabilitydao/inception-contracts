@@ -14,6 +14,8 @@ import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import "../libraries/FixidityLib.sol";
 
 contract RevenueRouter is Ownable {
+    using FixidityLib for int256;
+
     address public PROFIT;
     address public BASE;
     uint24 public BASE_FEE;
@@ -401,8 +403,8 @@ contract RevenueRouter is Ownable {
             int sqrtPriceInt = int(sqrtPrice);
             int denominator1 = int(2**76);
             int denominator2 = int(2**20);
-            int x = FixidityLib.divide(sqrtPriceInt, denominator1);
-            int y = FixidityLib.divide(x,denominator2);
+            int x = sqrtPriceInt.divide(denominator1);
+            int y = x.divide(denominator2);
             int out = ((y/1E24) * (y/1E24)) / int(1E24);
             // If tokenOut == token1, we have to divide amountOut by 1E24.
             tokenOutPrice = uint(out);
@@ -412,10 +414,10 @@ contract RevenueRouter is Ownable {
             int sqrtPriceInt = int(sqrtPrice);
             int denominator1 = int(2**76);
             int denominator2 = int(2**20);
-            int x = FixidityLib.divide(sqrtPriceInt, denominator1);
-            int y = FixidityLib.divide(x,denominator2);
+            int x = sqrtPriceInt.divide(denominator1);
+            int y = x.divide(denominator2);
             int price = ((y/1E24) * (y/1E24)) / int(1E24);
-            int out = FixidityLib.divide(1,price);
+            int out = int(1).divide(price);
             tokenOutPrice = uint(out);
         }
         amountOut = uint(amountIn * tokenOutPrice);
