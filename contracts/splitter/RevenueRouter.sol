@@ -307,7 +307,7 @@ contract RevenueRouter is Ownable {
             if (tokenBal > 0) {
                 // If TOKEN is Paired with BASE token (WETH now)
                 if (v3route.outputToken == BASE) {
-                    // Swap TOKEN to WETH
+                    // Swap TOKEN to BASE
                     IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: v3route.inputToken,
                     tokenOut: BASE,
@@ -423,7 +423,7 @@ contract RevenueRouter is Ownable {
         amountOut = uint(amountIn * tokenOutPrice);
     }
 
-    function estimateProfit() external view returns (uint256 estimatedOutput, uint256 steps) {
+    function estimateProfit() external view returns (uint256 estimatedOutput) {
         uint256 amount;
         uint256 i;
         address tokenIn;
@@ -431,7 +431,6 @@ contract RevenueRouter is Ownable {
         uint24 fee;
         uint256 amountIn;
         uint256 output;
-        (, address token1) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);
 
         for (i = 0; i < v2Routes.length; i++) {
             V2Route storage v2route = v2Routes[i];
@@ -456,21 +455,17 @@ contract RevenueRouter is Ownable {
                 }
 
                 if (v2route.outputToken == BASE || v2route.outputToken != BASE) {
-                    // Estimate output for swap of WETH to PROFIT on v3
+                    // Estimate output for swap of BASE to PROFIT on v3
                     tokenIn = BASE;
                     tokenOut = PROFIT;
                     fee = BASE_FEE;
                     amountIn = amount;
+                    (, address token1) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);
                     
                     if (tokenOut == token1) {
-                        steps += 1;
-                        if (steps > 1){
-                            uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                            output = outputAmt/1E24;
-                            estimatedOutput += output;
-                        } else {
-                            estimatedOutput += getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                        }
+                        uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                        output = outputAmt/1E24;
+                        estimatedOutput += output;
                     } else {
                         estimatedOutput += getOutputAmount(amountIn, tokenIn, tokenOut, fee);
                     }                    
@@ -490,79 +485,63 @@ contract RevenueRouter is Ownable {
             if (tokenBal > 0) {
                 // If TOKEN is Paired with BASE token (WETH now)
                 if (v3route.outputToken == BASE) {
-                    // Estimate amountOut for swap of TOKEN to WETH
+                    // Estimate amountOut for swap of TOKEN to BASE on v3
                     tokenIn = v3route.inputToken;
                     tokenOut = BASE;
                     fee = BASE_FEE;
                     amountIn = tokenBal;
+                    (, address token2) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);
                     
-                    if (tokenOut == token1) {
-                        steps += 1;
-                        if (steps > 1){
-                            uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                            output = outputAmt/1E24;
-                            amount = output;
-                        } else {
-                            amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                        }
+                    if (tokenOut == token2) {
+                        uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                        output = outputAmt/1E24;
+                        amount = output;
                     } else {
                         amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
                     }
                 } else {
                     // TOKEN is Paired with v3route.outputToken
-                    // Estimate amountOut for swap of TOKEN to v3route.outputToken
+                    // Estimate amountOut for swap of TOKEN to v3route.outputToken on v3
                     tokenIn  = v3route.inputToken;
                     tokenOut = v3route.outputToken;
                     fee = v3route.poolFee;
-                    amountIn = tokenBal;                    
+                    amountIn = tokenBal;
+                    (, address token3) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);                    
                     
-                    if (tokenOut == token1) {
-                        steps += 1;
-                        if (steps > 1){
-                            uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                            output = outputAmt/1E24;
-                            amount = output;
-                        } else {
-                            amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                        }
+                    if (tokenOut == token3) {
+                        uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                        output = outputAmt/1E24;
+                        amount = output;
                     } else {
                         amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
                     }
 
-                    // Estimate amountOut for swap of v3route.outputToken to BASE
+                    // Estimate amountOut for swap of v3route.outputToken to BASE on v3
                     tokenIn  = v3route.outputToken;
                     tokenOut = BASE;
                     fee = v3route.outputBasePoolFee;
-                    amountIn = amount;                    
+                    amountIn = amount;
+                    (, address token4) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);                    
 
-                    if (tokenOut == token1) {
-                        steps += 1;
-                        if (steps > 1){
-                            uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                            output = outputAmt/1E24;
-                            amount = output;
-                        } else {
-                            amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                        }
+                    if (tokenOut == token4) {                        
+                        uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                        output = outputAmt/1E24;
+                        amount = output;
                     } else {
                         amount = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
                     }
                 }
 
-                // Estimate amountOut for swap of BASE to PROFIT
+                // Estimate amountOut for swap of BASE to PROFIT on v3
                 tokenIn  = BASE;
                 tokenOut = PROFIT;
                 fee = BASE_FEE;
-                amountIn = amount;                                
-                if (tokenOut == token1) {
-                    steps += 1;
-                    if (steps > 1){
-                        uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                        output = outputAmt/1E24;
-                        estimatedOutput += output;
-                    } else {
-                        estimatedOutput += getOutputAmount(amountIn, tokenIn, tokenOut, fee);
-                    }
+                amountIn = amount;
+                (, address token5) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);                                
+                if (tokenOut == token5) {                    
+                    uint256 outputAmt = getOutputAmount(amountIn, tokenIn, tokenOut, fee);
+                    output = outputAmt/1E24;
+                    estimatedOutput += output;                    
                 } else {
                     estimatedOutput += getOutputAmount(amountIn, tokenIn, tokenOut, fee);
                 }
