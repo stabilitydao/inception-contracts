@@ -4,14 +4,21 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import {
   DividendToken,
   ERC20Mock,
+  ERC20Mock__factory,
   ProfitPayer,
   ProfitToken,
   RevenueRouter,
+  RevenueRouter__factory,
   Splitter,
   StabilityDAO,
   UniswapV2RouterMock,
+  UniswapV2RouterMock__factory,
+  UniswapV3FactoryMock,
+  UniswapV3FactoryMock__factory,
+  UniswapV3RouterMock,
+  UniswapV3RouterMock__factory,
   USD6Mock,
-  V3SwapRouterMock,
+  USD6Mock__factory,
   WETH9,
 } from '../typechain-types'
 import { id, parseEther } from 'ethers/lib/utils'
@@ -26,8 +33,9 @@ describe('RevenueRouter', function () {
   let timelock: StabilityDAO
   let pPayer: ProfitPayer
   let dToken: DividendToken
-  let v3Router: V3SwapRouterMock
+  let v3Router: UniswapV3RouterMock
   let v2Router: UniswapV2RouterMock
+  let v3Factory: UniswapV3FactoryMock
   let _deployer: SignerWithAddress
   let _devFund: SignerWithAddress
   let _tester: SignerWithAddress
@@ -65,10 +73,14 @@ describe('RevenueRouter', function () {
     )
     await wEth.deployed()
 
-    dummyERC20 = await (await ethers.getContractFactory('ERC20Mock')).deploy()
+    dummyERC20 = await (<ERC20Mock__factory>(
+      await ethers.getContractFactory('ERC20Mock')
+    )).deploy()
     await dummyERC20.deployed()
 
-    usdc = await (await ethers.getContractFactory('USD6Mock')).deploy()
+    usdc = await (<USD6Mock__factory>(
+      await ethers.getContractFactory('USD6Mock')
+    )).deploy()
     await usdc.deployed()
 
     dToken = (await upgrades.deployProxy(
@@ -94,25 +106,31 @@ describe('RevenueRouter', function () {
 
     await pPayer.deployed()
 
-    v3Router = await (
-      await ethers.getContractFactory('V3SwapRouterMock')
-    ).deploy()
+    v3Router = await (<UniswapV3RouterMock__factory>(
+      await ethers.getContractFactory('UniswapV3RouterMock')
+    )).deploy()
     await v3Router.deployed()
 
-    v2Router = await (
+    v2Router = await (<UniswapV2RouterMock__factory>(
       await ethers.getContractFactory('UniswapV2RouterMock')
-    ).deploy()
+    )).deploy()
     await v2Router.deployed()
 
-    router = await (
+    v3Factory = await (<UniswapV3FactoryMock__factory>(
+      await ethers.getContractFactory('UniswapV3FactoryMock')
+    )).deploy()
+    await v3Factory.deployed()
+
+    router = await (<RevenueRouter__factory>(
       await ethers.getContractFactory('RevenueRouter')
-    ).deploy(
+    )).deploy(
       profit.address,
       wEth.address,
       10000,
       v3Router.address,
       splitter.address,
-      pPayer.address
+      pPayer.address,
+      v3Factory.address
     )
     await router.deployed()
   })
@@ -187,11 +205,12 @@ describe('RevenueRouter', function () {
 
     // because V2 and V3 are mocks, need to send PROFIT to splitter by hands
     await profit.connect(_devFund).transfer(splitter.address, parseEther('8'))
-    await usdc.transfer(router.address, 100000000)
+    await usdc.transfer(router.address, 100000000) // 100.0 usdc
 
+    // why?
     await expect(router.run())
       .to.emit(router, 'ProfitGeneration')
-      .withArgs(800000000) // 100 * 2 * 2 * 2
+      .withArgs(parseEther('12.0000000008')) // 100 * 2 * 2 * 2
 
     // because V2 is mock, need to send PROFIT to splitter by hands
     await profit.connect(_devFund).transfer(splitter.address, parseEther('36'))
