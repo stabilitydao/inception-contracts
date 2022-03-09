@@ -90,7 +90,7 @@ module.exports = {
       url: `${process.env.URL_MUMBAI}`,
       saveDeployments: true,
       accounts,
-      gasPrice: 110000000000,
+      // gasPrice: 110000000000,
     },
     hardhat: {
       chainId: 1337, // https://hardhat.org/metamask-issue.html
