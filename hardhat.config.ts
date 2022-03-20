@@ -64,6 +64,13 @@ module.exports = {
       accounts,
       gasPrice: 900000000000, // 900 gwei
     },
+    heco: {
+      chainId: 128,
+      url: `${process.env.URL_HECO_MAINNET}`,
+      saveDeployments: true,
+      accounts,
+      gasPrice: 10000000000,
+    },
     ropsten: {
       url: `${process.env.URL_ROPSTEN}`,
       saveDeployments: true,
@@ -91,6 +98,13 @@ module.exports = {
       saveDeployments: true,
       accounts,
       gasPrice: 110000000000,
+    },
+    hecoTestnet: {
+      chainId: 256,
+      url: `${process.env.URL_HECO_TESTNET}`,
+      saveDeployments: true,
+      accounts,
+      gasPrice: 5000000000,
     },
     hardhat: {
       chainId: 1337, // https://hardhat.org/metamask-issue.html
