@@ -11,20 +11,27 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   console.log('')
 
+  let contractName = 'ProfitMaker'
+  if (chainId == 3 || chainId == 80001) {
+    contractName = 'ProfitMakerTestnet'
+  } else {
+    return
+  }
+
   // noinspection PointlessBooleanExpressionJS
   if (!upgradeProxy) {
-    console.log(`== ProfitMaker deployment to ${hre.network.name} ==`)
+    console.log(`== ${contractName} deployment to ${hre.network.name} ==`)
     try {
-      const deplpoyment = await get('ProfitMaker')
+      const deplpoyment = await get(contractName)
       console.log(
-        `ProfitMaker already deployed to ${hre.network.name} at ${deplpoyment.address}`
+        `${contractName} already deployed to ${hre.network.name} at ${deplpoyment.address}`
       )
       return
     } catch (e) {
       // not deployed yet
     }
   } else {
-    console.log(`==== ProfitMaker upgrade at ${hre.network.name} ====`)
+    console.log(`==== ${contractName} upgrade at ${hre.network.name} ====`)
     console.log(`Proxy address: ${upgradeProxy}`)
   }
 
@@ -37,7 +44,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   // noinspection PointlessBooleanExpressionJS
   if (!upgradeProxy) {
     // return
-    const ProfitMakerFactory = await ethers.getContractFactory('ProfitMaker')
+    const ProfitMakerFactory = await ethers.getContractFactory(contractName)
 
     const profitmaker = await upgrades.deployProxy(
       ProfitMakerFactory,
@@ -49,16 +56,16 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
     await profitmaker.deployed()
 
-    const artifact = await hre.artifacts.readArtifact('ProfitMaker')
+    const artifact = await hre.artifacts.readArtifact(contractName)
 
-    await save('ProfitMaker', {
+    await save(contractName, {
       address: profitmaker.address,
       abi: artifact.abi,
     })
 
     let receipt = await profitmaker.deployTransaction.wait()
     console.log(
-      `ProfitMaker proxy deployed at: ${profitmaker.address} (block: ${
+      `${contractName} proxy deployed at: ${profitmaker.address} (block: ${
         receipt.blockNumber
       }) with ${receipt.gasUsed.toNumber()} gas`
     )

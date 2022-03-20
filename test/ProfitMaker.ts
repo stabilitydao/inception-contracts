@@ -61,9 +61,11 @@ describe('ProfitMaker NFT', function () {
   })
 
   it('Mint', async function () {
-    await expect(profitMaker.safeMint(_tester.address)).to.be.revertedWith(
-      'Not enough PROFIT tokens'
-    )
+    const color = 10,
+      color2 = 20
+    await expect(
+      profitMaker.safeMint(_tester.address, color)
+    ).to.be.revertedWith('Not enough PROFIT tokens')
     await profitToken
       .connect(_devFund)
       .transfer(_tester.address, ethers.utils.parseEther('10000'))
@@ -71,33 +73,52 @@ describe('ProfitMaker NFT', function () {
       ethers.utils.parseEther('10000')
     )
     await expect(
-      profitMaker.connect(_tester).safeMint(_tester.address)
+      profitMaker.connect(_tester).safeMint(_tester.address, color)
     ).to.be.revertedWith('Mint is not available right now')
     const now = (
       await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
     ).timestamp
-    await profitMaker.setMintState(now, now + 86400)
+    await profitMaker.setMintState(now, now + 86400, 2)
     await ethers.provider.send('evm_mine', [])
     await expect(
-      profitMaker.connect(_tester).safeMint(_tester.address)
+      profitMaker.connect(_tester).safeMint(_tester.address, color)
     ).to.be.revertedWith('ERC20: insufficient allowance')
     await profitToken
       .connect(_tester)
       .approve(profitMaker.address, ethers.utils.parseEther('10000'))
-    await expect(profitMaker.connect(_tester).safeMint(_tester.address)).to.be
-      .not.reverted
+    await profitMaker.connect(_tester).safeMint(_tester.address, color)
     expect(await profitMaker.balanceOf(_tester.address)).to.equal(1)
     expect(await profitToken.balanceOf(_tester.address)).to.equal(0)
     expect(await profitToken.balanceOf(profitMaker.address)).to.equal(
       ethers.utils.parseEther('10000')
     )
-    await expect(profitMaker.safeMint(_tester.address)).to.be.revertedWith(
-      'Not enough PROFIT tokens'
-    )
+    await expect(
+      profitMaker.safeMint(_tester.address, color)
+    ).to.be.revertedWith('Not enough PROFIT tokens')
     expect(await profitMaker.ownerOf(0)).to.equal(_tester.address)
     expect(await profitMaker.tokenURI(0)).to.be.equal(
-      'https://api.stabilitydao.org/maker/0'
+      'https://stabilitydao.org/api/maker/0'
     )
+
+    expect(await profitMaker.props(0)).to.eql([color, 1])
+
+    await profitToken
+      .connect(_devFund)
+      .transfer(_tester.address, ethers.utils.parseEther('20000'))
+    await profitToken
+      .connect(_tester)
+      .approve(profitMaker.address, ethers.utils.parseEther('20000'))
+    await expect(
+      profitMaker.connect(_tester).safeMint(_tester.address, color)
+    ).to.be.revertedWith('This color already used')
+    await profitMaker.connect(_tester).safeMint(_tester.address, color2)
+    expect(await profitMaker.ownerOf(1)).to.equal(_tester.address)
+    expect(await profitMaker.props(0)).to.eql([color, 1])
+    expect(await profitMaker.props(1)).to.eql([color2, 1])
+    expect(await profitMaker.epoch()).to.eq(1)
+    await expect(
+      profitMaker.connect(_tester).safeMint(_tester.address, 5)
+    ).to.be.revertedWith('This epoch tokens have already been minted')
   })
 
   it('Vesting', async function () {
@@ -110,15 +131,15 @@ describe('ProfitMaker NFT', function () {
     let now = (
       await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
     ).timestamp
-    await profitMaker.setMintState(now, now + 86400)
+    await profitMaker.setMintState(now, now + 86400, 10)
     await profitToken
       .connect(_tester)
       .approve(profitMaker.address, ethers.utils.parseEther('10000'))
     await profitToken
       .connect(_deployer)
       .approve(profitMaker.address, ethers.utils.parseEther('10000'))
-    await profitMaker.connect(_tester).safeMint(_tester.address)
-    await profitMaker.connect(_deployer).safeMint(_deployer.address)
+    await profitMaker.connect(_tester).safeMint(_tester.address, 2)
+    await profitMaker.connect(_deployer).safeMint(_deployer.address, 3)
 
     await expect(
       profitMaker.releaseToBalance(profitToken.address)

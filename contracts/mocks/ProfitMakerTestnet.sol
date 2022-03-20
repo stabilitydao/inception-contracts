@@ -11,7 +11,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
-contract ProfitMaker is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable, ERC721EnumerableUpgradeable, OwnableUpgradeable, UUPSUpgradeable {
+contract ProfitMakerTestnet is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable, ERC721EnumerableUpgradeable, OwnableUpgradeable, UUPSUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
     event Harvest(address indexed token, address recipient, uint256 amount);
@@ -48,14 +48,14 @@ contract ProfitMaker is Initializable, ERC721Upgradeable, ERC721VotesUpgradeable
 
     function initialize(IERC20Upgradeable profitToken_) public initializer {
         profitToken = profitToken_;
-        __ERC721_init("Profit Maker", "PM");
+        __ERC721_init("Profit Maker testnet", "PM");
         __ERC721Enumerable_init();
         __Ownable_init();
         __UUPSUpgradeable_init();
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return "https://stabilitydao.org/api/maker/";
+        return "https://dev.stabilitydao.org/api/maker-testnet/";
     }
 
     function safeMint(address to, uint24 color) public {

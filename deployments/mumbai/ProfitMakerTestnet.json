@@ -1,5 +1,5 @@
 {
-  "address": "0xD33F9331144b5222f05D91E1528270eDAE15Dd02",
+  "address": "0x50B867305F71eBCbbbDD2C9D249d611691B8E458",
   "abi": [
     {
       "inputs": [],
@@ -167,6 +167,37 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "epoch",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint24",
+          "name": "color",
+          "type": "uint24"
+        }
+      ],
+      "name": "Mint",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": true,
           "internalType": "address",
           "name": "previousOwner",
@@ -215,6 +246,12 @@
           "internalType": "uint64",
           "name": "to",
           "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "epoch",
+          "type": "uint8"
         }
       ],
       "name": "SetMintTime",
@@ -397,6 +434,19 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "epoch",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
         }
       ],
       "stateMutability": "view",
@@ -642,6 +692,30 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "props",
+      "outputs": [
+        {
+          "internalType": "uint24",
+          "name": "color",
+          "type": "uint24"
+        },
+        {
+          "internalType": "uint8",
+          "name": "epoch",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "proxiableUUID",
       "outputs": [
@@ -699,6 +773,11 @@
           "internalType": "address",
           "name": "to",
           "type": "address"
+        },
+        {
+          "internalType": "uint24",
+          "name": "color",
+          "type": "uint24"
         }
       ],
       "name": "safeMint",
@@ -786,6 +865,11 @@
           "internalType": "uint64",
           "name": "end_",
           "type": "uint64"
+        },
+        {
+          "internalType": "uint8",
+          "name": "amount_",
+          "type": "uint8"
         }
       ],
       "name": "setMintState",
@@ -843,6 +927,19 @@
           "internalType": "string",
           "name": "",
           "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "toMint",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
         }
       ],
       "stateMutability": "view",
