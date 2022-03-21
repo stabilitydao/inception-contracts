@@ -1,5 +1,5 @@
 {
-  "address": "0xC2eAfC3F3Ee1677A1C0B827Aa3a410D74653FC91",
+  "address": "0x3e77B810760dEb33e7ebc5270Aa1C348De43a74F",
   "abi": [
     {
       "inputs": [],
@@ -36,6 +36,25 @@
         }
       ],
       "name": "BeaconUpgraded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "oldVoteExtension",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "newVoteExtension",
+          "type": "uint64"
+        }
+      ],
+      "name": "LateQuorumVoteExtensionSet",
       "type": "event"
     },
     {
@@ -123,6 +142,25 @@
         }
       ],
       "name": "ProposalExecuted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "proposalId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "extendedDeadline",
+          "type": "uint64"
+        }
+      ],
+      "name": "ProposalExtended",
       "type": "event"
     },
     {
@@ -405,7 +443,20 @@
     },
     {
       "inputs": [],
-      "name": "INSPECTOR_ROLE",
+      "name": "MODERATOR_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "POWER_CHANGER_ROLE",
       "outputs": [
         {
           "internalType": "bytes32",
@@ -427,6 +478,60 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VOTES_BASE_MULTIPLIER",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ERC20VotesUpgradeable",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "multiplier",
+          "type": "uint256"
+        }
+      ],
+      "name": "addFT",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ERC721VotesUpgradeable",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "multiplier",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "noQuorum",
+          "type": "bool"
+        }
+      ],
+      "name": "addNFT",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -635,6 +740,59 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "govFT",
+      "outputs": [
+        {
+          "internalType": "contract ERC20VotesUpgradeable",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "multiplier",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "govNFT",
+      "outputs": [
+        {
+          "internalType": "contract ERC721VotesUpgradeable",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "multiplier",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "noQuorum",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "bytes32",
           "name": "role",
           "type": "bytes32"
@@ -763,11 +921,29 @@
           "internalType": "uint256",
           "name": "initQuorumNumberator",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint64",
+          "name": "initLateQuorumBlocks",
+          "type": "uint64"
         }
       ],
       "name": "initialize",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lateQuorumVoteExtension",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -917,6 +1093,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "proxiableUUID",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address[]",
@@ -998,6 +1187,29 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "target",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "relay",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "bytes32",
           "name": "role",
           "type": "bytes32"
@@ -1027,6 +1239,55 @@
         }
       ],
       "name": "revokeRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "multiplier",
+          "type": "uint256"
+        }
+      ],
+      "name": "setFTMultiplier",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "newVoteExtension",
+          "type": "uint64"
+        }
+      ],
+      "name": "setLateQuorumVoteExtension",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "multiplier",
+          "type": "uint256"
+        }
+      ],
+      "name": "setNFTMultiplier",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1114,19 +1375,6 @@
       "outputs": [
         {
           "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "token",
-      "outputs": [
-        {
-          "internalType": "contract ERC20VotesUpgradeable",
           "name": "",
           "type": "address"
         }
@@ -1234,5 +1482,6 @@
       "stateMutability": "payable",
       "type": "receive"
     }
-  ]
+  ],
+  "numDeployments": 1
 }

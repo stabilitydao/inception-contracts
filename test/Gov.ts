@@ -24,6 +24,7 @@ describe('Gov', function () {
   const proposalThreshold = ethers.utils.parseEther('10')
   const quorum = 1
   const lateQuorumBlocks = 10
+  const VOTES_BASE_MULTIPLIER = 1000000000
 
   beforeEach(async function () {
     const [deployer, tester, devFund] = await ethers.getSigners()
@@ -431,8 +432,12 @@ describe('Gov', function () {
     )
 
     // PROFIT token multiplier: 1000
-    // NFT with multiplier 10 * 1000 * 10**18: 10 PROFIT has same voting power as 1 NFT
-    await gov.addNFT(govNft.address, ethers.utils.parseEther('10000'), false)
+    // NFT with multiplier 10 * 1000000 * 10**18: 10 PROFIT has same voting power as 1 NFT
+    await gov.addNFT(
+      govNft.address,
+      ethers.utils.parseEther('10000000000'),
+      false
+    )
 
     await govNft.mint(_deployer.address, 1)
     expect(await govNft.balanceOf(_deployer.address)).to.eq(1)
@@ -475,7 +480,7 @@ describe('Gov', function () {
       _deployer.address
     )
 
-    await gov.addFT(ft.address, 200)
+    await gov.addFT(ft.address, 200000000)
 
     await ft.transfer(_tester.address, ethers.utils.parseEther('5'))
 
@@ -493,7 +498,7 @@ describe('Gov', function () {
       )
     ).to.eq(ethers.utils.parseEther('1'))
 
-    await gov.setFTMultiplier(1, 1000)
+    await gov.setFTMultiplier(1, VOTES_BASE_MULTIPLIER)
 
     expect(
       await gov.getVotes(
@@ -541,7 +546,11 @@ describe('Gov', function () {
       )
     ).to.eq(ethers.utils.parseEther('8'))
 
-    await gov.addNFT(govNft.address, ethers.utils.parseEther('500'), false)
+    await gov.addNFT(
+      govNft.address,
+      ethers.utils.parseEther('500000000'),
+      false
+    )
     await govNft.mint(_tester.address, 1)
     await govNft.mint(_tester.address, 2)
 
@@ -555,7 +564,10 @@ describe('Gov', function () {
       )
     ).to.eq(ethers.utils.parseEther('9'))
 
-    await gov.setNFTMultiplier(0, ethers.utils.parseEther('1000'))
+    await gov.setNFTMultiplier(
+      0,
+      ethers.utils.parseEther('' + VOTES_BASE_MULTIPLIER)
+    )
 
     expect(
       await gov.getVotes(

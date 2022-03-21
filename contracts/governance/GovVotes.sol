@@ -51,7 +51,7 @@ abstract contract GovVotes is Initializable, GovernorUpgradeable {
     }
 
     function __GovVotes_init(ERC20VotesUpgradeable tokenAddress) internal initializer {
-        VOTES_BASE_MULTIPLIER = 1000;
+        VOTES_BASE_MULTIPLIER = 1000000000;
         __Context_init_unchained();
         __ERC165_init_unchained();
         __IGovernor_init_unchained();

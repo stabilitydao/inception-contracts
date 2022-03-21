@@ -639,7 +639,7 @@
     find-up "^4.1.0"
     fs-extra "^8.1.0"
 
-"@openzeppelin/contracts-upgradeable@^4.5.0":
+"@openzeppelin/contracts-upgradeable@^4.5.2":
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.5.2.tgz#90d9e47bacfd8693bfad0ac8a394645575528d05"
   integrity sha512-xgWZYaPlrEOQo3cBj97Ufiuv79SPd8Brh4GcFYhPgb6WvAq4ppz8dWKL6h+jLAK01rUqMRp/TS9AdXgAeNvCLA==
