@@ -68,6 +68,12 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
       // wrapped ether bridged from goerli
       // https://mumbai.polygonscan.com/token/0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa
       wethAddr = '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa'
+    } else if (hre.network.name == 'heco') {
+      // https://hecoinfo.com/token/0x5545153CCFcA01fbd7Dd11C0b23ba694D9509A6F
+      wethAddr = '0x5545153CCFcA01fbd7Dd11C0b23ba694D9509A6F'
+    } else if (hre.network.name == 'hecoTestnet') {
+      // https://testnet.hecoinfo.com/token/0x7aF326B6351C8A9b8fb8CD205CBe11d4Ac5FA836
+      wethAddr = '0x7aF326B6351C8A9b8fb8CD205CBe11d4Ac5FA836'
     } else {
       throw new Error('Unsupported network')
     }

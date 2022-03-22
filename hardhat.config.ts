@@ -41,10 +41,12 @@ module.exports = {
       hardhat: 1,
       polygon: addressses[POLYGON].devFund,
       ropsten: addressses[ROPSTEN].devFund,
+      heco: addressses[ROPSTEN].devFund,
       rinkeby: addressses[RINKEBY].devFund,
       goerli: addressses[GOERLI].devFund,
       kovan: addressses[KOVAN].devFund,
       mumbai: addressses[ROPSTEN].devFund,
+      hecoTestnet: addressses[ROPSTEN].devFund,
     },
     tester: {
       default: 2,
@@ -97,7 +99,7 @@ module.exports = {
       url: `${process.env.URL_MUMBAI}`,
       saveDeployments: true,
       accounts,
-      gasPrice: 110000000000,
+      gasPrice: 10000000000,
     },
     hecoTestnet: {
       chainId: 256,

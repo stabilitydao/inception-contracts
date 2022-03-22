@@ -23,6 +23,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
       from: deployer,
       log: true,
     })
+    // need to set bridge contract as admin of synthetic profit
   }
   
   module.exports.tags = ['Profit']

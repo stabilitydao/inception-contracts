@@ -25,6 +25,10 @@
     "hecoTestnet:verify": "hardhat --network hecoTestnet etherscan-verify --solc-input",
     "clean": "hardhat clean",
     "test": "hardhat test",
+    "poly-lock": "node scripts/polygon/interactions/poly-lock.js",
+    "poly-lock-listen": "node scripts/polygon/listeners/poly-lock-listener.js",
+    "heco-burn": "node scripts/heco/interactions/heco-burn.js",
+    "heco-burn-listen": "node scripts/heco/listeners/heco-burn-listener.js",
     "lint": "solhint 'contracts/**/*.sol' && prettier --write .",
     "coverage": "hardhat typechain && hardhat coverage",
     "typechain": "hardhat typechain"
