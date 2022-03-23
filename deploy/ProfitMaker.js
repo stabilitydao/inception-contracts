@@ -13,8 +13,10 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   console.log('')
 
   let contractName = 'ProfitMaker'
-  if (chainId == 3 || chainId == 80001) {
+  if (chainId == 80001) {
     contractName = 'ProfitMakerTestnet'
+  } else if (chainId == 137) {
+    contractName = 'ProfitMaker'
   } else {
     return
   }

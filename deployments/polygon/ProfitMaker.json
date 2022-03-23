@@ -1,5 +1,5 @@
 {
-  "address": "0x4cFEf7928114c1644eD053275B42C51E440aB896",
+  "address": "0xAA3e3709C79a133e56C17a7ded87802adF23083B",
   "abi": [
     {
       "inputs": [],
@@ -673,6 +673,25 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "ownerTokenIds",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
         }
       ],
       "stateMutability": "view",

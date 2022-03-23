@@ -57,14 +57,14 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
       votingPeriod = 40320 // 6 days
       proposalThreshold = ethers.utils.parseEther('1000') // 1000.0 tokens / 0.1%
     } else if (hre.network.name == 'polygon') {
-      votingDelay = 82000 // 2 days (blocktime: 2.1 sec)
-      votingPeriod = 246000 // 6 days
-      lateQuorumBlocks = 1700 // 1 hour
+      votingDelay = 40000 // 1 day (blocktime: 2.2 sec)
+      votingPeriod = 118000 // 3 days
+      lateQuorumBlocks = 1600 // 1 hour
       proposalThreshold = ethers.utils.parseEther('10000') // 10000.0 tokens / 1%
     } else if (hre.network.name == 'mumbai') {
-      votingDelay = 6800 // about 4 hours (blocktime: 2.1 sec)
-      votingPeriod = 41100 // about 1 day
-      lateQuorumBlocks = 285 // 10 mins
+      votingDelay = 6800 // about 13 hours (blocktime: 7 sec)
+      votingPeriod = 41100 // about 3 days
+      lateQuorumBlocks = 285 // 40 mins
     }
 
     const Gov = await ethers.getContractFactory('Gov')
