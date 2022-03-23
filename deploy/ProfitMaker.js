@@ -3,6 +3,7 @@ const { ethers, upgrades } = require('hardhat')
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   // type proxy address for upgrade contract
   // deployer must have upgrade access
+  // mumbai 0x50B867305F71eBCbbbDD2C9D249d611691B8E458
   const upgradeProxy = null // poly: '0x..'
 
   const { save, get } = deployments
@@ -66,6 +67,29 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     let receipt = await profitmaker.deployTransaction.wait()
     console.log(
       `${contractName} proxy deployed at: ${profitmaker.address} (block: ${
+        receipt.blockNumber
+      }) with ${receipt.gasUsed.toNumber()} gas`
+    )
+
+    // hardhat verify --network r.. 0x
+  } else {
+    // try to upgrade
+    const ProfitMakerFactory = await ethers.getContractFactory(contractName)
+    const profitmaker = await upgrades.upgradeProxy(
+      upgradeProxy,
+      ProfitMakerFactory
+    )
+
+    const artifact = await hre.artifacts.readArtifact(contractName)
+
+    await save(contractName, {
+      address: profitmaker.address,
+      abi: artifact.abi,
+    })
+
+    let receipt = await profitmaker.deployTransaction.wait()
+    console.log(
+      `${contractName} upgraded through proxy: ${profitmaker.address} (block: ${
         receipt.blockNumber
       }) with ${receipt.gasUsed.toNumber()} gas`
     )

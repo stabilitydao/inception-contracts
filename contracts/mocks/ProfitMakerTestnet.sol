@@ -75,6 +75,23 @@ contract ProfitMakerTestnet is Initializable, ERC721Upgradeable, ERC721VotesUpgr
         emit Mint(tokenId, to, epoch, color);
     }
 
+    function ownerTokenIds(address owner) external view returns (uint[] memory) {
+        uint balance = balanceOf(owner);
+        require(balance > 0, "Owner dont have tokens");
+        uint[] memory result = new uint[](balance);
+        if (balance > 0) {
+            uint length = totalSupply();
+            uint k;
+            for (uint i; i < length; i++) {
+                if (tokenOfOwnerByIndex(owner, i) != uint(0)) {
+                    result[k] = i;
+                    k++;
+                }
+            }
+        }
+        return result;
+    }
+
     function setUnlock(address token_, uint64 start_, uint64 duration_) public onlyOwner {
         unlocks[token_].start = start_;
         unlocks[token_].duration = duration_;

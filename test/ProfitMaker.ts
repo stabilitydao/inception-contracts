@@ -78,7 +78,7 @@ describe('ProfitMaker NFT', function () {
     const now = (
       await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
     ).timestamp
-    await profitMaker.setMintState(now, now + 86400, 2)
+    await profitMaker.setMintState(now, now + 86400, 3)
     await ethers.provider.send('evm_mine', [])
     await expect(
       profitMaker.connect(_tester).safeMint(_tester.address, color)
@@ -104,15 +104,21 @@ describe('ProfitMaker NFT', function () {
 
     await profitToken
       .connect(_devFund)
-      .transfer(_tester.address, ethers.utils.parseEther('20000'))
+      .transfer(_tester.address, ethers.utils.parseEther('30000'))
     await profitToken
       .connect(_tester)
-      .approve(profitMaker.address, ethers.utils.parseEther('20000'))
+      .approve(profitMaker.address, ethers.utils.parseEther('30000'))
     await expect(
       profitMaker.connect(_tester).safeMint(_tester.address, color)
     ).to.be.revertedWith('This color already used')
     await profitMaker.connect(_tester).safeMint(_tester.address, color2)
+    await profitMaker.connect(_tester).safeMint(_tester.address, 60)
     expect(await profitMaker.ownerOf(1)).to.equal(_tester.address)
+    expect((await profitMaker.ownerTokenIds(_tester.address))[0]).to.eq('1')
+    expect((await profitMaker.ownerTokenIds(_tester.address))[1]).to.eq('2')
+    await expect(
+      profitMaker.ownerTokenIds(_devFund.address)
+    ).to.be.revertedWith('Owner dont have tokens')
     expect(await profitMaker.props(0)).to.eql([color, 1])
     expect(await profitMaker.props(1)).to.eql([color2, 1])
     expect(await profitMaker.epoch()).to.eq(1)
