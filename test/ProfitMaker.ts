@@ -114,8 +114,8 @@ describe('ProfitMaker NFT', function () {
     await profitMaker.connect(_tester).safeMint(_tester.address, color2)
     await profitMaker.connect(_tester).safeMint(_tester.address, 60)
     expect(await profitMaker.ownerOf(1)).to.equal(_tester.address)
-    expect((await profitMaker.ownerTokenIds(_tester.address))[0]).to.eq('1')
-    expect((await profitMaker.ownerTokenIds(_tester.address))[1]).to.eq('2')
+    expect((await profitMaker.ownerTokenIds(_tester.address))[0]).to.eq('0')
+    expect((await profitMaker.ownerTokenIds(_tester.address))[1]).to.eq('1')
     await expect(
       profitMaker.ownerTokenIds(_devFund.address)
     ).to.be.revertedWith('Owner dont have tokens')

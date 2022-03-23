@@ -79,15 +79,8 @@ contract ProfitMakerTestnet is Initializable, ERC721Upgradeable, ERC721VotesUpgr
         uint balance = balanceOf(owner);
         require(balance > 0, "Owner dont have tokens");
         uint[] memory result = new uint[](balance);
-        if (balance > 0) {
-            uint length = totalSupply();
-            uint k;
-            for (uint i; i < length; i++) {
-                if (tokenOfOwnerByIndex(owner, i) != uint(0)) {
-                    result[k] = i;
-                    k++;
-                }
-            }
+        for (uint i; i < balance; i++) {
+            result[i] = tokenOfOwnerByIndex(owner, i);
         }
         return result;
     }
