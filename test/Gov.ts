@@ -685,4 +685,91 @@ describe('Gov', function () {
 
     expect(await gov.lateQuorumVoteExtension()).to.eq(newLateQuorumExtension)
   })
+
+  it('Change governance parameters', async function () {
+    // change quorum numerator
+    const newVotingPeriod = 2000,
+      newVotingDelay = 500
+
+    const proposalDesc =
+      '# Proposal #2: change governance parameters\n* New voting delay: 500 blocks\n* New voting period: 2000 blocks\n'
+    await token
+      .connect(_devFund)
+      .transfer(_tester.address, ethers.utils.parseEther('10000'))
+    await token.connect(_tester).delegate(_tester.address)
+
+    const calldata1 = gov.interface.encodeFunctionData('setVotingDelay', [
+      newVotingDelay,
+    ])
+    const calldata2 = gov.interface.encodeFunctionData('setVotingPeriod', [
+      newVotingPeriod,
+    ])
+
+    await gov
+      .connect(_tester)
+      .propose(
+        [gov.address, gov.address],
+        [0, 0],
+        [calldata1, calldata2],
+        proposalDesc
+      )
+
+    // console.log(calldata1)
+    // console.log(calldata2)
+
+    const proposalId = await gov.hashProposal(
+      [gov.address, gov.address],
+      [0, 0],
+      [calldata1, calldata2],
+      ethers.utils.id(proposalDesc)
+    )
+
+    // mine blocks
+    for (let i = 0; i <= votingDelay; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // proposal in Active state
+    expect(await gov.state(proposalId)).to.eq(1)
+
+    // cast vote
+    await gov.connect(_tester).castVote(proposalId, 1)
+
+    // mine blocks
+    for (let i = 0; i < votingPeriod; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // proposal in Succeed state
+    expect(await gov.state(proposalId)).to.eq(4)
+
+    // queue proposal to timelock
+    await gov.queue(
+      [gov.address, gov.address],
+      [0, 0],
+      [calldata1, calldata2],
+      ethers.utils.id(proposalDesc)
+    )
+
+    // mine blocks
+    for (let i = 0; i < timelockDelay; i++) {
+      await ethers.provider.send('evm_mine', [])
+    }
+
+    // execute proposal
+    await gov.execute(
+      [gov.address, gov.address],
+      [0, 0],
+      [calldata1, calldata2],
+      ethers.utils.id(proposalDesc)
+    )
+
+    // proposal in Executed state
+    expect(await gov.state(proposalId)).to.eq(7)
+
+    await ethers.provider.send('evm_mine', [])
+
+    expect(await gov.votingDelay()).to.eq(newVotingDelay)
+    expect(await gov.votingPeriod()).to.eq(newVotingPeriod)
+  })
 })
