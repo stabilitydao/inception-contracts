@@ -22,7 +22,7 @@ async function main() {
   const amount = "2000000000000000000"; // 2 tokens
 
   const polyTokenAddr = "0x108aBca337e88a9fc1DE96b0ec323f476b35cD44";
-  const hecoTokenAddr = "0x0916D28BB005981270F78516dF8d4F824D6CAba5";
+  const hecoTokenAddr = "0xd4E98976761f7f6B5A9b21581822192f58C9A420";
   const extraArgs = ["Stability", "PROFIT", 18, hecoTokenAddr, 60];
 
   const tx = await bridgePoly.methods.addToken(polyTokenAddr, extraArgs);

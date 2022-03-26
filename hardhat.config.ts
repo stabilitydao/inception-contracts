@@ -41,10 +41,12 @@ module.exports = {
       hardhat: 1,
       polygon: addressses[POLYGON].devFund,
       ropsten: addressses[ROPSTEN].devFund,
+      heco: addressses[ROPSTEN].devFund,
       rinkeby: addressses[RINKEBY].devFund,
       goerli: addressses[GOERLI].devFund,
       kovan: addressses[KOVAN].devFund,
       mumbai: addressses[ROPSTEN].devFund,
+      hecoTestnet: addressses[ROPSTEN].devFund,
     },
     tester: {
       default: 2,
@@ -62,7 +64,14 @@ module.exports = {
       url: `${process.env.URL_POLYGON}`,
       saveDeployments: true,
       accounts,
-      gasPrice: 100000000000, // 100 gwei
+      gasPrice: 900000000000, // 900 gwei
+    },
+    heco: {
+      chainId: 128,
+      url: `${process.env.URL_HECO_MAINNET}`,
+      saveDeployments: true,
+      accounts,
+      gasPrice: 10000000000,
     },
     ropsten: {
       url: `${process.env.URL_ROPSTEN}`,
@@ -90,7 +99,14 @@ module.exports = {
       url: `${process.env.URL_MUMBAI}`,
       saveDeployments: true,
       accounts,
-      // gasPrice: 110000000000,
+      gasPrice: 10000000000,
+    },
+    hecoTestnet: {
+      chainId: 256,
+      url: `${process.env.URL_HECO_TESTNET}`,
+      saveDeployments: true,
+      accounts,
+      gasPrice: 5000000000,
     },
     hardhat: {
       chainId: 1337, // https://hardhat.org/metamask-issue.html
