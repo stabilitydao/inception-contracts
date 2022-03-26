@@ -1,0 +1,66 @@
+require('dotenv').config();
+const Web3 = require('web3');
+const BridgePoly = require('../../../deployments/mumbai/Bridge.json');
+const BridgeHECO = require('../../../deployments/hecoTestnet/Bridge.json');
+
+// url to polygon node (websocket)
+const web3Poly = new Web3(`wss://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`);
+
+// url to polygon node (https)
+// const web3Poly = new Web3(`https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`);
+
+// url to heco node (websocket)
+// const web3Heco = new Web3("wss://ws-testnet.hecochain.com");
+
+// url to heco node (https)
+const web3Heco = new Web3("https://http-testnet.hecochain.com");
+
+const adminPrivKey = process.env.ADMIN_PRIV_KEY;
+const { address: admin } = web3Heco.eth.accounts.wallet.add(adminPrivKey);
+
+const bridgePoly = new web3Poly.eth.Contract(
+  BridgePoly.abi,
+  BridgePoly.address
+);
+
+const bridgeHECO = new web3Heco.eth.Contract(
+  BridgeHECO.abi,
+  BridgeHECO.address
+);
+
+bridgePoly.events.Locked({
+  filter: {lock: true}
+})
+.on('data', async function(event) {
+  const { token, sender, recipient, amount, date, nonce } = event.returnValues;
+  console.log("Destination token:", token);
+
+  try {
+    const tx = await bridgeHECO.methods.mint(token, sender, recipient, amount);
+    const [gasPrice, gasCost] = await Promise.all([
+      web3Heco.eth.getGasPrice(),
+      tx.estimateGas({from: admin}),
+    ]);
+    const data = tx.encodeABI();
+    const txData = {
+      from: admin,
+      to: bridgeHECO.options.address,
+      gas: gasCost,
+      gasPrice: gasPrice,
+      data: data
+    };
+    const receipt = await web3Heco.eth.sendTransaction(txData);
+    console.log(`Transaction hash: https://testnet.hecoinfo.com/tx/${receipt.transactionHash}`);
+    console.log(`
+      Processed transfer:
+      - token ${token}
+      - from ${sender} 
+      - to ${recipient} 
+      - amount ${web3Heco.utils.fromWei(amount, 'ether')} tokens
+      - date ${date}
+      - nonce ${nonce}
+    `);
+  } catch (error) {
+    console.error(error);
+  }
+});

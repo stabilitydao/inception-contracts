@@ -11,3 +11,9 @@ deployments/localhost
 yarn-error.log
 typechain-types
 contracts-exposed
+
+# scripts
+poly-burn.js
+poly-burn-listener.js
+heco-lock.js
+heco-lock-listener.js
