@@ -121,25 +121,31 @@ describe('RevenueRouter', function () {
     await v3Factory.deployed()
 
     router = (await upgrades.deployProxy(
-        await ethers.getContractFactory('RevenueRouter', _deployer),
-        [
-          profit.address,
-          wEth.address,
-          10000,
-          v3Factory.address,
-          v3Router.address,
-          splitter.address,
-          pPayer.address
-        ],
-        {
-          kind: 'uups',
-        }
+      await ethers.getContractFactory('RevenueRouter', _deployer),
+      [
+        profit.address,
+        wEth.address,
+        10000,
+        v3Factory.address,
+        v3Router.address,
+        splitter.address,
+        pPayer.address,
+      ],
+      {
+        kind: 'uups',
+      }
     )) as RevenueRouter
     await router.deployed()
 
-    await (await v3Factory.createPool(profit.address, wEth.address, 10000)).wait()
-    await (await v3Factory.createPool(dummyERC20.address, wEth.address, 3000)).wait()
-    await (await v3Factory.createPool(usdc.address, dummyERC20.address, 3000)).wait()
+    await (
+      await v3Factory.createPool(profit.address, wEth.address, 10000)
+    ).wait()
+    await (
+      await v3Factory.createPool(dummyERC20.address, wEth.address, 3000)
+    ).wait()
+    await (
+      await v3Factory.createPool(usdc.address, dummyERC20.address, 3000)
+    ).wait()
   })
 
   it('Run', async function () {
@@ -269,13 +275,13 @@ describe('RevenueRouter', function () {
       .withArgs(parseEther('18.0000000000000008'))
 
     await router.reInit(
-        profit.address,
-        wEth.address,
-        10000,
-        v3Factory.address,
-        v3Router.address,
-        splitter.address,
-        pPayer.address
+      profit.address,
+      wEth.address,
+      10000,
+      v3Factory.address,
+      v3Router.address,
+      splitter.address,
+      pPayer.address
     )
   })
 

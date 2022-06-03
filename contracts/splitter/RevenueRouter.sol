@@ -564,7 +564,7 @@ contract RevenueRouter is OwnableUpgradeable, UUPSUpgradeable {
         uint256 value
     ) internal {
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20Upgradeable.approve.selector, to, value));
-        require(success && (data.length == 0 || abi.decode(data, (bool))), 'SA');
+        require(success && (data.length == 0 || abi.decode(data, (bool))), "SA");
     }
 
     function reInit(

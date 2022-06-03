@@ -39,7 +39,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     ropsten: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
     // wrapped ether bridged from goerli
     // https://mumbai.polygonscan.com/token/0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa
-    mumbai: '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa'
+    mumbai: '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa',
   }
 
   let wethAddr
@@ -68,14 +68,18 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   let v3FactoryAddress, v3RouterAddress
   if (chainId == 1337) {
-    v3FactoryAddress = (await deploy('UniswapV3FactoryMock', {
-      from: deployer,
-      log: true,
-    })).address
-    v3RouterAddress = (await deploy('UniswapV3RouterMock', {
-      from: deployer,
-      log: true,
-    })).address
+    v3FactoryAddress = (
+      await deploy('UniswapV3FactoryMock', {
+        from: deployer,
+        log: true,
+      })
+    ).address
+    v3RouterAddress = (
+      await deploy('UniswapV3RouterMock', {
+        from: deployer,
+        log: true,
+      })
+    ).address
   } else if (v3Factories[hre.network.name]) {
     v3FactoryAddress = v3Factories[hre.network.name]
     v3RouterAddress = v3Routers[hre.network.name]
@@ -98,7 +102,9 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   // noinspection PointlessBooleanExpressionJS
   if (!upgradeProxy) {
     // return
-    const RevenueRouterFactory = await ethers.getContractFactory('RevenueRouter')
+    const RevenueRouterFactory = await ethers.getContractFactory(
+      'RevenueRouter'
+    )
 
     const RevenueRouter = await upgrades.deployProxy(
       RevenueRouterFactory,
@@ -109,7 +115,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
         v3FactoryAddress,
         v3RouterAddress,
         splitter.address,
-        pPayer.address
+        pPayer.address,
       ],
       {
         kind: 'uups',
