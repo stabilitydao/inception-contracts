@@ -2,14 +2,15 @@
 pragma solidity ^0.8.9;
 pragma abicoder v2;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "../interfaces/ISplitter.sol";
 import "../interfaces/IPayer.sol";
 import "../libraries/FixidityLib.sol";
 import "../interfaces/dexs.sol";
 
-contract RevenueRouter is Ownable {
+contract RevenueRouter is OwnableUpgradeable, UUPSUpgradeable {
     using FixidityLib for int256;
 
     address public PROFIT;
@@ -90,7 +91,12 @@ contract RevenueRouter is Ownable {
     event DirectRouteUpdated(uint256 routeIndex, address token, address to, bool active);
     event DirectRouteDeleted(uint256 routeIndex);
 
-    constructor (
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {
+        // solhint-disable-previous-line no-empty-blocks
+    }
+
+    function initialize(
         address PROFIT_,
         address BASE_,
         uint24 BASE_FEE_,
@@ -98,7 +104,7 @@ contract RevenueRouter is Ownable {
         ISplitter splitter_,
         IPayer profitPayer_,
         IUniswapV3Factory factory_
-    ) {
+    ) public initializer {
         PROFIT = PROFIT_;
         BASE = BASE_;
         BASE_FEE = BASE_FEE_;
@@ -106,6 +112,8 @@ contract RevenueRouter is Ownable {
         splitter = splitter_;
         profitPayer = profitPayer_;
         factory = factory_;
+        __Ownable_init();
+        __UUPSUpgradeable_init();
     }
 
     // important to receive ETH
@@ -231,9 +239,9 @@ contract RevenueRouter is Ownable {
                 continue;
             }
 
-            uint256 tokenBal = IERC20(directroute.token).balanceOf(address(this));
+            uint256 tokenBal = IERC20Upgradeable(directroute.token).balanceOf(address(this));
             if (tokenBal > 0) {
-                IERC20(directroute.token).transfer(directroute.to, tokenBal);
+                IERC20Upgradeable(directroute.token).transfer(directroute.to, tokenBal);
                 emit Send(directroute.token, directroute.to, tokenBal);
             }
         }
@@ -250,12 +258,12 @@ contract RevenueRouter is Ownable {
                 continue;
             }
 
-            uint256 tokenBal = IERC20(v2route.inputToken).balanceOf(address(this));
+            uint256 tokenBal = IERC20Upgradeable(v2route.inputToken).balanceOf(address(this));
             if (tokenBal > 0) {
                 address[] memory path = new address[](2);
                 path[0] = v2route.inputToken;
                 path[1] = v2route.outputToken;
-                if (IERC20(v2route.inputToken).allowance(address(this), v2route.v2Router) < tokenBal) {
+                if (IERC20Upgradeable(v2route.inputToken).allowance(address(this), v2route.v2Router) < tokenBal) {
                     safeApprove(v2route.inputToken, v2route.v2Router, type(uint256).max);
                 }
 
@@ -264,7 +272,7 @@ contract RevenueRouter is Ownable {
                 if (v2route.outputToken != BASE && v2route.swapToBase) {
                     path[0] = v2route.outputToken;
                     path[1] = BASE;
-                    if (IERC20(v2route.outputToken).allowance(address(this), v2route.v2Router) < amount) {
+                    if (IERC20Upgradeable(v2route.outputToken).allowance(address(this), v2route.v2Router) < amount) {
                         safeApprove(v2route.outputToken, v2route.v2Router, type(uint256).max);
                     }
 
@@ -283,7 +291,7 @@ contract RevenueRouter is Ownable {
                     sqrtPriceLimitX96: 0
                     });
                     // approve dexRouter to spend WETH
-                    if (IERC20(BASE).allowance(address(this), address(v3Router)) < amount) {
+                    if (IERC20Upgradeable(BASE).allowance(address(this), address(v3Router)) < amount) {
                         safeApprove(BASE, address(v3Router), type(uint256).max);
                     }
                     amountOut += v3Router.exactInputSingle(params2);
@@ -298,7 +306,7 @@ contract RevenueRouter is Ownable {
                 continue;
             }
 
-            uint256 tokenBal = IERC20(v3route.inputToken).balanceOf(address(this));
+            uint256 tokenBal = IERC20Upgradeable(v3route.inputToken).balanceOf(address(this));
 
             if (tokenBal > 0) {
                 // If TOKEN is Paired with BASE token (WETH now)
@@ -315,7 +323,7 @@ contract RevenueRouter is Ownable {
                     });
 
                     // approve dexRouter to spend tokens
-                    if (IERC20(v3route.inputToken).allowance(address(this), address(v3Router)) < tokenBal) {
+                    if (IERC20Upgradeable(v3route.inputToken).allowance(address(this), address(v3Router)) < tokenBal) {
                         safeApprove(v3route.inputToken, address(v3Router), type(uint256).max);
                     }
 
@@ -334,7 +342,7 @@ contract RevenueRouter is Ownable {
                     });
 
                     // approve dexRouter to spend TOKEN
-                    if (IERC20(v3route.inputToken).allowance(address(this), address(v3Router)) < tokenBal) {
+                    if (IERC20Upgradeable(v3route.inputToken).allowance(address(this), address(v3Router)) < tokenBal) {
                         safeApprove(v3route.inputToken, address(v3Router), type(uint256).max);
                     }
 
@@ -352,7 +360,7 @@ contract RevenueRouter is Ownable {
                     });
 
                     // approve dexRouter to spend outputToken
-                    if (IERC20(v3route.outputToken).allowance(address(this), address(v3Router)) < amount) {
+                    if (IERC20Upgradeable(v3route.outputToken).allowance(address(this), address(v3Router)) < amount) {
                         safeApprove(v3route.outputToken, address(v3Router), type(uint256).max);
                     }
 
@@ -370,7 +378,7 @@ contract RevenueRouter is Ownable {
                 sqrtPriceLimitX96: 0
                 });
                 // approve dexRouter to spend WETH
-                if (IERC20(BASE).allowance(address(this), address(v3Router)) < amount) {
+                if (IERC20Upgradeable(BASE).allowance(address(this), address(v3Router)) < amount) {
                     safeApprove(BASE, address(v3Router), type(uint256).max);
                 }
                 amountOut += v3Router.exactInputSingle(params3);
@@ -379,7 +387,7 @@ contract RevenueRouter is Ownable {
     }
 
     function withdrawERC20(address _token, address _to, uint256 _amount) public onlyOwner {
-        IERC20(_token).transfer(_to, _amount);
+        IERC20Upgradeable(_token).transfer(_to, _amount);
     }
 
     function withdrawETH(address _to, uint256 ethAmount) public onlyOwner returns (bool success) {
@@ -435,7 +443,7 @@ contract RevenueRouter is Ownable {
                 continue;
             }
 
-            uint256 tokenBal = IERC20(v2route.inputToken).balanceOf(address(this));
+            uint256 tokenBal = IERC20Upgradeable(v2route.inputToken).balanceOf(address(this));
             if (tokenBal > 0) {
                 address[] memory path = new address[](2);
                 path[0] = v2route.inputToken;
@@ -476,7 +484,7 @@ contract RevenueRouter is Ownable {
                 continue;
             }
 
-            uint256 tokenBal = IERC20(v3route.inputToken).balanceOf(address(this));
+            uint256 tokenBal = IERC20Upgradeable(v3route.inputToken).balanceOf(address(this));
 
             if (tokenBal > 0) {
                 // If TOKEN is Paired with BASE token (WETH now)
@@ -555,7 +563,29 @@ contract RevenueRouter is Ownable {
         address to,
         uint256 value
     ) internal {
-        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20.approve.selector, to, value));
+        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20Upgradeable.approve.selector, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))), 'SA');
+    }
+
+    function reInit(
+        address PROFIT_,
+        address BASE_,
+        uint24 BASE_FEE_,
+        IUniswapV3Router v3Router_,
+        ISplitter splitter_,
+        IPayer profitPayer_,
+        IUniswapV3Factory factory_
+    ) external onlyOwner {
+        PROFIT = PROFIT_;
+        BASE = BASE_;
+        BASE_FEE = BASE_FEE_;
+        v3Router = v3Router_;
+        splitter = splitter_;
+        profitPayer = profitPayer_;
+        factory = factory_;
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal onlyOwner override {
+        // solhint-disable-previous-line no-empty-blocks
     }
 }

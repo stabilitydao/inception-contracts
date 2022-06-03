@@ -8,7 +8,6 @@ import {
   ProfitPayer,
   ProfitToken,
   RevenueRouter,
-  RevenueRouter__factory,
   Splitter,
   StabilityDAO,
   UniswapV2RouterMock,
@@ -121,17 +120,21 @@ describe('RevenueRouter', function () {
     )).deploy()
     await v3Factory.deployed()
 
-    router = await (<RevenueRouter__factory>(
-      await ethers.getContractFactory('RevenueRouter')
-    )).deploy(
-      profit.address,
-      wEth.address,
-      10000,
-      v3Router.address,
-      splitter.address,
-      pPayer.address,
-      v3Factory.address
-    )
+    router = (await upgrades.deployProxy(
+        await ethers.getContractFactory('RevenueRouter', _deployer),
+        [
+          profit.address,
+          wEth.address,
+          10000,
+          v3Router.address,
+          splitter.address,
+          pPayer.address,
+          v3Factory.address
+        ],
+        {
+          kind: 'uups',
+        }
+    )) as RevenueRouter
     await router.deployed()
 
     await (await v3Factory.createPool(profit.address, wEth.address, 10000)).wait()
@@ -264,6 +267,16 @@ describe('RevenueRouter', function () {
     await expect(router.run())
       .to.emit(router, 'ProfitGeneration')
       .withArgs(parseEther('18.0000000000000008'))
+
+    await router.reInit(
+        profit.address,
+        wEth.address,
+        10000,
+        v3Router.address,
+        splitter.address,
+        pPayer.address,
+        v3Factory.address
+    )
   })
 
   it('Withdraws ETH From RevenueRouter', async function () {
