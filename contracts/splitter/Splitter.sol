@@ -5,8 +5,9 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "../interfaces/IPayer.sol";
+import "../interfaces/ISplitter.sol";
 
-contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
+contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable, ISplitter {
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant CHANGER_ROLE = keccak256("CHANGER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
