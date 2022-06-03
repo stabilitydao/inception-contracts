@@ -19,7 +19,7 @@ contract RevenueRouter is OwnableUpgradeable, UUPSUpgradeable {
     ISplitter public splitter;
     IPayer public profitPayer;
     IUniswapV3Router public v3Router;
-    IUniswapV3Factory private factory;
+    IUniswapV3Factory private v3Factory;
 
     /**
      * @dev Route to swap revenue token to PROFIT on Uniswap V3 DEX
@@ -100,18 +100,18 @@ contract RevenueRouter is OwnableUpgradeable, UUPSUpgradeable {
         address PROFIT_,
         address BASE_,
         uint24 BASE_FEE_,
+        IUniswapV3Factory factory_,
         IUniswapV3Router v3Router_,
         ISplitter splitter_,
-        IPayer profitPayer_,
-        IUniswapV3Factory factory_
+        IPayer profitPayer_
     ) public initializer {
         PROFIT = PROFIT_;
         BASE = BASE_;
         BASE_FEE = BASE_FEE_;
+        v3Factory = factory_;
         v3Router = v3Router_;
         splitter = splitter_;
         profitPayer = profitPayer_;
-        factory = factory_;
         __Ownable_init();
         __UUPSUpgradeable_init();
     }
@@ -399,7 +399,7 @@ contract RevenueRouter is OwnableUpgradeable, UUPSUpgradeable {
         require(tokenIn != tokenOut, "tokenIn == tokenOut");
         uint tokenOutPrice;
         (address token0, address token1) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);
-        IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(token0, token1, poolFee));
+        IUniswapV3Pool pool = IUniswapV3Pool(v3Factory.getPool(token0, token1, poolFee));
         (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
         if (tokenOut == token1) {
             // tokenOutPrice = uint256((sqrtPriceX96 / 2**96) * (sqrtPriceX96 / 2**96));
@@ -571,18 +571,18 @@ contract RevenueRouter is OwnableUpgradeable, UUPSUpgradeable {
         address PROFIT_,
         address BASE_,
         uint24 BASE_FEE_,
+        IUniswapV3Factory factory_,
         IUniswapV3Router v3Router_,
         ISplitter splitter_,
-        IPayer profitPayer_,
-        IUniswapV3Factory factory_
+        IPayer profitPayer_
     ) external onlyOwner {
         PROFIT = PROFIT_;
         BASE = BASE_;
         BASE_FEE = BASE_FEE_;
+        v3Factory = factory_;
         v3Router = v3Router_;
         splitter = splitter_;
         profitPayer = profitPayer_;
-        factory = factory_;
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyOwner override {

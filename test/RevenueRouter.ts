@@ -126,10 +126,10 @@ describe('RevenueRouter', function () {
           profit.address,
           wEth.address,
           10000,
+          v3Factory.address,
           v3Router.address,
           splitter.address,
-          pPayer.address,
-          v3Factory.address
+          pPayer.address
         ],
         {
           kind: 'uups',
@@ -272,10 +272,10 @@ describe('RevenueRouter', function () {
         profit.address,
         wEth.address,
         10000,
+        v3Factory.address,
         v3Router.address,
         splitter.address,
-        pPayer.address,
-        v3Factory.address
+        pPayer.address
     )
   })
 
