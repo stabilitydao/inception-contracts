@@ -3,6 +3,9 @@ const { ethers, upgrades } = require('hardhat')
 module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   // type proxy address for upgrade contract
   // deployer must have UPGRADER_ROLE
+  // polygon 0x9844a1c30462B55cd383A2C06f90BB4171f9D4bB
+  // mumbai 0x21160EA4ebc4E644777514774965a506a98D01c6
+  // ropsten 0x424E1eAe04a2580EcD4d5f19Ad5285cC2b05a05C
   const upgradeProxy = null // '0x424E1eAe04a2580EcD4d5f19Ad5285cC2b05a05C' (ropsten)
 
   const { save, get } = deployments

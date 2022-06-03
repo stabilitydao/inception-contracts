@@ -5,6 +5,7 @@ import 'solidity-coverage'
 import 'hardhat-gas-reporter'
 import '@openzeppelin/hardhat-upgrades'
 import '@typechain/hardhat'
+import '@nomiclabs/hardhat-web3'
 require('dotenv').config()
 const addressses = require('@stabilitydao/addresses/index.cjs')
 const { POLYGON, ROPSTEN, RINKEBY, GOERLI, KOVAN, MUMBAI } = addressses
@@ -61,7 +62,7 @@ module.exports = {
       url: `${process.env.URL_POLYGON}`,
       saveDeployments: true,
       accounts,
-      gasPrice: 100000000000,
+      gasPrice: 100000000000, // 100 gwei
     },
     ropsten: {
       url: `${process.env.URL_ROPSTEN}`,
@@ -89,7 +90,7 @@ module.exports = {
       url: `${process.env.URL_MUMBAI}`,
       saveDeployments: true,
       accounts,
-      gasPrice: 110000000000,
+      // gasPrice: 110000000000,
     },
     hardhat: {
       chainId: 1337, // https://hardhat.org/metamask-issue.html

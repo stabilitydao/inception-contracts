@@ -112,4 +112,27 @@ describe('EtherPayer', function () {
     expect(await ePayer.totalPaid()).to.eq(3 + 2)
     expect(await ePayer.totalReceived()).to.eq(3 + 2)
   })
+
+  it('Can be drained', async function () {
+    await wEth.connect(_devFund).approve(ePayer.address, 100)
+    await ePayer.receivePayment(_devFund.address, 5)
+
+    await expect(
+      ePayer
+        .connect(_devFund)
+        .drainMinterShare(_tester.address, _devFund.address)
+    ).to.be.revertedWith('Ownable: caller is not the owner')
+
+    expect(await ePayer.connect(_tester).paymentPending(_tester.address)).to.eq(
+      5
+    )
+
+    await ePayer
+      .connect(_deployer)
+      .drainMinterShare(_tester.address, _devFund.address)
+
+    expect(await ePayer.connect(_tester).paymentPending(_tester.address)).to.eq(
+      0
+    )
+  })
 })

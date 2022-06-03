@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../token/DividendToken.sol";
+import "../interfaces/IPayer.sol";
 
 /**
  * @title DividendPayer
@@ -24,7 +25,7 @@ import "../token/DividendToken.sol";
  *
  * Inspired by OpenZeppelin PaymentSplitter and SharjeelSafdar ERC20PaymentSplitter
  */
-abstract contract DividendPayer is Initializable, UUPSUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable {
+abstract contract DividendPayer is Initializable, UUPSUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, IPayer {
     struct Received {
         uint256 snapshotId;
         uint256 amount;
@@ -229,6 +230,23 @@ abstract contract DividendPayer is Initializable, UUPSUpgradeable, ReentrancyGua
         to: payee
         }));
         _paymentToken.transfer(payee, payment);
+    }
+
+    function drainMinterShare(address pool, address devFund) external onlyOwner {
+        address payee = pool;
+        uint256 payment = paymentPending(payee);
+
+        emit PaymentReleased(payee, payment);
+
+        _totalPaid += payment;
+        _totalPaidTo[payee] += payment;
+        uint256 nextSnapshotId = _sharesToken.snapshot();
+        _payments[payee].push(Payment({
+        snapshotId: nextSnapshotId,
+        amount: payment,
+        to: payee
+        }));
+        _paymentToken.transfer(devFund, payment);
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyOwner override {

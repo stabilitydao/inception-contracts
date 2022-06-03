@@ -14,6 +14,8 @@ contract DividendToken is Initializable, IERC20Mintable, ERC20BurnableUpgradeabl
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant SNAPSHOT_ROLE = keccak256("SNAPSHOT_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
+    uint256 public totalBurnedByBurner;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
@@ -40,6 +42,11 @@ contract DividendToken is Initializable, IERC20Mintable, ERC20BurnableUpgradeabl
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
         _mint(to, amount);
+    }
+
+    function burnByBurner(address to, uint256 amount) public onlyRole(BURNER_ROLE) {
+        _burn(to, amount);
+        totalBurnedByBurner += amount;
     }
 
     // The following functions are overrides required by Solidity.

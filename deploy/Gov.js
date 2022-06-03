@@ -13,7 +13,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const UPGRADER_ROLE = ethers.utils.id('UPGRADER_ROLE')
   const PROPOSER_ROLE = ethers.utils.id('PROPOSER_ROLE')
   const EXECUTOR_ROLE = ethers.utils.id('EXECUTOR_ROLE')
-  const INSPECTOR_ROLE = ethers.utils.id('INSPECTOR_ROLE')
+  const MODERATOR_ROLE = ethers.utils.id('MODERATOR_ROLE')
 
   console.log('')
 
@@ -35,7 +35,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   }
 
   const token = await deployments.get('ProfitToken')
-  const timelock = await deployments.get('GovTimelock')
+  const timelock = await deployments.get('StabilityDAO')
 
   console.log('ChainId:', chainId)
   console.log('Deployer address:', deployer)
@@ -50,18 +50,21 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     let votingPeriod = 6645 // about 1 day
     let proposalThreshold = ethers.utils.parseEther('100') // 100.0 tokens
     let quorum = 1 // 1%
+    let lateQuorumBlocks = 100
 
     if (hre.network.name == 'mainnet') {
       votingDelay = 13140 // 2 days
       votingPeriod = 40320 // 6 days
       proposalThreshold = ethers.utils.parseEther('1000') // 1000.0 tokens / 0.1%
     } else if (hre.network.name == 'polygon') {
-      votingDelay = 82000 // 2 days (blocktime: 2.1 sec)
-      votingPeriod = 246000 // 6 days
+      votingDelay = 40000 // 1 day (blocktime: 2.2 sec)
+      votingPeriod = 118000 // 3 days
+      lateQuorumBlocks = 1600 // 1 hour
       proposalThreshold = ethers.utils.parseEther('10000') // 10000.0 tokens / 1%
     } else if (hre.network.name == 'mumbai') {
-      votingDelay = 6800 // about 4 hours (blocktime: 2.1 sec)
-      votingPeriod = 41100 // about 1 day
+      votingDelay = 6800 // about 13 hours (blocktime: 7 sec)
+      votingPeriod = 41100 // about 3 days
+      lateQuorumBlocks = 285 // 40 mins
     }
 
     const Gov = await ethers.getContractFactory('Gov')
@@ -75,6 +78,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
         votingPeriod,
         proposalThreshold,
         quorum,
+        lateQuorumBlocks,
       ],
       {
         kind: 'uups',
@@ -98,7 +102,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     )
 
     const timelockContract = await ethers.getContractAt(
-      'GovTimelock',
+      'StabilityDAO',
       timelock.address
     )
 
@@ -152,9 +156,9 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
       console.log(`REVERTED!`)
     }
 
-    tx = await gov.grantRole(INSPECTOR_ROLE, devFund)
+    tx = await gov.grantRole(MODERATOR_ROLE, devFund)
     process.stdout.write(
-      `Grant governance INSPECTOR role to development fund (tx: ${tx.hash})...: `
+      `Grant governance MODERATOR role to development fund (tx: ${tx.hash})...: `
     )
 
     receipt = await tx.wait()
