@@ -40,6 +40,11 @@
       "address": "0xAA3e3709C79a133e56C17a7ded87802adF23083B",
       "txHash": "0x94a379282896fc29adef7fd85e1daf7dd4cb4e147ab853c30065ab2b28bdd192",
       "kind": "uups"
+    },
+    {
+      "address": "0x005d71553aD3f8f919E5121aA45Bf24594DCE0d6",
+      "txHash": "0x3626047f7142bfcab8d8fb9af0ba9d4269492b926e7960216761f8010f3220d4",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -2327,6 +2332,224 @@
           },
           "t_bool": {
             "label": "bool"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          }
+        }
+      }
+    },
+    "b7ba31b562dd2c0539395785703f4e9df0a6e360367f2d9aef21884b6293c22d": {
+      "address": "0x3Fd5E2f42AE39e830136fAaCbF57Ce08089a8AD9",
+      "txHash": "0x8a4250f0c99875d5119ec062ea066b73b46f26f33d8e138c2286f1f7800632ef",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "PROFIT",
+            "type": "t_address",
+            "src": "contracts/splitter/RevenueRouter.sol:16"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "BASE",
+            "type": "t_address",
+            "src": "contracts/splitter/RevenueRouter.sol:17"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "BASE_FEE",
+            "type": "t_uint24",
+            "src": "contracts/splitter/RevenueRouter.sol:18"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "splitter",
+            "type": "t_contract(ISplitter)12111",
+            "src": "contracts/splitter/RevenueRouter.sol:19"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "profitPayer",
+            "type": "t_contract(IPayer)12066",
+            "src": "contracts/splitter/RevenueRouter.sol:20"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "v3Router",
+            "type": "t_contract(IUniswapV3Router)12167",
+            "src": "contracts/splitter/RevenueRouter.sol:21"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "v3Factory",
+            "type": "t_contract(IUniswapV3Factory)12180",
+            "src": "contracts/splitter/RevenueRouter.sol:22"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "v3Routes",
+            "type": "t_array(t_struct(V3Route)15170_storage)dyn_storage",
+            "src": "contracts/splitter/RevenueRouter.sol:78"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "v2Routes",
+            "type": "t_array(t_struct(V2Route)15181_storage)dyn_storage",
+            "src": "contracts/splitter/RevenueRouter.sol:79"
+          },
+          {
+            "contract": "RevenueRouter",
+            "label": "directRoutes",
+            "type": "t_array(t_struct(DirectRoute)15188_storage)dyn_storage",
+            "src": "contracts/splitter/RevenueRouter.sol:80"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint24": {
+            "label": "uint24"
+          },
+          "t_contract(ISplitter)12111": {
+            "label": "contract ISplitter"
+          },
+          "t_contract(IPayer)12066": {
+            "label": "contract IPayer"
+          },
+          "t_contract(IUniswapV3Router)12167": {
+            "label": "contract IUniswapV3Router"
+          },
+          "t_contract(IUniswapV3Factory)12180": {
+            "label": "contract IUniswapV3Factory"
+          },
+          "t_array(t_struct(V3Route)15170_storage)dyn_storage": {
+            "label": "struct RevenueRouter.V3Route[]"
+          },
+          "t_struct(V3Route)15170_storage": {
+            "label": "struct RevenueRouter.V3Route",
+            "members": [
+              {
+                "label": "inputToken",
+                "type": "t_address"
+              },
+              {
+                "label": "outputToken",
+                "type": "t_address"
+              },
+              {
+                "label": "poolFee",
+                "type": "t_uint24"
+              },
+              {
+                "label": "outputBasePoolFee",
+                "type": "t_uint24"
+              },
+              {
+                "label": "active",
+                "type": "t_bool"
+              }
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_struct(V2Route)15181_storage)dyn_storage": {
+            "label": "struct RevenueRouter.V2Route[]"
+          },
+          "t_struct(V2Route)15181_storage": {
+            "label": "struct RevenueRouter.V2Route",
+            "members": [
+              {
+                "label": "inputToken",
+                "type": "t_address"
+              },
+              {
+                "label": "outputToken",
+                "type": "t_address"
+              },
+              {
+                "label": "v2Router",
+                "type": "t_address"
+              },
+              {
+                "label": "swapToBase",
+                "type": "t_bool"
+              },
+              {
+                "label": "active",
+                "type": "t_bool"
+              }
+            ]
+          },
+          "t_array(t_struct(DirectRoute)15188_storage)dyn_storage": {
+            "label": "struct RevenueRouter.DirectRoute[]"
+          },
+          "t_struct(DirectRoute)15188_storage": {
+            "label": "struct RevenueRouter.DirectRoute",
+            "members": [
+              {
+                "label": "token",
+                "type": "t_address"
+              },
+              {
+                "label": "to",
+                "type": "t_address"
+              },
+              {
+                "label": "active",
+                "type": "t_bool"
+              }
+            ]
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_uint256": {
+            "label": "uint256"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"

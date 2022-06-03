@@ -32,14 +32,14 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   const wethAddrs = {
     // https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
-    mainnet: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    // mainnet: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     // https://polygonscan.com/token/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619
     polygon: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
     // https://ropsten.etherscan.io/token/0xc778417e063141139fce010982780140aa0cd5ab
-    ropsten: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+    // ropsten: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
     // wrapped ether bridged from goerli
     // https://mumbai.polygonscan.com/token/0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa
-    mumbai: '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa',
+    // mumbai: '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa',
   }
 
   let wethAddr
