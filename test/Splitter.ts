@@ -109,6 +109,8 @@ describe('Splitter', function () {
     )) as Splitter
 
     await splitter.deployed()
+
+    await splitter.setup(timelock.address, _devFund.address)
   })
 
   it('Split', async function () {

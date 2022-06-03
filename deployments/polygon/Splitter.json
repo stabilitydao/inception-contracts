@@ -142,7 +142,7 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
           "name": "token",
           "type": "address"
@@ -392,6 +392,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "proxiableUUID",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "bytes32",
@@ -441,6 +454,24 @@
         }
       ],
       "name": "run",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "_treasure",
+          "type": "address"
+        },
+        {
+          "internalType": "address payable",
+          "name": "_devFund",
+          "type": "address"
+        }
+      ],
+      "name": "setup",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -508,5 +539,6 @@
       "stateMutability": "payable",
       "type": "function"
     }
-  ]
+  ],
+  "numDeployments": 2
 }

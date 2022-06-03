@@ -57,6 +57,11 @@ contract Splitter is Initializable, AccessControlUpgradeable, UUPSUpgradeable, I
         emit Changed(_div, _gov, _dev);
     }
 
+    function setup(address payable _treasure, address payable _devFund) external onlyRole(UPGRADER_ROLE) {
+        treasure = _treasure;
+        devFund = _devFund;
+    }
+
     function check(
         uint8 _div,
         uint8 _gov,
