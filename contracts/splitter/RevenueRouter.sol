@@ -4,14 +4,10 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
-import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
-import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "../interfaces/ISplitter.sol";
 import "../interfaces/IPayer.sol";
-import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
-import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import "../libraries/FixidityLib.sol";
+import "../interfaces/dexs.sol";
 
 contract RevenueRouter is Ownable {
     using FixidityLib for int256;
@@ -21,7 +17,7 @@ contract RevenueRouter is Ownable {
     uint24 public BASE_FEE;
     ISplitter public splitter;
     IPayer public profitPayer;
-    IV3SwapRouter public v3Router;
+    IUniswapV3Router public v3Router;
     IUniswapV3Factory private factory;
 
     /**
@@ -98,7 +94,7 @@ contract RevenueRouter is Ownable {
         address PROFIT_,
         address BASE_,
         uint24 BASE_FEE_,
-        IV3SwapRouter v3Router_,
+        IUniswapV3Router v3Router_,
         ISplitter splitter_,
         IPayer profitPayer_,
         IUniswapV3Factory factory_
@@ -260,24 +256,24 @@ contract RevenueRouter is Ownable {
                 path[0] = v2route.inputToken;
                 path[1] = v2route.outputToken;
                 if (IERC20(v2route.inputToken).allowance(address(this), v2route.v2Router) < tokenBal) {
-                    TransferHelper.safeApprove(v2route.inputToken, v2route.v2Router, type(uint256).max);
+                    safeApprove(v2route.inputToken, v2route.v2Router, type(uint256).max);
                 }
 
-                amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(tokenBal, 0, path, address(this), block.timestamp)[1];
+                amount = IUniswapV2Router(v2route.v2Router).swapExactTokensForTokens(tokenBal, 0, path, address(this), block.timestamp)[1];
 
                 if (v2route.outputToken != BASE && v2route.swapToBase) {
                     path[0] = v2route.outputToken;
                     path[1] = BASE;
                     if (IERC20(v2route.outputToken).allowance(address(this), v2route.v2Router) < amount) {
-                        TransferHelper.safeApprove(v2route.outputToken, v2route.v2Router, type(uint256).max);
+                        safeApprove(v2route.outputToken, v2route.v2Router, type(uint256).max);
                     }
 
-                    amount = IUniswapV2Router01(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this), block.timestamp)[1];
+                    amount = IUniswapV2Router(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this), block.timestamp)[1];
                 }
 
                 if (v2route.outputToken == BASE || v2route.outputToken != BASE) {
                     // Swap WETH to PROFIT on v3
-                    IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
+                    IUniswapV3Router.ExactInputSingleParams memory params2 = IUniswapV3Router.ExactInputSingleParams({
                     tokenIn: BASE,
                     tokenOut: PROFIT,
                     fee: BASE_FEE,
@@ -288,7 +284,7 @@ contract RevenueRouter is Ownable {
                     });
                     // approve dexRouter to spend WETH
                     if (IERC20(BASE).allowance(address(this), address(v3Router)) < amount) {
-                        TransferHelper.safeApprove(BASE, address(v3Router), type(uint256).max);
+                        safeApprove(BASE, address(v3Router), type(uint256).max);
                     }
                     amountOut += v3Router.exactInputSingle(params2);
                 }
@@ -308,7 +304,7 @@ contract RevenueRouter is Ownable {
                 // If TOKEN is Paired with BASE token (WETH now)
                 if (v3route.outputToken == BASE) {
                     // Swap TOKEN to BASE
-                    IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter.ExactInputSingleParams({
+                    IUniswapV3Router.ExactInputSingleParams memory params = IUniswapV3Router.ExactInputSingleParams({
                     tokenIn: v3route.inputToken,
                     tokenOut: BASE,
                     fee: BASE_FEE,
@@ -320,14 +316,14 @@ contract RevenueRouter is Ownable {
 
                     // approve dexRouter to spend tokens
                     if (IERC20(v3route.inputToken).allowance(address(this), address(v3Router)) < tokenBal) {
-                        TransferHelper.safeApprove(v3route.inputToken, address(v3Router), type(uint256).max);
+                        safeApprove(v3route.inputToken, address(v3Router), type(uint256).max);
                     }
 
                     amount = v3Router.exactInputSingle(params);
                 } else {
                     // TOKEN is Paired with v3route.outputToken
                     // Swap TOKEN to v3route.outputToken
-                    IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter.ExactInputSingleParams({
+                    IUniswapV3Router.ExactInputSingleParams memory params = IUniswapV3Router.ExactInputSingleParams({
                     tokenIn: v3route.inputToken,
                     tokenOut: v3route.outputToken,
                     fee: v3route.poolFee,
@@ -339,13 +335,13 @@ contract RevenueRouter is Ownable {
 
                     // approve dexRouter to spend TOKEN
                     if (IERC20(v3route.inputToken).allowance(address(this), address(v3Router)) < tokenBal) {
-                        TransferHelper.safeApprove(v3route.inputToken, address(v3Router), type(uint256).max);
+                        safeApprove(v3route.inputToken, address(v3Router), type(uint256).max);
                     }
 
                     amount = v3Router.exactInputSingle(params);
 
                     // Swap v3route.outputToken to BASE
-                    IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter.ExactInputSingleParams({
+                    IUniswapV3Router.ExactInputSingleParams memory params2 = IUniswapV3Router.ExactInputSingleParams({
                     tokenIn: v3route.outputToken,
                     tokenOut: BASE,
                     fee: v3route.outputBasePoolFee,
@@ -357,14 +353,14 @@ contract RevenueRouter is Ownable {
 
                     // approve dexRouter to spend outputToken
                     if (IERC20(v3route.outputToken).allowance(address(this), address(v3Router)) < amount) {
-                        TransferHelper.safeApprove(v3route.outputToken, address(v3Router), type(uint256).max);
+                        safeApprove(v3route.outputToken, address(v3Router), type(uint256).max);
                     }
 
                     amount = v3Router.exactInputSingle(params2);
                 }
 
                 // Swap BASE to PROFIT
-                IV3SwapRouter.ExactInputSingleParams memory params3 = IV3SwapRouter.ExactInputSingleParams({
+                IUniswapV3Router.ExactInputSingleParams memory params3 = IUniswapV3Router.ExactInputSingleParams({
                 tokenIn: BASE,
                 tokenOut: PROFIT,
                 fee: BASE_FEE,
@@ -375,7 +371,7 @@ contract RevenueRouter is Ownable {
                 });
                 // approve dexRouter to spend WETH
                 if (IERC20(BASE).allowance(address(this), address(v3Router)) < amount) {
-                    TransferHelper.safeApprove(BASE, address(v3Router), type(uint256).max);
+                    safeApprove(BASE, address(v3Router), type(uint256).max);
                 }
                 amountOut += v3Router.exactInputSingle(params3);
             }
@@ -393,9 +389,9 @@ contract RevenueRouter is Ownable {
 
     function getOutputAmount(uint amountIn, address tokenIn, address tokenOut, uint24 poolFee) public view returns (uint amountOut) {
         require(tokenIn != tokenOut, "tokenIn == tokenOut");
-        IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(tokenIn, tokenOut, poolFee));
         uint tokenOutPrice;
         (address token0, address token1) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);
+        IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(token0, token1, poolFee));
         (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
         if (tokenOut == token1) {
             // tokenOutPrice = uint256((sqrtPriceX96 / 2**96) * (sqrtPriceX96 / 2**96));
@@ -445,13 +441,13 @@ contract RevenueRouter is Ownable {
                 path[0] = v2route.inputToken;
                 path[1] = v2route.outputToken;
 
-                amount = IUniswapV2Router01(v2route.v2Router).getAmountsOut(tokenBal, path)[1];
+                amount = IUniswapV2Router(v2route.v2Router).getAmountsOut(tokenBal, path)[1];
 
                 if (v2route.outputToken != BASE && v2route.swapToBase) {
                     path[0] = v2route.outputToken;
                     path[1] = BASE;
 
-                    amount = IUniswapV2Router01(v2route.v2Router).getAmountsOut(amount, path)[1];
+                    amount = IUniswapV2Router(v2route.v2Router).getAmountsOut(amount, path)[1];
                 }
 
                 if (v2route.outputToken == BASE || v2route.outputToken != BASE) {
@@ -488,7 +484,7 @@ contract RevenueRouter is Ownable {
                     // Estimate amountOut for swap of TOKEN to BASE on v3
                     tokenIn = v3route.inputToken;
                     tokenOut = BASE;
-                    fee = BASE_FEE;
+                    fee = v3route.poolFee;
                     amountIn = tokenBal;
                     (, address token2) = tokenIn < tokenOut ? (tokenIn, tokenOut) : (tokenOut, tokenIn);
                     
@@ -547,5 +543,19 @@ contract RevenueRouter is Ownable {
                 }
             }
         }
+    }
+
+    /// @notice Approves the stipulated contract to spend the given allowance in the given token
+    /// @dev Errors with 'SA' if transfer fails
+    /// @param token The contract address of the token to be approved
+    /// @param to The target of the approval
+    /// @param value The amount of the given token the target will be allowed to spend
+    function safeApprove(
+        address token,
+        address to,
+        uint256 value
+    ) internal {
+        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20.approve.selector, to, value));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), 'SA');
     }
 }

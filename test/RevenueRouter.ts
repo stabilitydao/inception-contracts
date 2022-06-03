@@ -133,6 +133,10 @@ describe('RevenueRouter', function () {
       v3Factory.address
     )
     await router.deployed()
+
+    await (await v3Factory.createPool(profit.address, wEth.address, 10000)).wait()
+    await (await v3Factory.createPool(dummyERC20.address, wEth.address, 3000)).wait()
+    await (await v3Factory.createPool(usdc.address, dummyERC20.address, 3000)).wait()
   })
 
   it('Run', async function () {
@@ -145,11 +149,13 @@ describe('RevenueRouter', function () {
     await dummyERC20.transfer(router.address, parseEther('1'))
     await usdc.transfer(router.address, 100000000)
 
-    await router.addV3Route(dummyERC20.address, wEth.address, 3000, 0)
+    await router.addV3Route(dummyERC20.address, wEth.address, 3000, 10000)
     await router.addDirectRoute(usdc.address, _devFund.address)
 
     // because V3 is mock, need to send PROFIT to splitter by hands
     await profit.connect(_devFund).transfer(splitter.address, parseEther('4'))
+
+    expect(await router.estimateProfit()).to.gt(1000000000)
 
     await expect(router.run())
       .to.emit(router, 'ProfitGeneration')
@@ -222,6 +228,7 @@ describe('RevenueRouter', function () {
       false,
       false
     )
+
     await expect(router.run())
       .to.emit(router, 'ProfitGeneration')
       .withArgs(800000000) // 100 * 2 * 2 * 2
