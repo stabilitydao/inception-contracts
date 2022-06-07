@@ -84,12 +84,13 @@ contract MetaRouter is Initializable, AccessControlUpgradeable, UUPSUpgradeable 
             boughtAmount -= feeAmount;
         }
 
-
         if (buysNative) {
             if (isFee) {
-                feeTo.transfer(feeAmount);
+                (bool sent,) = feeTo.call{value: feeAmount}("");
+                require(sent, "Failed to send Ether to feeTo");
             }
-            payable (msg.sender).transfer(boughtAmount);
+            (bool sent,) = msg.sender.call{value: address (this).balance}("");
+            require(sent, "Failed to send Ether to user");
         } else {
             if (isFee) {
                 buyToken.transfer(feeTo, feeAmount);
