@@ -279,7 +279,7 @@ contract RevenueRouter is OwnableUpgradeable, UUPSUpgradeable {
                     amount = IUniswapV2Router(v2route.v2Router).swapExactTokensForTokens(amount, 0, path, address(this), block.timestamp)[1];
                 }
 
-                if (v2route.outputToken == BASE || v2route.outputToken != BASE) {
+                if (v2route.outputToken == BASE || v2route.swapToBase) {
                     // Swap WETH to PROFIT on v3
                     IUniswapV3Router.ExactInputSingleParams memory params2 = IUniswapV3Router.ExactInputSingleParams({
                     tokenIn: BASE,

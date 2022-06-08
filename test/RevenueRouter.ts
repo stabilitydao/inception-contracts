@@ -222,10 +222,9 @@ describe('RevenueRouter', function () {
     await profit.connect(_devFund).transfer(splitter.address, parseEther('8'))
     await usdc.transfer(router.address, 100000000) // 100.0 usdc
 
-    // why?
     await expect(router.run())
       .to.emit(router, 'ProfitGeneration')
-      .withArgs(parseEther('12.0000000008')) // 100 * 2 * 2 * 2
+      .withArgs('800000000') // 100 * 2 * 2 * 2
 
     // because V2 is mock, need to send PROFIT to splitter by hands
     await profit.connect(_devFund).transfer(splitter.address, parseEther('36'))

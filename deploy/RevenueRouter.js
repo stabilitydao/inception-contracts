@@ -139,6 +139,30 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     )
 
     // hardhat verify --network r.. 0x
+  } else {
+    // try to upgrade
+    const RevenueRouterFactory = await ethers.getContractFactory(
+      'RevenueRouter'
+    )
+    const revenueRouter = await upgrades.upgradeProxy(
+      upgradeProxy,
+      RevenueRouterFactory
+    )
+    const artifact = await hre.artifacts.readArtifact('RevenueRouter')
+
+    await save('RevenueRouter', {
+      address: revenueRouter.address,
+      abi: artifact.abi,
+    })
+
+    let receipt = await revenueRouter.deployTransaction.wait()
+    console.log(
+      `RevenueRouter upgraded through proxy: ${revenueRouter.address} (block: ${
+        receipt.blockNumber
+      }) with ${receipt.gasUsed.toNumber()} gas`
+    )
+
+    // hardhat verify --network r.. 0x
   }
 }
 
